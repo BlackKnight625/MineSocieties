@@ -1,0 +1,5 @@
+rootProject.name = 'MineSocieties'
+include 'Agents'
+include 'MineSocietiesPlugin'
+include 'ChatGPT'
+
