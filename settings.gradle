@@ -1,5 +1,16 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        maven {
+            url = uri("https://papermc.io/repo/repository/maven-public/")
+        }
+    }
+}
+
 rootProject.name = 'MineSocieties'
 include 'Agents'
 include 'MineSocietiesPlugin'
 include 'ChatGPT'
+include ':EntityUtils'
+project(':EntityUtils').projectDir = new File('../EntityUtils')
 
