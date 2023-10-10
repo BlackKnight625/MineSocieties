@@ -28,12 +28,17 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'io.papermc.paper:paper-api:1.20.2-R0.1-SNAPSHOT'
+    compileOnly 'io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT'
 
     extraLibs project(':Agents')
     implementation project(':Agents')
     extraLibs project(':ChatGPT')
     implementation project(':ChatGPT')
+    implementation project(path: ':EntityUtils', configuration: 'reobf')
+
+    // Revxrsal
+    extraLibs implementation("com.github.Revxrsal.Lamp:common:3.1.0")
+    extraLibs implementation("com.github.Revxrsal.Lamp:bukkit:3.1.0")
 }
 
 
@@ -66,4 +71,6 @@ jar {
     from {
         configurations.extraLibs.collect { it.isDirectory() ? it : zipTree(it) }
     }
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }

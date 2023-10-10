@@ -14,8 +14,22 @@ public abstract class TemporalAction<T extends ICharacter> implements IAction<T>
 
     // Other methods
 
+    /**
+     *  Called before this action ticks for the 1st time (elapsedTicks = 0)
+     * @param actioner
+     *  The character involved in the action
+     */
     public abstract void start(T actioner);
 
+    /**
+     *  Called every game tick until this action fails or succeeds
+     * @param actioner
+     *  The character involved in the action
+     * @param elapsedTicks
+     *  The amount of ticks that have elapsed since this action started
+     * @return
+     *  The status of the action
+     */
     public abstract ActionStatus tick(T actioner, int elapsedTicks);
 
     @Override

@@ -1,7 +1,7 @@
 package ulisboa.tecnico.agents.actions;
 
 public enum ActionStatus {
-    FINISHED,
+    SUCCESS,
     IN_PROGRESS,
-    INTERRUPTED
+    FAILURE
 }
