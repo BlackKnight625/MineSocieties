@@ -50,10 +50,12 @@ public abstract class AbstractAgentManager<A extends IAgent, P extends IPlayerAg
         new EventListener(this).register();
     }
 
-    public void deployAgent(String name, Location location) {
+    public A deployAgent(String name, Location location) {
         A agent = getNewAgentInstance(name, location);
 
         characterMapLock.write(() -> characterMap.put(agent.getUUID(), agent));
+
+        return agent;
     }
 
     public void deleteAgent(UUID uuid) {
@@ -142,8 +144,6 @@ public abstract class AbstractAgentManager<A extends IAgent, P extends IPlayerAg
         characterMapLock.readUnlock();
 
         for (ICharacter character : characters) {
-            System.out.println("Sending raining event to " + character.getName());
-
             if (character.isValid()) {
                 apply.accept((C) character);
             }
