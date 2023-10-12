@@ -30,6 +30,8 @@ public abstract class AbstractAgentManager<A extends IAgent, P extends IPlayerAg
 
     private final Map<UUID, ICharacter> characterMap = new HashMap<>();
     private final ReadWriteLock characterMapLock = new ReadWriteLock();
+    private final Map<String, ICharacter> characterByNameMap = new HashMap<>();
+    private final ReadWriteLock characterByNameMapLock = new ReadWriteLock();
     private final JavaPlugin plugin;
 
     // Constructors
@@ -54,6 +56,7 @@ public abstract class AbstractAgentManager<A extends IAgent, P extends IPlayerAg
         A agent = getNewAgentInstance(name, location);
 
         characterMapLock.write(() -> characterMap.put(agent.getUUID(), agent));
+        characterByNameMapLock.write(() -> characterByNameMap.put(agent.getName(), agent));
 
         return agent;
     }
@@ -67,6 +70,7 @@ public abstract class AbstractAgentManager<A extends IAgent, P extends IPlayerAg
                 agent.getAgent().setAlive(false);
 
                 characterMapLock.write(() -> characterMap.remove(uuid));
+                characterByNameMapLock.write(() -> characterByNameMap.remove(character.getName()));
             } else {
                 throw new RuntimeException("Provided UUID (" + uuid + ") does not correspond to an Agent. It " +
                         "corresponds to a Player named " + character.getName());
@@ -82,7 +86,17 @@ public abstract class AbstractAgentManager<A extends IAgent, P extends IPlayerAg
         if (characterMap.containsKey(uuid)) {
             // Player wrapper already exists. Refreshing the player instance inside it
             try {
-                ((P) characterMap.get(uuid)).setPlayer(player);
+                P playerWrapper = ((P) characterMap.get(uuid));
+
+                if (!playerWrapper.getName().equals(player.getName())) {
+                    // Player changed their name
+                    characterByNameMapLock.write(() -> {
+                        characterByNameMap.remove(playerWrapper.getName());
+                        characterByNameMap.put(player.getName(), playerWrapper);
+                    });
+                }
+
+                playerWrapper.setPlayer(player);
             } catch (ClassCastException e) {
                 throw new RuntimeException("UUID of player (" + uuid + ") is already being used to represent an Agent.");
             } finally {
@@ -95,6 +109,7 @@ public abstract class AbstractAgentManager<A extends IAgent, P extends IPlayerAg
             ICharacter playerWrapper = getNewPlayerWrapper(player);
 
             characterMapLock.write(() -> characterMap.put(uuid, playerWrapper));
+            characterByNameMapLock.write(() -> characterByNameMap.put(player.getName(), playerWrapper));
         }
     }
 
@@ -126,6 +141,18 @@ public abstract class AbstractAgentManager<A extends IAgent, P extends IPlayerAg
         characterMapLock.readLock();
         ICharacter character = characterMap.get(uuid);
         characterMapLock.readUnlock();
+
+        if (character == null) {
+            return null;
+        } else {
+            return (C) character;
+        }
+    }
+
+    public @Nullable C getCharacter(String name) {
+        characterByNameMapLock.readLock();
+        ICharacter character = characterByNameMap.get(name);
+        characterByNameMapLock.readUnlock();
 
         if (character == null) {
             return null;

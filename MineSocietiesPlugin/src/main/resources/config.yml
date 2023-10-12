@@ -1,0 +1,6 @@
+# Token for accessing OpenAI's models. You may generate an API token/key here: https://platform.openai.com/account/api-keys
+# At the moment of writing this, you must have a paid subscription in order for your API keys to work
+apiKey: ""
+
+# The ChatGPT model that this plugin should use
+chatGPTModel: "gpt-3.5-turbo"
