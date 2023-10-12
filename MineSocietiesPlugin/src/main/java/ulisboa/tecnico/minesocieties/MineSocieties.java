@@ -29,7 +29,7 @@ public final class MineSocieties extends JavaPlugin {
         reactiveAgentManager.initialize();
 
         new CommandManager(this);
-        new ChatGPTManager();
+        new ChatGPTManager(getLogger());
 
         getLogger().info("MineSocieties is enabled!");
     }
