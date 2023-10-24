@@ -35,10 +35,17 @@ dependencies {
     extraLibs project(':ChatGPT')
     implementation project(':ChatGPT')
     implementation project(path: ':EntityUtils', configuration: 'reobf')
+    implementation 'com.google.code.gson:gson:2.10.1'
 
     // Revxrsal
     extraLibs implementation("com.github.Revxrsal.Lamp:common:3.1.0")
     extraLibs implementation("com.github.Revxrsal.Lamp:bukkit:3.1.0")
+
+    // Testing
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+
+    testImplementation 'io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT'
 }
 
 
@@ -73,4 +80,8 @@ jar {
     }
 
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+test {
+    useJUnitPlatform()
 }

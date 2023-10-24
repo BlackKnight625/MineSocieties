@@ -1,6 +1,7 @@
 package ulisboa.tecnico.minesocieties;
 
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.entityutils.entity.event.EventManager;
 import ulisboa.tecnico.agents.ExampleReactiveAgentManager;
 import ulisboa.tecnico.llms.ChatGPTManager;
@@ -17,6 +18,7 @@ public final class MineSocieties extends JavaPlugin {
     private ExampleReactiveAgentManager reactiveAgentManager;
     private SocialAgentManager socialAgentManager;
     private LLMManager llmManager;
+    private long elapsedTicks;
 
     // Other methods
 
@@ -58,6 +60,13 @@ public final class MineSocieties extends JavaPlugin {
             llmManager.initialize();
         }
 
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                elapsedTicks++;
+            }
+        }.runTaskTimer(this, 0, 1);
+
         getLogger().info("MineSocieties is enabled!");
     }
 
@@ -76,6 +85,10 @@ public final class MineSocieties extends JavaPlugin {
 
     public LLMManager getLLMManager() {
         return llmManager;
+    }
+
+    public long getElapsedTicks() {
+        return elapsedTicks;
     }
 
     public static MineSocieties getPlugin() {
