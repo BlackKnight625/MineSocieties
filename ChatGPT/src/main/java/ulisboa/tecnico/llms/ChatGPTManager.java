@@ -24,8 +24,8 @@ public class ChatGPTManager extends LLMManager {
     private final String apiKey;
     private final String url = "https://api.openai.com/v1/chat/completions";
     private final String model;
-    private HttpURLConnection connection;
     private final Logger logger;
+    private OutputStreamWriter writer;
 
     // Constructors
 
@@ -54,13 +54,22 @@ public class ChatGPTManager extends LLMManager {
 
     @Override
     public void initialize() {
+        // Establishing a random connection just to check if it can connect to OpenAI
+        establishConnection().disconnect();
+    }
+
+    private HttpURLConnection establishConnection() {
         try {
             URL obj = new URL(url);
+            HttpURLConnection connection;
             connection = (HttpURLConnection) obj.openConnection();
 
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Authorization", "Bearer " + apiKey);
             connection.setRequestProperty("Content-Type", "application/json");
+            connection.setDoOutput(true);
+
+            return connection;
         } catch (IOException e) {
             throw new RuntimeException("An error occurred while trying to establish a connection with OpenAI's ChatGPT. The set-up has " +
                     "failed and as such, this ChatGPTManager is disabled.", e);
@@ -77,9 +86,10 @@ public class ChatGPTManager extends LLMManager {
     @Override
     public String promptSync(String prompt) {
         try {
+            HttpURLConnection connection = establishConnection();
+
             // The request body
             String body = "{\"model\": \"" + model + "\", \"messages\": [{\"role\": \"user\", \"content\": \"" + prompt + "\"}]}";
-            connection.setDoOutput(true);
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
             writer.write(body);
             writer.flush();
@@ -147,8 +157,6 @@ public class ChatGPTManager extends LLMManager {
 
     @Override
     public void teardown() {
-        if (connection != null) {
-            connection.disconnect();
-        }
+
     }
 }
