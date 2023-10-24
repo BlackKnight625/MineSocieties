@@ -1,4 +1,4 @@
-package ulisboa.tecnico.chatgpt;
+package ulisboa.tecnico.llms;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -9,8 +9,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
@@ -19,7 +17,7 @@ import java.util.logging.Logger;
  *
  *  Credits to https://rollbar.com/blog/how-to-use-chatgpt-api-with-java/
  */
-public class ChatGPTManager {
+public class ChatGPTManager extends LLMManager {
 
     // Private attributes
 
@@ -27,7 +25,6 @@ public class ChatGPTManager {
     private final String url = "https://api.openai.com/v1/chat/completions";
     private final String model;
     private HttpURLConnection connection;
-    private final ExecutorService threadPool = Executors.newCachedThreadPool();
     private final Logger logger;
 
     // Constructors
@@ -55,6 +52,7 @@ public class ChatGPTManager {
 
     // Other methods
 
+    @Override
     public void initialize() {
         try {
             URL obj = new URL(url);
@@ -76,6 +74,7 @@ public class ChatGPTManager {
      * @return
      *  The model's response
      */
+    @Override
     public String promptSync(String prompt) {
         try {
             // The request body
@@ -114,8 +113,9 @@ public class ChatGPTManager {
      * @param responseReceiver
      *  The coonsumer that will get notified with the eventual response.
      */
+    @Override
     public void promptAsync(String prompt, Consumer<String> responseReceiver) {
-        threadPool.execute(() -> {
+        getThreadPool().execute(() -> {
             try {
                 responseReceiver.accept(promptSync(prompt));
             } catch (RuntimeException e) {
@@ -145,6 +145,7 @@ public class ChatGPTManager {
         return choice.getJSONObject("message").getString("content");
     }
 
+    @Override
     public void teardown() {
         if (connection != null) {
             connection.disconnect();

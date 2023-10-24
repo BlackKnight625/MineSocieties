@@ -1,9 +1,8 @@
-package ulisboa.tecnico.chatgpt.prompts;
+package ulisboa.tecnico.llms.prompts;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import ulisboa.tecnico.chatgpt.ChatGPTManager;
+import ulisboa.tecnico.llms.ChatGPTManager;
 
 import java.io.IOException;
 import java.net.URISyntaxException;

@@ -1,4 +1,4 @@
-package ulisboa.tecnico.chatgpt.prompts;
+package ulisboa.tecnico.llms.prompts;
 
 import org.junit.jupiter.api.Test;
 

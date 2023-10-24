@@ -3,7 +3,8 @@ package ulisboa.tecnico.minesocieties;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.entityutils.entity.event.EventManager;
 import ulisboa.tecnico.agents.ExampleReactiveAgentManager;
-import ulisboa.tecnico.chatgpt.ChatGPTManager;
+import ulisboa.tecnico.llms.ChatGPTManager;
+import ulisboa.tecnico.llms.LLMManager;
 import ulisboa.tecnico.minesocieties.agents.SocialAgentManager;
 import ulisboa.tecnico.minesocieties.commands.CommandManager;
 
@@ -15,6 +16,7 @@ public final class MineSocieties extends JavaPlugin {
 
     private ExampleReactiveAgentManager reactiveAgentManager;
     private SocialAgentManager socialAgentManager;
+    private LLMManager llmManager;
 
     // Other methods
 
@@ -22,7 +24,8 @@ public final class MineSocieties extends JavaPlugin {
     public void onEnable() {
         saveDefaultConfig();
 
-        String apiKey = getConfig().getString("apiKey");
+        String modelOwner = getConfig().getString("llmModel");
+        String apiKey = getConfig().getString("openAI_API_key");
         String model = getConfig().getString("chatGPTModel");
 
         PLUGIN = this;
@@ -42,7 +45,18 @@ public final class MineSocieties extends JavaPlugin {
         socialAgentManager.initialize();
 
         new CommandManager(this);
-        new ChatGPTManager(apiKey, model, getLogger());
+
+        // Deciding which LLM Manager should be used
+        if (modelOwner.equalsIgnoreCase("OpenAI")) {
+            llmManager = new ChatGPTManager(apiKey, model, getLogger());
+        }
+
+        if (llmManager == null) {
+            throw new RuntimeException("The Large Language Model in the config was not correctly specified. Model Owner '" +
+                modelOwner + "' is unknown.");
+        } else {
+            llmManager.initialize();
+        }
 
         getLogger().info("MineSocieties is enabled!");
     }
@@ -58,6 +72,10 @@ public final class MineSocieties extends JavaPlugin {
 
     public SocialAgentManager getSocialAgentManager() {
         return socialAgentManager;
+    }
+
+    public LLMManager getLLMManager() {
+        return llmManager;
     }
 
     public static MineSocieties getPlugin() {
