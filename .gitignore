@@ -27,4 +27,4 @@ replay_pid*
 .gradle/
 .idea/
 build/
-ChatGPT/src/test/resources/ChatGPT_API_Key
+ChatGPT/src/test/resources/ChatGPT_API_Key.txt
