@@ -10,6 +10,7 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.function.Consumer;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -25,6 +26,7 @@ public class ChatGPTManager extends LLMManager {
     private final String url = "https://api.openai.com/v1/chat/completions";
     private final String model;
     private final Logger logger;
+    private final Logger debugLogger;
     private OutputStreamWriter writer;
 
     // Constructors
@@ -44,10 +46,11 @@ public class ChatGPTManager extends LLMManager {
      * @param logger
      *  A logger for showing error messages
      */
-    public ChatGPTManager(String apiKey, String model, Logger logger) {
+    public ChatGPTManager(String apiKey, String model, Logger logger, Logger debugLogger) {
         this.apiKey = apiKey;
         this.model = model;
         this.logger = logger;
+        this.debugLogger = debugLogger;
     }
 
     // Other methods
@@ -85,11 +88,29 @@ public class ChatGPTManager extends LLMManager {
      */
     @Override
     public String promptSync(String prompt) {
+        String body = null;
+
         try {
             HttpURLConnection connection = establishConnection();
+            JSONObject jsonBody = new JSONObject();
+
+            jsonBody.put("model", model);
+
+            JSONArray messages = new JSONArray();
+            JSONObject message = new JSONObject();
+
+            message.put("role", "user");
+            message.put("content", prompt);
+
+            messages.put(message);
+
+            jsonBody.put("messages", messages);
 
             // The request body
-            String body = "{\"model\": \"" + model + "\", \"messages\": [{\"role\": \"user\", \"content\": \"" + prompt + "\"}]}";
+            // body = "{\"model\": \"" + model + "\", \"messages\": [{\"role\": \"user\", \"content\": \"" + prompt + "\"}]}";
+
+            body = jsonBody.toString();
+
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
             writer.write(body);
             writer.flush();
@@ -99,7 +120,7 @@ public class ChatGPTManager extends LLMManager {
             BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String line;
 
-            StringBuffer response = new StringBuffer();
+            StringBuilder response = new StringBuilder();
 
             while ((line = br.readLine()) != null) {
                 response.append(line);
@@ -107,10 +128,15 @@ public class ChatGPTManager extends LLMManager {
 
             br.close();
 
+            String responseString = response.toString();
+
+            debugLogger.log(Level.INFO, "Sent prompt to ChatGPT:\n----------\n" + body + "\n----------\n\n" +
+                    "Received response:\n----------\n" + responseString + "\n----------");
+
             // calls the method to extract the message.
-            return extractMessageFromJSONResponse(response.toString());
+            return extractMessageFromJSONResponse(responseString);
         } catch (IOException | RuntimeException e) {
-            throw new RuntimeException("An error occurred while trying to send a prompt OpenAI's ChatGPT.", e);
+            throw new RuntimeException("An error occurred while trying to send a prompt OpenAI's ChatGPT. Body: " + body, e);
         }
     }
 

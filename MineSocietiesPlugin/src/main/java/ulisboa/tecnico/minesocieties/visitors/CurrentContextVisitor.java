@@ -32,6 +32,8 @@ public class CurrentContextVisitor implements IContextVisitor {
         builder.append(memory.getOpinions().accept(this));
         builder.append(' ');
         builder.append(memory.getNotionOfEvents().accept(this));
+        builder.append(' ');
+        builder.append(memory.getShortTermMemory().accept(this));
 
         return builder.toString();
     }
@@ -166,7 +168,7 @@ public class CurrentContextVisitor implements IContextVisitor {
         var reflectionsCollection = reflections.getMemorySections();
 
         if (!reflectionsCollection.isEmpty()) {
-            for (Reflection reflection : reflections.getMemorySections()) {
+            for (Reflection reflection : reflectionsCollection) {
                 builder.append(reflection.getReflection());
                 builder.append(". ");
             }
@@ -198,5 +200,24 @@ public class CurrentContextVisitor implements IContextVisitor {
         }
 
         return builder.toString();
+    }
+
+    @Override
+    public String explainShortTermMemory(AgentShortTermMemory shortTermMemory) {
+        StringBuilder builder = new StringBuilder();
+        var shortTermMemorySectionCollection = shortTermMemory.getMemorySections();
+
+        if (!shortTermMemorySectionCollection.isEmpty()) {
+            for (ShortTermMemorySection shortTermMemorySection : shortTermMemorySectionCollection) {
+                builder.append(shortTermMemorySection.getMemorySection());
+                builder.append(". ");
+            }
+
+            builder.deleteCharAt(builder.length() - 1);
+
+            return builder.toString();
+        } else {
+            return "";
+        }
     }
 }

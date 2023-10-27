@@ -9,7 +9,7 @@ import ulisboa.tecnico.llms.LLMManager;
 import ulisboa.tecnico.minesocieties.agents.SocialAgentManager;
 import ulisboa.tecnico.minesocieties.commands.CommandManager;
 
-public final class MineSocieties extends JavaPlugin {
+public class MineSocieties extends JavaPlugin {
 
     // Private attributes
 
@@ -50,7 +50,7 @@ public final class MineSocieties extends JavaPlugin {
 
         // Deciding which LLM Manager should be used
         if (modelOwner.equalsIgnoreCase("OpenAI")) {
-            llmManager = new ChatGPTManager(apiKey, model, getLogger());
+            llmManager = new ChatGPTManager(apiKey, model, getLogger(), getLogger() /*TODO Replace with Logger that has its own file*/);
         }
 
         if (llmManager == null) {
@@ -79,12 +79,24 @@ public final class MineSocieties extends JavaPlugin {
         return reactiveAgentManager;
     }
 
+    public void setReactiveAgentManager(ExampleReactiveAgentManager reactiveAgentManager) {
+        this.reactiveAgentManager = reactiveAgentManager;
+    }
+
     public SocialAgentManager getSocialAgentManager() {
         return socialAgentManager;
     }
 
+    public void setSocialAgentManager(SocialAgentManager socialAgentManager) {
+        this.socialAgentManager = socialAgentManager;
+    }
+
     public LLMManager getLLMManager() {
         return llmManager;
+    }
+
+    public void setLLMManager(LLMManager llmManager) {
+        this.llmManager = llmManager;
     }
 
     public long getElapsedTicks() {
@@ -93,5 +105,9 @@ public final class MineSocieties extends JavaPlugin {
 
     public static MineSocieties getPlugin() {
         return PLUGIN;
+    }
+
+    public static void setPlugin(MineSocieties PLUGIN) {
+        MineSocieties.PLUGIN = PLUGIN;
     }
 }

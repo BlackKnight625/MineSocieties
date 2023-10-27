@@ -10,6 +10,8 @@ public class MalformedActionArgumentsException extends Exception {
     // Constructors
 
     public MalformedActionArgumentsException(String arguments, String whatWentWrong) {
+        super(whatWentWrong + ". Arguments: " + arguments);
+
         this.arguments = arguments;
         this.whatWentWrong = whatWentWrong;
     }

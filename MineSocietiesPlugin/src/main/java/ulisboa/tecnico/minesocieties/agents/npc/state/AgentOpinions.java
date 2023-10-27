@@ -2,6 +2,8 @@ package ulisboa.tecnico.minesocieties.agents.npc.state;
 
 import org.jetbrains.annotations.Nullable;
 import ulisboa.tecnico.agents.utils.ReadWriteLock;
+import ulisboa.tecnico.minesocieties.MineSocieties;
+import ulisboa.tecnico.minesocieties.agents.SocialCharacter;
 import ulisboa.tecnico.minesocieties.visitors.IContextVisitor;
 
 import java.util.*;
@@ -15,21 +17,27 @@ public class AgentOpinions implements IExplainableContext {
 
     // Private attributes
 
-    private Map<UUID, Opinion> opinions = new HashMap<>();
+    private Map<String, Opinion> opinions = new HashMap<>();
     private transient ReadWriteLock opinionsLock = new ReadWriteLock();
 
     // Other methods
 
-    public void formOpinion(Opinion opinion) {
-        opinionsLock.write(() -> opinions.put(opinion.getOthersUuid(), opinion));
+    public void formOpinion(String othersName, Opinion opinion) {
+        opinionsLock.write(() -> opinions.put(othersName, opinion));
     }
 
-    public @Nullable Opinion getOpinion(UUID from) {
+    public @Nullable Opinion getOpinion(String from) {
         opinionsLock.readLock();
         Opinion opinion = opinions.get(from);
         opinionsLock.readUnlock();
 
         return opinion;
+    }
+
+    public @Nullable Opinion getOpinion(UUID from) {
+        SocialCharacter fromCharacter = MineSocieties.getPlugin().getSocialAgentManager().getCharacter(from);
+
+        return getOpinion(fromCharacter.getName());
     }
 
     public Collection<Opinion> getAllOpinions() {

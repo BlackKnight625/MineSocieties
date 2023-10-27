@@ -28,3 +28,4 @@ replay_pid*
 .idea/
 build/
 ChatGPT/src/test/resources/ChatGPT_API_Key.txt
+MineSocietiesPlugin/src/test/resources/ChatGPT_API_Key.txt

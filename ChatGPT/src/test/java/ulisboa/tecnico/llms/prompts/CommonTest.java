@@ -31,7 +31,7 @@ public class CommonTest {
 
         System.out.println("API key: " + apiKey);
 
-        manager = new ChatGPTManager(apiKey, "gpt-3.5-turbo", Logger.getGlobal());
+        manager = new ChatGPTManager(apiKey, "gpt-3.5-turbo", Logger.getGlobal(), Logger.getGlobal());
 
         manager.initialize();
     }

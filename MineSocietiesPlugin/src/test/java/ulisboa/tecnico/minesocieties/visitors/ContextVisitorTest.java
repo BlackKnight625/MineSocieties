@@ -65,7 +65,7 @@ public class ContextVisitorTest {
 
         // Creating some opinions
         AgentOpinions alexOpinions = alexMemory.getOpinions();
-        alexOpinions.formOpinion(new Opinion(steve, "They think Steve Johnson is a very nice and kind person"));
+        alexOpinions.formOpinion(steve.getName(), new Opinion("They think Steve Johnson is a very nice and kind person"));
 
         // Creating notionf os events
         AgentNotionOfEvents alexNotionOfEvents = alexMemory.getNotionOfEvents();
@@ -81,6 +81,23 @@ public class ContextVisitorTest {
         // Creating personalities
         AgentPersonalities alexPersonalities = alexState.getPersonalities();
         alexPersonalities.addState(Personality.ADVENTUROUS, Personality.LIBERAL);
+
+        // Testing the visitor
+        CurrentContextVisitor visitor = new CurrentContextVisitor();
+
+        System.out.println(visitor.explainState(alexState));
+    }
+
+    @Test
+    public void visitEmptyState() {
+        AgentReference alex = new AgentReference(UUID.randomUUID(), "Alex Jones");
+
+        AgentState alexState = new AgentState(
+                new AgentPersona(alex.getName(), 23, Instant.ofEpochSecond(
+                        LocalDateTime.of(2000, Month.DECEMBER, 5, 12, 0).toEpochSecond(ZoneOffset.UTC)
+                )),
+                new AgentLocation(new Vector(0, 0, 0), "Earth", "Alex's home")
+        );
 
         // Testing the visitor
         CurrentContextVisitor visitor = new CurrentContextVisitor();

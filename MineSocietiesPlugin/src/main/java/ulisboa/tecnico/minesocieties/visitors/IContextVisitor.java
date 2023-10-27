@@ -23,4 +23,6 @@ public interface IContextVisitor {
     String explainPersonalities(AgentPersonalities personalities);
 
     String explainReflections(AgentReflections reflections);
+
+    String explainShortTermMemory(AgentShortTermMemory shortTermMemory);
 }
