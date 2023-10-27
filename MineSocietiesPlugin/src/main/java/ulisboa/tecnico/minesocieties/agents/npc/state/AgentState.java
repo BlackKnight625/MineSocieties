@@ -7,16 +7,16 @@ public class AgentState implements IExplainableContext {
     // Private attributes
 
     private AgentMemory memory;
-    private AgentMoods moods;
-    private AgentPersonalities personalities;
+    private AgentMoods moods = new AgentMoods();
+    private AgentPersonalities personalities = new AgentPersonalities();
     private AgentPersona persona;
 
     // Constructors
 
     public AgentState() {}
 
-    public AgentState(AgentMemory memory, AgentPersona persona) {
-        this.memory = memory;
+    public AgentState(AgentPersona persona, AgentLocation home) {
+        this.memory = new AgentMemory(home);
         this.persona = persona;
     }
 

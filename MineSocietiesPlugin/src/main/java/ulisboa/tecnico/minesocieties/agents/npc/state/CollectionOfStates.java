@@ -2,6 +2,7 @@ package ulisboa.tecnico.minesocieties.agents.npc.state;
 
 import ulisboa.tecnico.agents.utils.ReadWriteLock;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -15,12 +16,12 @@ public class CollectionOfStates<T extends ISimpleExplanation> {
 
     // Other methods
 
-    public void addState(T state) {
-        statesLock.write(() -> states.add(state.getExplanation()));
+    public void addState(T... state) {
+        statesLock.write(() -> states.addAll(Arrays.stream(state).map(ISimpleExplanation::getExplanation).toList()));
     }
 
-    public void addState(String customState) {
-        statesLock.write(() -> states.add(customState));
+    public void addState(String... customState) {
+        statesLock.write(() -> states.addAll(Arrays.stream(customState).toList()));
     }
 
     public void removeState(T state) {

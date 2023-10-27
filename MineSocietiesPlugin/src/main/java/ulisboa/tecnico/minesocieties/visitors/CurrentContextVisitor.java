@@ -3,6 +3,7 @@ package ulisboa.tecnico.minesocieties.visitors;
 import ulisboa.tecnico.minesocieties.agents.npc.state.*;
 
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
@@ -38,7 +39,7 @@ public class CurrentContextVisitor implements IContextVisitor {
     @Override
     public String explainPersona(AgentPersona persona) {
         return persona.getName() + " is " + persona.getAge() + " years old. They were born in " +
-                DateTimeFormatter.ISO_LOCAL_DATE.format(persona.getBirthday()) + ".";
+                DateTimeFormatter.ISO_LOCAL_DATE.format(persona.getBirthday().atOffset(ZoneOffset.UTC)) + ".";
     }
 
     @Override
