@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,6 +29,8 @@ public class ChatGPTManager extends LLMManager {
     private final Logger logger;
     private final Logger debugLogger;
     private OutputStreamWriter writer;
+    private long promptTokens = 0;
+    private long responseTokens = 0;
 
     // Constructors
 
@@ -51,6 +54,16 @@ public class ChatGPTManager extends LLMManager {
         this.model = model;
         this.logger = logger;
         this.debugLogger = debugLogger;
+    }
+
+    // Getters and setters
+
+    public long getPromptTokens() {
+        return promptTokens;
+    }
+
+    public long getResponseTokens() {
+        return responseTokens;
     }
 
     // Other methods
@@ -79,15 +92,13 @@ public class ChatGPTManager extends LLMManager {
         }
     }
 
-    /**
-     *  Sends a prompt to OpenAI's ChatGPT 3.5 Turbo model. Waits for the model's response and returns it
-     * @param prompt
-     *  The prompt to send to the model
-     * @return
-     *  The model's response
-     */
     @Override
     public String promptSync(String prompt) {
+        return promptSync(List.of(new LLMMessage(LLMRole.USER, prompt)));
+    }
+
+    @Override
+    public String promptSync(List<LLMMessage> messageList) {
         String body = null;
 
         try {
@@ -97,17 +108,17 @@ public class ChatGPTManager extends LLMManager {
             jsonBody.put("model", model);
 
             JSONArray messages = new JSONArray();
-            JSONObject message = new JSONObject();
 
-            message.put("role", "user");
-            message.put("content", prompt);
+            for (LLMMessage llmMessage : messageList) {
+                JSONObject message = new JSONObject();
 
-            messages.put(message);
+                message.put("role", llmMessage.role().getChatGPTRoleName());
+                message.put("content", llmMessage.message());
+
+                messages.put(message);
+            }
 
             jsonBody.put("messages", messages);
-
-            // The request body
-            // body = "{\"model\": \"" + model + "\", \"messages\": [{\"role\": \"user\", \"content\": \"" + prompt + "\"}]}";
 
             body = jsonBody.toString();
 
@@ -130,7 +141,7 @@ public class ChatGPTManager extends LLMManager {
 
             String responseString = response.toString();
 
-            debugLogger.log(Level.INFO, "Sent prompt to ChatGPT:\n----------\n" + body + "\n----------\n\n" +
+            debugLogger.info("Sent prompt to ChatGPT:\n----------\n" + body + "\n----------\n\n" +
                     "Received response:\n----------\n" + responseString + "\n----------");
 
             // calls the method to extract the message.
@@ -140,20 +151,16 @@ public class ChatGPTManager extends LLMManager {
         }
     }
 
-    /**
-     *  Sends a prompt to OpenAI's ChatGPT 3.5 Turbo model. Immediately returns, and when the model's response
-     * eventually arrives, the given consumer gets notified with the response. If an error occurs, the given consumer
-     * never gets notified, the manager's logger receives an error message and a stack strace is printed.
-     * @param prompt
-     *  The prompt to send to the model
-     * @param responseReceiver
-     *  The coonsumer that will get notified with the eventual response.
-     */
     @Override
     public void promptAsync(String prompt, Consumer<String> responseReceiver) {
+        promptAsync(List.of(new LLMMessage(LLMRole.USER, prompt)), responseReceiver);
+    }
+
+    @Override
+    public void promptAsync(List<LLMMessage> messageList, Consumer<String> responseReceiver) {
         getThreadPool().execute(() -> {
             try {
-                responseReceiver.accept(promptSync(prompt));
+                responseReceiver.accept(promptSync(messageList));
             } catch (RuntimeException e) {
                 logger.severe("Error occurred while asynchronously prompting OpenAI's ChatGPT: " + e.getMessage());
 
@@ -162,12 +169,17 @@ public class ChatGPTManager extends LLMManager {
         });
     }
 
-    public String extractMessageFromJSONResponse(String response) {
+    private String extractMessageFromJSONResponse(String response) {
         JSONObject jsonObject = new JSONObject(response);
         JSONArray choices = jsonObject.getJSONArray("choices");
+        JSONObject usage = jsonObject.getJSONObject("usage");
 
         if (choices.isEmpty()) {
-            throw new RuntimeException("ChatGPT's reply contains no content in its response:\n----" + response + "\n----");
+            throw new RuntimeException("ChatGPT's reply contains no content in its response:\n----\n" + response + "\n----");
+        }
+
+        if (usage == null || usage.isEmpty()) {
+            throw new RuntimeException("ChatGPT's reply contains no information about its usage:\n----\n" + response + "\n----");
         }
 
         JSONObject choice = choices.getJSONObject(0);
@@ -177,6 +189,12 @@ public class ChatGPTManager extends LLMManager {
             // to log a warning
             logger.warning("ChatGPT's reply did not finish correctly. It's response is:\n----" + response + "\n----");
         }
+
+        promptTokens += usage.getInt("prompt_tokens");
+        responseTokens += usage.getInt("completion_tokens");
+
+        debugLogger.info("Tokens used so far- Prompt: " + promptTokens + ". Response: " + responseTokens + ". Total: " +
+                (promptTokens + responseTokens));
 
         return choice.getJSONObject("message").getString("content");
     }

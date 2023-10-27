@@ -1,10 +1,14 @@
 package ulisboa.tecnico.minesocieties.agents.npc.state;
 
+import ulisboa.tecnico.llms.LLMMessage;
+import ulisboa.tecnico.llms.LLMRole;
 import ulisboa.tecnico.minesocieties.MineSocieties;
 import ulisboa.tecnico.minesocieties.agents.actions.exceptions.MalformedFirstMemoriesResponseException;
 import ulisboa.tecnico.minesocieties.visitors.IContextVisitor;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AgentState implements IExplainableContext {
 
@@ -56,8 +60,8 @@ public class AgentState implements IExplainableContext {
      *  Thrown if the LLM's response does not conform to the given instructions.
      */
     public void insertDescriptionSync(String firstMemories) throws MalformedFirstMemoriesResponseException {
-        String prompt = getPromptForDescriptionInterpretation(firstMemories);
-        String response = MineSocieties.getPlugin().getLLMManager().promptSync(prompt);
+        var messages = getPromptForDescriptionInterpretation(firstMemories);
+        String response = MineSocieties.getPlugin().getLLMManager().promptSync(messages);
 
         interpretFirstMemoriesResponse(firstMemories, response);
     }
@@ -72,28 +76,61 @@ public class AgentState implements IExplainableContext {
      * '[]', '{}', or the symbol '|', as they are used to instruct the LLM to tidy up the memories.
      */
     public void insertDescriptionAsync(String firstMemories) {
-        String prompt = getPromptForDescriptionInterpretation(firstMemories);
+        var messages = getPromptForDescriptionInterpretation(firstMemories);
 
-        MineSocieties.getPlugin().getLLMManager().promptAsync(prompt, response -> interpretFirstMemoriesResponse(firstMemories, response));
+        MineSocieties.getPlugin().getLLMManager().promptAsync(messages, response -> interpretFirstMemoriesResponse(firstMemories, response));
     }
 
-    private String getPromptForDescriptionInterpretation(String description) {
+    private List<LLMMessage> getPromptForDescriptionInterpretation(String description) {
         String name = persona.getName();
+        List<LLMMessage> messageList = new ArrayList<>(4);
+
+        // Telling the model exactly what to do
+        messageList.add(new LLMMessage(LLMRole.SYSTEM,
+        "You are a people description analyzer. You will receive people's descriptions " +
+                "inside brackets '{}' and must interpret it. " +
+                "Write down the personality traits that best describe them as '|Personalities{<trait1>|<trait2>|...}' " +
+                "(traits should be a single word or hyphenated words, and they must belong to them), " +
+                "and their feelings as '|Emotions{<emotion1>|<emotion2>|...}' (single word). " +
+                "Infer knowledge and write it as '|Reflections{<thought1>|<thought2>|...}' " +
+                "(full sentence with the inferred knowledge). " +
+                "Share their opinions about others as '|Opinions{<name1>[<opinion1>]|<name2>[<opinion2>]|...}' " +
+                "Record short-term memories as '|ShortMemory{<sentence1>|<sentence2>|...}'. " +
+                "If a list should be empty, write '{}'. Finally, write a short explanation for your choices. "
+                )
+        );
+
+        // Giving an example of input to the model
+        messageList.add(new LLMMessage(LLMRole.USER,
+                "{Rafael is a software engineer. He loves chocolate. He thinks Francisco is tall, and is weird for not " +
+                     "liking pineapple on pizza. Rafael is smart and knows funny dark humour jokes. He's happy with himself. " +
+                        "He's going to a party next week.}"
+                )
+        );
+
+        // Giving an example of output to the model
+        messageList.add(new LLMMessage(LLMRole.ASSISTANT,
+                "|Personalities{engineer|chocolate-lover|smart|good-sense-of-humour}\n" +
+                        "|Emotions{happy}\n" +
+                        "|Reflections{Rafael likes software engineering because that's what he does and he's happy with " +
+                        "himself|Rafael thinks that not liking pineapple on pizza is weird|Rafael knows funny dark humour jokes|" +
+                        "Rafael knows Francisco does not like pineapple on pizza}\n" +
+                        "|Opinions{Francisco[Rafael thinks Francisco is tall and weird]}\n" +
+                        "|ShortMemory{Rafael has a party to attend next week}\n" +
+                        "Explanation: Since Rafael is a software engineer and he's happy with himself, this means he likes software engineering. " +
+                        "Rafael is not tall, however, Francisco is tall according to Rafael."
+                )
+        );
+
+        // Giving it the desired input
+        messageList.add(new LLMMessage(LLMRole.USER,
+                "{" + description + "}"
+                )
+        );
+
+        return messageList;
 
         /*
-        Write down Alex Johnson's personalities as '|Personalities{<trait1>|<trait2>|...}'
-        (traits should be a single word or hyphenated words)
-        and emotions as '|Emotions{<emotion1>|<emotion2>|...}' (single word).
-        Guess their conclusions as '|Reflections{<thought1>|<thought2>|...}'
-        (full sentence with the inferred knowledge).
-        Share Alex Johnson's opinions about others as
-        '|Opinions{<personName1>[<opinion1>]|<personName2>[<opinion2>]|...}'
-        (ex: |Opinions{Jon[Alex thinks Jon is funny]}).
-        Record short-term memories as '|ShortMemory{<sentence1>|<sentence2>|...}'.
-        Explain with few words your choices after the last bracket.
-         */
-
-        return
                 "Interpret " + name + "'s description: {" + description + "}\n" +
                 "Write down the personality traits that best describes " + name + " as '|Personalities{<trait1>|<trait2>|...}' " +
                 "(traits should be a single word or hyphenated words, and they must belong to " + name + "). " +
@@ -108,12 +145,14 @@ public class AgentState implements IExplainableContext {
                 "a party next week.}\n" +
                 "|Personalities{engineer|chocolate-lover|smart|good-sense-of-humour}\n" +
                 "|Emotions{happy}\n" +
-                "|Reflections{Rafael likes software engineering because that's what he is and he's happy with " +
+                "|Reflections{Rafael likes software engineering because that's what he does and he's happy with " +
                 "himself|Rafael thinks that not liking pineapple on pizza is weird|Rafael knows funny dark humour jokes|" +
                 "Rafael knows Francisco does not like pineapple on pizza}\n" +
                 "|Opinions{Francisco[Rafael thinks Francisco is tall and weird]}\n" +
                 "|ShortMemory{Rafael has a party to attend next week}\n" +
-                "<explanation would go here>";
+                "Notice how 'weird' is not part of Rafael's personality, since it is Francisco who is described as weird.";
+
+         */
     }
 
     private void interpretFirstMemoriesResponse(String firstMemories, String response) throws MalformedFirstMemoriesResponseException {

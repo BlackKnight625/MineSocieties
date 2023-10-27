@@ -1,5 +1,6 @@
 package ulisboa.tecnico.llms;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
@@ -39,6 +40,30 @@ public abstract class LLMManager {
      *  The coonsumer that will get notified with the eventual response.
      */
     public abstract void promptAsync(String prompt, Consumer<String> responseReceiver);
+
+    /**
+     *  Sends multiple messages to the LLM that are more specialized to the specific LLM type in order to
+     * fine-tune it into replying with the desired format. To use this method, you must first understand
+     * how to use the LLM's API with different roles, as it works very differently depending on the LLM.
+     *  This method waits for the LLM's response.
+     * @param messages
+     *  A list of messages to be sent to the LLM
+     * @return
+     *  A single response that's fine-tuned to the given input
+     */
+    public abstract String promptSync(List<LLMMessage> messages);
+
+    /**
+     *  Sends multiple messages to the LLM that are more specialized to the specific LLM type in order to
+     * fine-tune it into replying with the desired format. To use this method, you must first understand
+     * how to use the LLM's API with different roles, as it works very differently depending on the LLM.
+     *  This method returns immediately.
+     * @param messages
+     *  A list of messages to be sent to the LLM
+     * @param responseReceiver
+     *  The coonsumer that will get notified with the eventual response.
+     */
+    public abstract void promptAsync(List<LLMMessage> messages, Consumer<String> responseReceiver);
 
     public abstract void teardown();
 }
