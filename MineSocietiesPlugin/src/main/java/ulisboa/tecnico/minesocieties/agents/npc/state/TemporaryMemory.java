@@ -5,13 +5,13 @@ import ulisboa.tecnico.agents.utils.ReadWriteLock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.TreeSet;
+import java.util.HashSet;
 
 public class TemporaryMemory<T extends InstantMemory> {
 
     // Private attributes
 
-    private Collection<T> memory = new TreeSet<>();
+    private Collection<T> memory = new HashSet<>();
     private transient ReadWriteLock memoryLock = new ReadWriteLock();
 
     // Other methods

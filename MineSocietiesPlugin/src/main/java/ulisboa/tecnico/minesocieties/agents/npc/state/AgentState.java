@@ -162,8 +162,6 @@ public class AgentState implements IExplainableContext {
         int opinionsIndex = response.indexOf("|Opinions");
         int shortMemoryIndex = response.indexOf("|ShortMemory");
 
-        Instant now = Instant.now();
-
         // Checking if the LLM replied with the lists names
         if (personalitiesIndex == -1) {
             throw new MalformedFirstMemoriesResponseException("LLM did not create a Personalities list.", firstMemories, response);
@@ -228,7 +226,7 @@ public class AgentState implements IExplainableContext {
 
             for (String reflection : reflections) {
                 if (!reflection.isEmpty()) {
-                    agentReflections.addMemorySection(new Reflection(now, reflection));
+                    agentReflections.addMemorySection(new Reflection(Instant.now(), reflection));
                 }
             }
         } catch (IndexOutOfBoundsException e) {
@@ -268,7 +266,7 @@ public class AgentState implements IExplainableContext {
 
             for (String shortMemory : shortMemories) {
                 if (!shortMemory.isEmpty()) {
-                    agentShortTermMemory.addMemorySection(new ShortTermMemorySection(now, shortMemory));
+                    agentShortTermMemory.addMemorySection(new ShortTermMemorySection(Instant.now(), shortMemory));
                 }
             }
         } catch (IndexOutOfBoundsException e) {

@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.ZoneOffset;
 
-public class CreateAgentStateFromFirstMemoryTest extends BaseLLMTest {
+public class CreateAgentStateFromDescriptionTest extends BaseLLMTest {
 
     private AgentState getNewAgentState() {
         return new AgentState(
@@ -24,7 +24,7 @@ public class CreateAgentStateFromFirstMemoryTest extends BaseLLMTest {
     }
 
     @Test
-    public void fromSmallFirstMemory() {
+    public void fromSmallDescription() {
         AgentState agentState = getNewAgentState();
 
         agentState.insertDescriptionSync("""
@@ -33,6 +33,27 @@ public class CreateAgentStateFromFirstMemoryTest extends BaseLLMTest {
                 She does not like C++ as it's too complicated.
                 She thinks Steve is very smart, adorable, and hard-working.
                 She's been through a lot lately.
+                """);
+
+        CurrentContextVisitor visitor = new CurrentContextVisitor();
+
+        System.out.println(visitor.explainState(agentState));
+    }
+
+    @Test
+    public void fromBigDescription() {
+        AgentState agentState = getNewAgentState();
+
+        agentState.insertDescriptionSync("""
+                Alex has always liked programming.
+                She made a program in Java about a snake eating fruit and growing as large as possible.
+                She had a lot of fun doing that project.
+                Her favourite language is Java.
+                She does not like C++ as it's too complicated.
+                She had to create a file storage application in C++ and ran into a lot of problems, mostly Segmentation Faults.
+                She thinks Steve is very smart, adorable, and hard-working. She's done a few projects with him, and found his methods very resourceful.
+                She's been through a lot lately. Her cat is sick, and the veterinarians don't know what's wrong with it.
+                Last night, Steve invited her to his friend's birthday party. She really wants to go.
                 """);
 
         CurrentContextVisitor visitor = new CurrentContextVisitor();
