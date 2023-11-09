@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import ulisboa.tecnico.minesocieties.agents.npc.state.AgentLocation;
 import ulisboa.tecnico.minesocieties.agents.npc.state.AgentPersona;
 import ulisboa.tecnico.minesocieties.agents.npc.state.AgentState;
-import ulisboa.tecnico.minesocieties.visitors.CurrentContextVisitor;
+import ulisboa.tecnico.minesocieties.visitors.CurrentContextExplainer;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -35,7 +35,7 @@ public class CreateAgentStateFromDescriptionTest extends BaseLLMTest {
                 She's been through a lot lately.
                 """);
 
-        CurrentContextVisitor visitor = new CurrentContextVisitor();
+        CurrentContextExplainer visitor = new CurrentContextExplainer();
 
         System.out.println(visitor.explainState(agentState));
     }
@@ -56,7 +56,7 @@ public class CreateAgentStateFromDescriptionTest extends BaseLLMTest {
                 Last night, Steve invited her to his friend's birthday party. She really wants to go.
                 """);
 
-        CurrentContextVisitor visitor = new CurrentContextVisitor();
+        CurrentContextExplainer visitor = new CurrentContextExplainer();
 
         System.out.println(visitor.explainState(agentState));
     }

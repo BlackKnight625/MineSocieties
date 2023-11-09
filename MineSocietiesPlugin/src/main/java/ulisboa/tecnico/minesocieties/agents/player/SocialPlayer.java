@@ -2,6 +2,7 @@ package ulisboa.tecnico.minesocieties.agents.player;
 
 import org.bukkit.entity.Player;
 import ulisboa.tecnico.agents.ICharacter;
+import ulisboa.tecnico.agents.observation.IObservation;
 import ulisboa.tecnico.agents.observation.WeatherChangeObservation;
 import ulisboa.tecnico.agents.player.IPlayerAgent;
 import ulisboa.tecnico.minesocieties.agents.SocialCharacter;
@@ -40,6 +41,11 @@ public class SocialPlayer extends SocialCharacter implements IPlayerAgent {
     @Override
     public void receivedChatFrom(ICharacter from, String chat) {
 
+    }
+
+    @Override
+    public void receivedAnyObservation(IObservation<?> observation) {
+        // Do nothing
     }
 
     // Other methods

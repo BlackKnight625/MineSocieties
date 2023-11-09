@@ -2,6 +2,7 @@ package ulisboa.tecnico.agents.npc;
 
 import org.entityutils.entity.npc.player.AnimatedPlayerNPC;
 import ulisboa.tecnico.agents.ICharacter;
+import ulisboa.tecnico.agents.observation.IObservation;
 import ulisboa.tecnico.agents.observation.WeatherChangeObservation;
 
 public class ExampleReactiveAgent implements IAgent {
@@ -34,7 +35,7 @@ public class ExampleReactiveAgent implements IAgent {
 
     @Override
     public void observeWeatherChange(WeatherChangeObservation observation) {
-        switch (observation.weatherType()) {
+        switch (observation.getWeatherType()) {
             case DOWNFALL -> {
                 // Agent will look up to watch the rain
                 npc.setDirection(npc.getData().getYaw(), -45f);
@@ -44,6 +45,11 @@ public class ExampleReactiveAgent implements IAgent {
                 npc.setDirection(npc.getData().getYaw(), 0);
             }
         }
+    }
+
+    @Override
+    public void receivedAnyObservation(IObservation<?> observation) {
+        // This agent only reacts to concrete observations
     }
 
     @Override

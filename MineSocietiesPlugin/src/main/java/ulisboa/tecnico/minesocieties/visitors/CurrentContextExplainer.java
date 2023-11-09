@@ -7,7 +7,7 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
-public class CurrentContextVisitor implements IContextVisitor {
+public class CurrentContextExplainer implements IContextVisitor {
     @Override
     public String explainState(AgentState state) {
         StringBuilder builder = new StringBuilder();
@@ -186,10 +186,23 @@ public class CurrentContextVisitor implements IContextVisitor {
         long secondsAgo = longAgo.getEpochSecond();
         long minutesAgo = secondsAgo / 60L;
         long hoursAgo = minutesAgo / 60L;
+        long daysAgo = hoursAgo / 24L;
+        long weeksAgo = daysAgo / 7L;
+        long monthsAgo = daysAgo / 30L;
+        long yearsAgo = daysAgo / 365L;
 
         // Explaining how long ago the something took place
-        if (hoursAgo > 0) {
-            // Happened a long time ago
+        if (yearsAgo > 0) {
+            // Happened a very long time ago
+            builder.append(yearsAgo).append(yearsAgo == 1 ? " year " : " years ").append("ago, ");
+        } else if (monthsAgo > 0) {
+            // Happened long ago
+            builder.append(monthsAgo).append(monthsAgo == 1 ? " month " : " months ").append("ago, ");
+        } else if (weeksAgo > 0) {
+            // Happened a while ago
+            builder.append(weeksAgo).append(weeksAgo == 1 ? " week " : " weeks ").append("ago, ");
+        } else if (hoursAgo > 0) {
+            // Happened a few hours ago
             builder.append(hoursAgo).append(hoursAgo == 1 ? " hour " : " hours ").append("ago, ");
         } else if (minutesAgo > 0) {
             // Was recent

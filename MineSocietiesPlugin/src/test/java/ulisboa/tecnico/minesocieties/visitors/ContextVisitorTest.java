@@ -28,7 +28,7 @@ public class ContextVisitorTest {
         aWhileAgo = aWhileAgo.plus(15, ChronoUnit.SECONDS);
         alexConversations.addMemorySection(new Conversation(aWhileAgo, "Indeed. If you don't mind, I must go back to it. Bye!", steve, alex));
 
-        CurrentContextVisitor visitor = new CurrentContextVisitor();
+        CurrentContextExplainer visitor = new CurrentContextExplainer();
 
         System.out.println(visitor.explainConversations(alexConversations));
     }
@@ -83,7 +83,7 @@ public class ContextVisitorTest {
         alexPersonalities.addState(Personality.ADVENTUROUS, Personality.LIBERAL);
 
         // Testing the visitor
-        CurrentContextVisitor visitor = new CurrentContextVisitor();
+        CurrentContextExplainer visitor = new CurrentContextExplainer();
 
         System.out.println(visitor.explainState(alexState));
     }
@@ -100,7 +100,7 @@ public class ContextVisitorTest {
         );
 
         // Testing the visitor
-        CurrentContextVisitor visitor = new CurrentContextVisitor();
+        CurrentContextExplainer visitor = new CurrentContextExplainer();
 
         System.out.println(visitor.explainState(alexState));
     }
