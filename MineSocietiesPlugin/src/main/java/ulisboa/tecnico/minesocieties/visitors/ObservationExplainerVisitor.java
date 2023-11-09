@@ -2,6 +2,8 @@ package ulisboa.tecnico.minesocieties.visitors;
 
 import ulisboa.tecnico.agents.ICharacter;
 import ulisboa.tecnico.agents.observation.IObservation;
+import ulisboa.tecnico.agents.observation.IObserver;
+import ulisboa.tecnico.agents.observation.ReceivedChatObservation;
 import ulisboa.tecnico.agents.observation.WeatherChangeObservation;
 import ulisboa.tecnico.minesocieties.agents.observation.ISocialObserver;
 
@@ -38,12 +40,13 @@ public class ObservationExplainerVisitor implements ISocialObserver {
     }
 
     @Override
-    public void receivedChatFrom(ICharacter from, String chat) {
-        lastExplanation = from.getName() + " said {" + chat + "}";
+    public void receivedChatFrom(ReceivedChatObservation observation) {
+        lastExplanation = observation.getFrom().getName() + " said {" + observation.getChat() + "}";
     }
 
     @Override
-    public void receivedAnyObservation(IObservation<?> observation) {
+    public void receivedAnyObservation(IObservation<IObserver> observation) {
         // This visitor only explains concrete observations
+        observation.accept(this);
     }
 }

@@ -1,12 +1,10 @@
 package ulisboa.tecnico.agents.observation;
 
-import ulisboa.tecnico.agents.ICharacter;
-
 public interface IObserver {
 
     void observeWeatherChange(WeatherChangeObservation observation);
 
-    void receivedChatFrom(ICharacter from, String chat);
+    void receivedChatFrom(ReceivedChatObservation observation);
 
-    void receivedAnyObservation(IObservation<?> observation);
+    void receivedAnyObservation(IObservation<IObserver> observation);
 }

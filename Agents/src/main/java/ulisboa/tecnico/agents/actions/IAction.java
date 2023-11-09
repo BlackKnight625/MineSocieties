@@ -1,8 +1,8 @@
 package ulisboa.tecnico.agents.actions;
 
-import ulisboa.tecnico.agents.ICharacter;
+import ulisboa.tecnico.agents.npc.IAgent;
 
-public interface IAction<T extends ICharacter> {
+public interface IAction<T extends IAgent, V extends IActionVisitor> {
 
     ActionStatus act(T actioner);
 
@@ -23,4 +23,6 @@ public interface IAction<T extends ICharacter> {
     default boolean canBeExecuted(T actioner) {
         return true;
     }
+
+    void accept(V visitor);
 }

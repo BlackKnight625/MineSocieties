@@ -55,10 +55,19 @@ public abstract class AbstractAgentManager<A extends IAgent, P extends IPlayerAg
     public A deployAgent(String name, Location location) {
         A agent = getNewAgentInstance(name, location);
 
-        characterMapLock.write(() -> characterMap.put(agent.getUUID(), agent));
-        characterByNameMapLock.write(() -> characterByNameMap.put(agent.getName(), agent));
+        registerAgent(agent);
 
         return agent;
+    }
+
+    /**
+     *  Mostly a debug method. Forcibly registers the given agent instance.
+     * @param agent
+     *  The agent to register
+     */
+    public void registerAgent(A agent) {
+        characterMapLock.write(() -> characterMap.put(agent.getUUID(), agent));
+        characterByNameMapLock.write(() -> characterByNameMap.put(agent.getName(), agent));
     }
 
     public void deleteAgent(UUID uuid) {

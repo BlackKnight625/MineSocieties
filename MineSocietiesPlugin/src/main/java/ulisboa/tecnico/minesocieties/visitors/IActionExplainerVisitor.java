@@ -1,14 +1,18 @@
 package ulisboa.tecnico.minesocieties.visitors;
 
+import ulisboa.tecnico.agents.actions.IActionVisitor;
 import ulisboa.tecnico.minesocieties.agents.actions.otherActions.Idle;
 import ulisboa.tecnico.minesocieties.agents.actions.otherActions.InformativeGoTo;
 import ulisboa.tecnico.minesocieties.agents.actions.otherActions.WaitFor;
+import ulisboa.tecnico.minesocieties.agents.actions.socialActions.SendChatTo;
 
-public interface IActionExplainerVisitor {
+public interface IActionExplainerVisitor extends IActionVisitor {
 
-    String explainGoTo(InformativeGoTo informativeGoTo);
+    void visitGoTo(InformativeGoTo informativeGoTo);
 
-    String explainIdle(Idle idle);
+    void visitIdle(Idle idle);
 
-    String explainWaitFor(WaitFor waitFor);
+    void visitWaitFor(WaitFor waitFor);
+
+    void visitSendChatTo(SendChatTo sendChatTo);
 }

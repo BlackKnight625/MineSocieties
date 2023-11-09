@@ -1,13 +1,13 @@
 package ulisboa.tecnico.agents.actions;
 
-import ulisboa.tecnico.agents.ICharacter;
+import ulisboa.tecnico.agents.npc.IAgent;
 
 /**
  *  Class that represents character actions that need some time to get executed
  * @param <T>
  *  The type of the character this action applies to
  */
-public abstract class TemporalAction<T extends ICharacter> implements IAction<T> {
+public abstract class TemporalAction<T extends IAgent, V extends IActionVisitor> implements IAction<T, V> {
 
     // Private attributes
     private int elapsedTicks = 0;

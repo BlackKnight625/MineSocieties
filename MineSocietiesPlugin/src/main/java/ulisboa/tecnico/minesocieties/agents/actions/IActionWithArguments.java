@@ -1,6 +1,7 @@
 package ulisboa.tecnico.minesocieties.agents.actions;
 
 import ulisboa.tecnico.minesocieties.agents.actions.exceptions.MalformedActionArgumentsException;
+import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.visitors.IActionArgumentsExplainerVisitor;
 
 /**
@@ -11,5 +12,5 @@ public interface IActionWithArguments {
 
     void acceptArgumentsInterpreter(IActionArgumentsExplainerVisitor visitor, String arguments) throws MalformedActionArgumentsException;
 
-    String acceptArgumentsExplainer(IActionArgumentsExplainerVisitor visitor);
+    String acceptArgumentsExplainer(IActionArgumentsExplainerVisitor visitor, SocialAgent actioner);
 }

@@ -27,9 +27,8 @@ public class InformativeGoTo extends GoTo implements IExplainableAction {
 
     // Other methods
 
-
     @Override
-    public String accept(IActionExplainerVisitor visitor) {
-        return visitor.explainGoTo(this);
+    public void accept(IActionExplainerVisitor visitor) {
+        visitor.visitGoTo(this);
     }
 }

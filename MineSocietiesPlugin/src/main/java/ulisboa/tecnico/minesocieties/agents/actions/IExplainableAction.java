@@ -4,5 +4,5 @@ import ulisboa.tecnico.minesocieties.visitors.IActionExplainerVisitor;
 
 public interface IExplainableAction {
 
-    String accept(IActionExplainerVisitor visitor);
+    void accept(IActionExplainerVisitor visitor);
 }

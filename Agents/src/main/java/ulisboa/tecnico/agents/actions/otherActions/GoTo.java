@@ -3,10 +3,11 @@ package ulisboa.tecnico.agents.actions.otherActions;
 import org.bukkit.Location;
 import org.entityutils.entity.npc.player.MovementStatus;
 import ulisboa.tecnico.agents.actions.ActionStatus;
+import ulisboa.tecnico.agents.actions.IActionVisitor;
 import ulisboa.tecnico.agents.actions.TemporalAction;
 import ulisboa.tecnico.agents.npc.IAgent;
 
-public class GoTo extends TemporalAction<IAgent> {
+public class GoTo extends TemporalAction<IAgent, IActionVisitor> {
 
     // Private attributes
 
@@ -40,5 +41,10 @@ public class GoTo extends TemporalAction<IAgent> {
             case SUCCESS -> ActionStatus.SUCCESS;
             case FAILURE -> ActionStatus.FAILURE;
         };
+    }
+
+    @Override
+    public void accept(IActionVisitor visitor) {
+        visitor.visitGoTo(this);
     }
 }

@@ -3,6 +3,8 @@ package ulisboa.tecnico.agents.npc;
 import org.entityutils.entity.npc.player.AnimatedPlayerNPC;
 import ulisboa.tecnico.agents.ICharacter;
 import ulisboa.tecnico.agents.observation.IObservation;
+import ulisboa.tecnico.agents.observation.IObserver;
+import ulisboa.tecnico.agents.observation.ReceivedChatObservation;
 import ulisboa.tecnico.agents.observation.WeatherChangeObservation;
 
 public class ExampleReactiveAgent implements IAgent {
@@ -29,7 +31,7 @@ public class ExampleReactiveAgent implements IAgent {
     // Other methods
 
     @Override
-    public void receivedChatFrom(ICharacter from, String chat) {
+    public void receivedChatFrom(ReceivedChatObservation observation) {
 
     }
 
@@ -48,8 +50,9 @@ public class ExampleReactiveAgent implements IAgent {
     }
 
     @Override
-    public void receivedAnyObservation(IObservation<?> observation) {
+    public void receivedAnyObservation(IObservation<IObserver> observation) {
         // This agent only reacts to concrete observations
+        observation.accept(this);
     }
 
     @Override

@@ -19,6 +19,8 @@ public class MineSocieties extends JavaPlugin {
     private SocialAgentManager socialAgentManager;
     private LLMManager llmManager;
     private long elapsedTicks;
+    private int maxChatRange;
+    private boolean chatBroadcast;
 
     // Other methods
 
@@ -68,6 +70,11 @@ public class MineSocieties extends JavaPlugin {
         }.runTaskTimer(this, 0, 1);
 
         getLogger().info("MineSocieties is enabled!");
+
+        // Loading other config values
+
+        maxChatRange = getConfig().getInt("maxChatRange");
+        chatBroadcast = getConfig().getBoolean("chatBroadcast");
     }
 
     @Override
@@ -101,6 +108,14 @@ public class MineSocieties extends JavaPlugin {
 
     public long getElapsedTicks() {
         return elapsedTicks;
+    }
+
+    public int getMaxChatRange() {
+        return maxChatRange;
+    }
+
+    public boolean isChatBroadcasted() {
+        return chatBroadcast;
     }
 
     public static MineSocieties getPlugin() {

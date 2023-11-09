@@ -5,6 +5,8 @@ import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.entity.Player;
 import ulisboa.tecnico.agents.ICharacter;
 import ulisboa.tecnico.agents.observation.IObservation;
+import ulisboa.tecnico.agents.observation.IObserver;
+import ulisboa.tecnico.agents.observation.ReceivedChatObservation;
 import ulisboa.tecnico.agents.observation.WeatherChangeObservation;
 
 public class ExampleInformativePlayerAgent implements IPlayerAgent {
@@ -39,13 +41,14 @@ public class ExampleInformativePlayerAgent implements IPlayerAgent {
     }
 
     @Override
-    public void receivedChatFrom(ICharacter from, String chat) {
-        sendMessage(from.getName() + " sent you a message: " + chat);
+    public void receivedChatFrom(ReceivedChatObservation observation) {
+        sendMessage(observation.getFrom().getName() + " sent you a message: " + observation.getChat());
     }
 
     @Override
-    public void receivedAnyObservation(IObservation<?> observation) {
+    public void receivedAnyObservation(IObservation<IObserver> observation) {
         // This agent only reacts to concrete observations
+        observation.accept(this);
     }
 
     public void sendMessage(String message) {

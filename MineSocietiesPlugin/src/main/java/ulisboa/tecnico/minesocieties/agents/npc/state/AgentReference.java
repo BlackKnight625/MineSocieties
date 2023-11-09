@@ -1,5 +1,6 @@
 package ulisboa.tecnico.minesocieties.agents.npc.state;
 
+import ulisboa.tecnico.agents.ICharacter;
 import ulisboa.tecnico.agents.npc.IAgent;
 
 import java.util.UUID;
@@ -18,7 +19,7 @@ public class AgentReference {
         this.name = name;
     }
 
-    public AgentReference(IAgent agent) {
+    public AgentReference(ICharacter agent) {
         this.uuid = agent.getUUID();
         this.name = agent.getName();
     }

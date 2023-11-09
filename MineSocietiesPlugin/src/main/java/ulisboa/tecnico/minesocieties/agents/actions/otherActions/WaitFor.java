@@ -6,7 +6,7 @@ import ulisboa.tecnico.minesocieties.agents.actions.IExplainableAction;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.visitors.IActionExplainerVisitor;
 
-public class WaitFor implements IAction<SocialAgent>, IExplainableAction {
+public class WaitFor implements IAction<SocialAgent, IActionExplainerVisitor>, IExplainableAction {
 
     // Private attributes
 
@@ -32,7 +32,7 @@ public class WaitFor implements IAction<SocialAgent>, IExplainableAction {
     }
 
     @Override
-    public String accept(IActionExplainerVisitor visitor) {
-        return visitor.explainWaitFor(this);
+    public void accept(IActionExplainerVisitor visitor) {
+        visitor.visitWaitFor(this);
     }
 }
