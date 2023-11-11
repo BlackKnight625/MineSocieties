@@ -5,7 +5,7 @@ import ulisboa.tecnico.agents.ICharacter;
 
 import java.util.Objects;
 
-public class WeatherChangeObservation implements IObservation<ICharacter> {
+public class WeatherChangeObservation implements IObservation<IObserver> {
 
     // Private attributes
 
@@ -26,7 +26,7 @@ public class WeatherChangeObservation implements IObservation<ICharacter> {
     // Other methods
 
     @Override
-    public void accept(ICharacter character) {
+    public void accept(IObserver character) {
         character.observeWeatherChange(this);
     }
 

@@ -4,22 +4,21 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import ulisboa.tecnico.agents.actions.ActionStatus;
-import ulisboa.tecnico.agents.actions.IAction;
 import ulisboa.tecnico.agents.observation.ReceivedChatObservation;
 import ulisboa.tecnico.minesocieties.MineSocieties;
 import ulisboa.tecnico.minesocieties.agents.SocialCharacter;
 import ulisboa.tecnico.minesocieties.agents.actions.IActionWithArguments;
-import ulisboa.tecnico.minesocieties.agents.actions.IExplainableAction;
+import ulisboa.tecnico.minesocieties.agents.actions.ISocialAction;
 import ulisboa.tecnico.minesocieties.agents.actions.exceptions.MalformedActionArgumentsException;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.agents.npc.state.AgentReference;
 import ulisboa.tecnico.minesocieties.visitors.IActionArgumentsExplainerVisitor;
-import ulisboa.tecnico.minesocieties.visitors.IActionExplainerVisitor;
+import ulisboa.tecnico.minesocieties.visitors.IActionVisitor;
 
 import java.util.LinkedList;
 import java.util.List;
 
-public class SendChatTo implements IAction<SocialAgent, IActionExplainerVisitor>, IExplainableAction, IActionWithArguments {
+public class SendChatTo implements IActionWithArguments, ISocialAction {
 
     // Private attributes
 
@@ -91,7 +90,7 @@ public class SendChatTo implements IAction<SocialAgent, IActionExplainerVisitor>
     }
 
     @Override
-    public void accept(IActionExplainerVisitor visitor) {
-        visitor.visitSendChatTo(this);
+    public String accept(IActionVisitor visitor) {
+        return visitor.visitSendChatTo(this);
     }
 }

@@ -24,6 +24,8 @@ repositories {
         url = 'https://oss.sonatype.org/content/groups/public/'
     }
 
+    maven { url 'https://jitpack.io' }
+
     mavenLocal()
 }
 
@@ -49,6 +51,7 @@ dependencies {
     testImplementation 'org.spigotmc:spigot:1.20.1-R0.1-SNAPSHOT'
 
     testImplementation group: 'org.powermock', name: 'powermock-mockito-release-full', version: '1.5.4'
+    testImplementation 'com.github.MockBukkit:MockBukkit:v1.20-SNAPSHOT'
 }
 
 

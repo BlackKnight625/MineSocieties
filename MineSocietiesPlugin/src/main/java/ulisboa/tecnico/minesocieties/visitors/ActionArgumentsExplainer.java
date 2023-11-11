@@ -25,7 +25,7 @@ public class ActionArgumentsExplainer implements IActionArgumentsExplainerVisito
         if (nearbyPeople.isEmpty()) {
             // This case should never happen as the isExecutable() method from SendChatTo ensures that there's always
             // people to talk to when this action should be explained.
-            return "";
+            return "}";
         } else {
             for (String name : nearbyPeople) {
                 builder.append(name).append(", ");
@@ -33,6 +33,7 @@ public class ActionArgumentsExplainer implements IActionArgumentsExplainerVisito
 
             // Deleting last comma and space
             builder.delete(builder.length() - 2, builder.length());
+            builder.append('}');
         }
 
         return builder.toString();

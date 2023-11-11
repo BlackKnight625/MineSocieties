@@ -35,6 +35,8 @@ public interface IAgent extends ICharacter {
          return getNPCData().getUUID();
     }
 
+    void deploy();
+
     void deleted();
 
     @Override

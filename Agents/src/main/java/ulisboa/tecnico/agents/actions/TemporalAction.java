@@ -7,7 +7,7 @@ import ulisboa.tecnico.agents.npc.IAgent;
  * @param <T>
  *  The type of the character this action applies to
  */
-public abstract class TemporalAction<T extends IAgent, V extends IActionVisitor> implements IAction<T, V> {
+public abstract class TemporalAction<T extends IAgent> implements IAction<T> {
 
     // Private attributes
     private int elapsedTicks = 0;

@@ -12,42 +12,25 @@ import ulisboa.tecnico.minesocieties.agents.actions.socialActions.SendChatTo;
  *  For example, if an agent's possible next action is "Go to", then this visitor will explain
  * that the agent will go to a specific destination.
  */
-public class NextActionExplainer implements IActionExplainerVisitor {
-
-    // Private attributes
-
-    private String lastExplanation;
-
-    // Getters and setters
-
-    public String getLastExplanation() {
-        return lastExplanation;
-    }
-
-    // Other methods
+public class NextActionExplainer implements IActionVisitor {
 
     @Override
-    public void visitGoTo(GoTo goTo) {
-        // Do nothing. GoTo is wrapped by InformativeGoTo for MineSocieties
+    public String visitGoTo(InformativeGoTo informativeGoTo) {
+        return "Go to " + informativeGoTo.getDestinationDescription();
     }
 
     @Override
-    public void visitGoTo(InformativeGoTo informativeGoTo) {
-        lastExplanation = "Go to " + informativeGoTo.getDestinationDescription();
+    public String visitIdle(Idle idle) {
+        return "Go idle";
     }
 
     @Override
-    public void visitIdle(Idle idle) {
-        lastExplanation = "Go idle";
+    public String visitWaitFor(WaitFor waitFor) {
+        return "Wait for " + waitFor.getWhat();
     }
 
     @Override
-    public void visitWaitFor(WaitFor waitFor) {
-        lastExplanation = "Wait for " + waitFor.getWhat();
-    }
-
-    @Override
-    public void visitSendChatTo(SendChatTo sendChatTo) {
-        lastExplanation = "Engage in conversation";
+    public String visitSendChatTo(SendChatTo sendChatTo) {
+        return "Engage in conversation";
     }
 }

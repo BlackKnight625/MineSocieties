@@ -2,16 +2,16 @@ package ulisboa.tecnico.agents.actions;
 
 import ulisboa.tecnico.agents.npc.IAgent;
 
-public abstract class SequenceAction<T extends IAgent, V extends IActionVisitor> implements IAction<T, V> {
+public abstract class SequenceAction<T extends IAgent> implements IAction<T> {
 
     // Private attributes
 
-    private final IAction<T, V>[] actions;
+    private final IAction<T>[] actions;
     private int currentActionIndex = 0;
 
     // Constructor
 
-    public SequenceAction(IAction<T, V>... actions) {
+    public SequenceAction(IAction<T>... actions) {
         this.actions = actions;
     }
 

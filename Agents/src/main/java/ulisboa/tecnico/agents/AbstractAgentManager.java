@@ -57,6 +57,8 @@ public abstract class AbstractAgentManager<A extends IAgent, P extends IPlayerAg
 
         registerAgent(agent);
 
+        agent.deploy();
+
         return agent;
     }
 

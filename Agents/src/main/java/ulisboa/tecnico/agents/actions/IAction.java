@@ -2,7 +2,7 @@ package ulisboa.tecnico.agents.actions;
 
 import ulisboa.tecnico.agents.npc.IAgent;
 
-public interface IAction<T extends IAgent, V extends IActionVisitor> {
+public interface IAction<T extends IAgent> {
 
     ActionStatus act(T actioner);
 
@@ -23,6 +23,4 @@ public interface IAction<T extends IAgent, V extends IActionVisitor> {
     default boolean canBeExecuted(T actioner) {
         return true;
     }
-
-    void accept(V visitor);
 }
