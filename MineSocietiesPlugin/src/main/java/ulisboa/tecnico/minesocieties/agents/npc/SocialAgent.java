@@ -89,7 +89,7 @@ public class SocialAgent extends SocialCharacter implements IAgent {
             // TODO Ask ChatGPT to choose an action
             var messages = getPromptForNewAction(possibleActions, newlyObtainedObservation);
 
-            MineSocieties.getPlugin().getLLMManager().promptAsync(messages, this::interpretNewAction);
+            MineSocieties.getPlugin().getLLMManager().promptAsync(messages, response -> interpretNewAction(response, possibleActions));
         }
     }
 
@@ -148,7 +148,7 @@ public class SocialAgent extends SocialCharacter implements IAgent {
         return messageList;
     }
 
-    private void interpretNewAction(String actionReply) {
+    private void interpretNewAction(String actionReply, List<ISocialAction> possibleActions) {
 
     }
 
