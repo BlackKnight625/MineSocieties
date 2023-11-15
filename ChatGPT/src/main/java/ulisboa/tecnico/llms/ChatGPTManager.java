@@ -11,6 +11,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -197,6 +198,24 @@ public class ChatGPTManager extends LLMManager {
                 (promptTokens + responseTokens));
 
         return choice.getJSONObject("message").getString("content");
+    }
+
+    @Override
+    public void promptAsyncSupplyPromptAsync(Supplier<String> promptSupplier, Consumer<String> responseReceiver) {
+        promptAsync(List.of(new LLMMessage(LLMRole.USER, promptSupplier.get())), responseReceiver);
+    }
+
+    @Override
+    public void promptAsyncSupplyMessageAsync(Supplier<List<LLMMessage>> messageSuplier, Consumer<String> responseReceiver) {
+        getThreadPool().execute(() -> {
+            try {
+                responseReceiver.accept(promptSync(messageSuplier.get()));
+            } catch (RuntimeException e) {
+                logger.severe("Error occurred while asynchronously prompting OpenAI's ChatGPT: " + e.getMessage());
+
+                e.printStackTrace();
+            }
+        });
     }
 
     @Override

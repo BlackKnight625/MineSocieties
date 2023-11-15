@@ -10,6 +10,11 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *  Represents all the information that an Agent can have. Accessing an Agent's state should not be done on the
+ * Main thread, as it is certain that non-main threads will access it. As such, thread-safety is required, so by
+ * accessing an Agent's State with the Main thread, it's at risk of being blocked.
+ */
 public class AgentState implements IExplainableContext {
 
     // Private attributes
@@ -96,7 +101,7 @@ public class AgentState implements IExplainableContext {
                 "(full sentence with the inferred knowledge). " +
                 "Share their opinions about others as '|Opinions{<name1>[<opinion1>]|<name2>[<opinion2>]|...}' " +
                 "Record short-term memories as '|ShortMemory{<sentence1>|<sentence2>|...}'. " +
-                "If a list should be empty, write '{}'. Finally, write a short explanation for your choices. "
+                "If a list should be empty, write '{}'. Finally, write a short explanation for your choices."
                 )
         );
 

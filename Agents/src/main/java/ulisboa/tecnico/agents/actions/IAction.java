@@ -10,6 +10,7 @@ public interface IAction<T extends IAgent> {
      *  Called when this actions should stop being executed.
      *  Some action implementations might use external algorithms that need to be cancelled before the action
      * is complete.
+     *  An action can be cancelled without ever being started.
      */
     default void cancel() {
 

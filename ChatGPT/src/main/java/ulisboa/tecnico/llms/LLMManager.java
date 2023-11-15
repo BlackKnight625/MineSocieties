@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public abstract class LLMManager {
 
@@ -41,6 +42,8 @@ public abstract class LLMManager {
      */
     public abstract void promptAsync(String prompt, Consumer<String> responseReceiver);
 
+    public abstract void promptAsyncSupplyPromptAsync(Supplier<String> promptSupplier, Consumer<String> responseReceiver);
+
     /**
      *  Sends multiple messages to the LLM that are more specialized to the specific LLM type in order to
      * fine-tune it into replying with the desired format. To use this method, you must first understand
@@ -64,6 +67,8 @@ public abstract class LLMManager {
      *  The coonsumer that will get notified with the eventual response.
      */
     public abstract void promptAsync(List<LLMMessage> messages, Consumer<String> responseReceiver);
+
+    public abstract void promptAsyncSupplyMessageAsync(Supplier<List<LLMMessage>> messageSuplier, Consumer<String> responseReceiver);
 
     public abstract void teardown();
 }

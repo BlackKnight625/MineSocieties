@@ -1,9 +1,7 @@
 package ulisboa.tecnico.minesocieties.visitors;
 
 import ulisboa.tecnico.agents.actions.otherActions.GoTo;
-import ulisboa.tecnico.minesocieties.agents.actions.otherActions.Idle;
-import ulisboa.tecnico.minesocieties.agents.actions.otherActions.InformativeGoTo;
-import ulisboa.tecnico.minesocieties.agents.actions.otherActions.WaitFor;
+import ulisboa.tecnico.minesocieties.agents.actions.otherActions.*;
 import ulisboa.tecnico.minesocieties.agents.actions.socialActions.SendChatTo;
 
 /**
@@ -32,5 +30,15 @@ public class CurrentActionExplainer implements IActionVisitor {
     @Override
     public String visitSendChatTo(SendChatTo sendChatTo) {
         return "chatting with " + sendChatTo.getReceiver().getName();
+    }
+
+    @Override
+    public String visitContinueCurrentAction(ContinueCurrentAction continueCurrentAction) {
+        return ""; // Special Action that is never an Agent's current action
+    }
+
+    @Override
+    public String visitThinking(Thinking thinking) {
+        return "thinking about " + thinking.getWhat();
     }
 }

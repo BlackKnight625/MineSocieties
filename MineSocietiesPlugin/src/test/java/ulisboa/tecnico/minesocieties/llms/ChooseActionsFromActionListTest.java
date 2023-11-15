@@ -9,8 +9,6 @@ import org.entityutils.utils.data.PlayerNPCData;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ulisboa.tecnico.agents.actions.IAction;
-import ulisboa.tecnico.agents.npc.IAgent;
 import ulisboa.tecnico.agents.observation.WeatherChangeObservation;
 import ulisboa.tecnico.minesocieties.MineSocieties;
 import ulisboa.tecnico.minesocieties.agents.actions.ISocialAction;
@@ -102,7 +100,7 @@ public class ChooseActionsFromActionListTest extends BaseLLMTest {
     public void chooseToChatWithMultiplePeople() {
         SendChatTo sendChatTo = mock(SendChatTo.class); // It's a mock due to its method that searches for nearby entities
 
-        when(sendChatTo.getNamesOfNearbyCharacters(agent)).thenReturn(List.of("Steve Johnson", "Jennifer Lopes", "Nathan Daniels"));
+        when(sendChatTo.getNamesOfNearbyCharacters(agent)).thenReturn(List.of(steve, jennifer, nathan));
         when(sendChatTo.acceptArgumentsExplainer(any(), any())).thenCallRealMethod();
         when(sendChatTo.accept(any())).thenCallRealMethod();
 
@@ -121,7 +119,9 @@ public class ChooseActionsFromActionListTest extends BaseLLMTest {
     public void chooseFromAVarietyOfActions() {
         SendChatTo sendChatTo = mock(SendChatTo.class);
 
-        when(sendChatTo.getNamesOfNearbyCharacters(agent)).thenReturn(List.of("Steve Johnson", "Jennifer Lopes", "Nathan Daniels"));
+        when(sendChatTo.getNamesOfNearbyCharacters(agent)).thenReturn(List.of(jennifer, nathan));
+        when(sendChatTo.acceptArgumentsExplainer(any(), any())).thenCallRealMethod();
+        when(sendChatTo.accept(any())).thenCallRealMethod();
 
         List<ISocialAction> possibleActions = new ArrayList<>();
 

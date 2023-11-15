@@ -1,8 +1,6 @@
 package ulisboa.tecnico.minesocieties.visitors;
 
-import ulisboa.tecnico.minesocieties.agents.actions.otherActions.Idle;
-import ulisboa.tecnico.minesocieties.agents.actions.otherActions.InformativeGoTo;
-import ulisboa.tecnico.minesocieties.agents.actions.otherActions.WaitFor;
+import ulisboa.tecnico.minesocieties.agents.actions.otherActions.*;
 import ulisboa.tecnico.minesocieties.agents.actions.socialActions.SendChatTo;
 
 public interface IActionVisitor {
@@ -14,4 +12,8 @@ public interface IActionVisitor {
     String visitWaitFor(WaitFor waitFor);
 
     String visitSendChatTo(SendChatTo sendChatTo);
+
+    String visitContinueCurrentAction(ContinueCurrentAction continueCurrentAction);
+
+    String visitThinking(Thinking thinking);
 }

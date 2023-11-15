@@ -39,4 +39,12 @@ public class TemporaryMemory<T extends InstantMemory> {
 
         return result;
     }
+
+    public int entrySizes() {
+        memoryLock.readLock();
+        int size = memory.size();
+        memoryLock.readUnlock();
+
+        return size;
+    }
 }

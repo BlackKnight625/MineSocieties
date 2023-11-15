@@ -1,9 +1,7 @@
 package ulisboa.tecnico.minesocieties.visitors;
 
 import ulisboa.tecnico.agents.actions.otherActions.GoTo;
-import ulisboa.tecnico.minesocieties.agents.actions.otherActions.Idle;
-import ulisboa.tecnico.minesocieties.agents.actions.otherActions.InformativeGoTo;
-import ulisboa.tecnico.minesocieties.agents.actions.otherActions.WaitFor;
+import ulisboa.tecnico.minesocieties.agents.actions.otherActions.*;
 import ulisboa.tecnico.minesocieties.agents.actions.socialActions.SendChatTo;
 
 /**
@@ -32,5 +30,15 @@ public class NextActionExplainer implements IActionVisitor {
     @Override
     public String visitSendChatTo(SendChatTo sendChatTo) {
         return "Engage in conversation";
+    }
+
+    @Override
+    public String visitContinueCurrentAction(ContinueCurrentAction continueCurrentAction) {
+        return "Continue doing what they're currently doing";
+    }
+
+    @Override
+    public String visitThinking(Thinking thinking) {
+        return "Think about " + thinking.getWhat();
     }
 }
