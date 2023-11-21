@@ -47,4 +47,8 @@ public class TemporaryMemory<T extends InstantMemory> {
 
         return size;
     }
+
+    public void reset() {
+        memoryLock.write(() -> memory.clear());
+    }
 }

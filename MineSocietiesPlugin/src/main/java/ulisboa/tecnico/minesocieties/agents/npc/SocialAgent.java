@@ -26,8 +26,11 @@ import ulisboa.tecnico.minesocieties.visitors.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
+import static ulisboa.tecnico.minesocieties.utils.PromptUtils.*;
 
 public class SocialAgent extends SocialCharacter implements IAgent {
 
@@ -257,13 +260,19 @@ public class SocialAgent extends SocialCharacter implements IAgent {
     }
 
     public void reflectOnConversationsSync() {
-
+        if (state.getMemory().getConversations().entrySizes() != 0) {
+            // There's some reflecting to do
+            state.interpretNewStateResponse(MineSocieties.getPlugin().getLLMManager().promptSync(getPromptForConversationReflecting()));
+        }
     }
 
     public void reflectOnConversationsAsync() {
         if (state.getMemory().getConversations().entrySizes() != 0) {
             // There's some reflecting to do
-
+            MineSocieties.getPlugin().getLLMManager().promptAsyncSupplyMessageAsync(
+                    this::getPromptForConversationReflecting,
+                    state::interpretNewStateResponse
+                    );
         }
     }
 
@@ -272,39 +281,53 @@ public class SocialAgent extends SocialCharacter implements IAgent {
 
         // Telling the model exactly what to do
         messageList.add(new LLMMessage(LLMRole.SYSTEM,
-                        "You are a knowledge extractor AI for " + getName() + ". " +
-                                "You will receive their description and a list of recent conversations. " +
-                                "You must induce knowledge and classify it as Reflections. You must classify " +
-                                "whatever can be considered as short-term memory knowledge. " +
-                                "You must share their opinions about others." +
-                                "Write down your choice as " +
-                                "'|Reflections{<thought1>|<thought2>|...}|ShortMemory{<sentence1>|<sentence2>|...}'." +
-                                "If a list should be empty, write '{}'. Finally, write a short explanation for your choices."
+                        "You are a knowledge extractor AI. " +
+                                "You will receive a person's description and a list of recent conversations inside brackets " +
+                                "'<name>: {<description>}{<conversations>}'. " +
+                                state.getStateFormat()
                 )
         );
 
         // Giving an example of input to the model
         messageList.add(new LLMMessage(LLMRole.USER,
-                        "{Rafael is 22 years old. Their personality consists: ai-enthusiast, intelligent. Their current emotions are: " +
-                                "relaxed, focused. Francisco likes Rafael's thesis. Rui Prada is helping Rafael writing his thesis.}{" +
-                                "Rui Prada told Rafael: {Hey, if you need any help with your thesis, let me know!}"
+                        "Rafael: {Rafael is 22 years old. Their personality consists: ai-enthusiast, intelligent. Their current emotions are: " +
+                                "relaxed, focused. Francisco likes Rafael's thesis. Opinions about Rui Prada: Rafael trusts him.}{" +
+                                "Rui Prada told Rafael: {Hey, if you need any help with your thesis, let me know!}. " +
+                                "Rafael told Rui Prada: {I'm struggling a bit with chapter 3, as I'm not sure what needs to be written there.}. " +
+                                "Rui Prada told Rafael: {Well, let me look into the guidelines and I'll get back to you in a second. Also, don't forget " +
+                                "to submit chapter 2 tonight, as the deadline is at 23h59}. "
                 )
         );
 
         // Giving an example of output to the model
         messageList.add(new LLMMessage(LLMRole.ASSISTANT,
-                        "{1}{Rui Prada|Thanks for offering, but for now I'm all good. I'll let you know if I need help!}" +
-                                "{Since Rafael is focused, going home now will break said focus. Rui Prada just started a conversation with Rafael, " +
-                                "so it's logical that Rafael would reply to Rui Prada, addressing Rui Prada's offer for help. There's no indication that " +
-                                "Rafael is struggling or needs help, as such, Rafael politely refuses Rui Prada's help.}"
+                PERSONALITIES_FORMAT_BEGIN + "{ai-enthusiast, intelligent}\n" +
+                        EMOTIONS_FORMAT_BEGIN + "{stressed, focused}\n" +
+                        REFLECTIONS_FORMAT_BEGIN + "{Francisco likes Rafael's thesis. Rafael needs to work faster on chapter 2. Rui Prada is offering " +
+                        "Rafael help with writing his thesis.}\n" +
+                        OPINIONS_FORMAT_BEGIN + "{Rui Prada[Rafael trusts him.]}\n" +
+                        SHORT_MEMORY_FORMAT_BEGIN + "{Rafael needs to submit chapter 2 tonight before 23h59. Rui Prada said he will help Rafael with chapter 3 in a second.}\n" +
+                        LONG_MEMORY_FORMAT_BEGIN + "{Rafael is struggling with chapter 3.}\n" +
+                        "Explanation: Nothing in the conversation suggests a personality change, as such, Rafael's personalities remain the same. " +
+                        "Since Rafael was reminded that there's a deadline for tonight, it makes sense for Rafael to no longer be relaxed and instead " +
+                        "be stressed. \"Francisco likes Rafael's thesis\" is an important reflection that should be kept, as it could be relevant in " +
+                        "future conversations with Francisco. Rafael's trust in Rui Prada has to reason to be broken, so this opinion remains the same. " +
+                        "Rafael was reminded about the close deadline for chapter 2's submission, which will take place soon, hence it's considered short-term memory. " +
+                        "Rui Prada said he will look into the guidelines and then help Rafael with chapter 3, which according to him, should be quick, as such, " +
+                        "this should be part of Rafael's short-term memory. " +
+                        "Rafael's struggles with chapter 3 is something that prevails until contested. As such, it's long-term memory. "
                 )
         );
 
         // Giving it the desired input
-        StringBuilder builder = new StringBuilder("{");
+        StringBuilder builder = new StringBuilder();
+
+        builder.append(getName()).append(": {");
 
         addFullAgentDescription(builder).append("}{");
         builder.append(state.getMemory().getConversations().accept(new CurrentContextExplainer())).append("}");
+
+        messageList.add(new LLMMessage(LLMRole.USER, builder.toString()));
 
         return messageList;
     }

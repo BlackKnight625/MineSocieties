@@ -34,6 +34,8 @@ public class CurrentContextExplainer implements IContextVisitor {
         builder.append(memory.getNotionOfEvents().accept(this));
         builder.append(' ');
         builder.append(memory.getShortTermMemory().accept(this));
+        builder.append(' ');
+        builder.append(memory.getLongTermMemory().accept(this));
 
         return builder.toString();
     }
@@ -125,8 +127,11 @@ public class CurrentContextExplainer implements IContextVisitor {
     public String explainOpinions(AgentOpinions opinions) {
         StringBuilder builder = new StringBuilder();
 
-        for (Opinion opinion : opinions.getAllOpinions()) {
-            builder.append(opinion.getOpinion());
+        for (var opinion : opinions.getAllOpinions().entrySet()) {
+            builder.append("Opinions about ");
+            builder.append(opinion.getKey());
+            builder.append(": ");
+            builder.append(opinion.getValue().getOpinion());
             builder.append(". ");
         }
 
@@ -223,6 +228,25 @@ public class CurrentContextExplainer implements IContextVisitor {
         if (!shortTermMemorySectionCollection.isEmpty()) {
             for (ShortTermMemorySection shortTermMemorySection : shortTermMemorySectionCollection) {
                 builder.append(shortTermMemorySection.getMemorySection());
+                builder.append(". ");
+            }
+
+            builder.deleteCharAt(builder.length() - 1);
+
+            return builder.toString();
+        } else {
+            return "";
+        }
+    }
+
+    @Override
+    public String explainLongTermMemory(AgentLongTermMemory longTermMemory) {
+        StringBuilder builder = new StringBuilder();
+        var longTermMemorySectionCollection = longTermMemory.getMemorySections();
+
+        if (!longTermMemorySectionCollection.isEmpty()) {
+            for (LongTermMemorySection longTermMemorySection : longTermMemorySectionCollection) {
+                builder.append(longTermMemorySection.getMemorySection());
                 builder.append(". ");
             }
 

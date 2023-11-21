@@ -162,7 +162,7 @@ public class ChatGPTManager extends LLMManager {
         getThreadPool().execute(() -> {
             try {
                 responseReceiver.accept(promptSync(messageList));
-            } catch (RuntimeException e) {
+            } catch (Exception e) {
                 logger.severe("Error occurred while asynchronously prompting OpenAI's ChatGPT: " + e.getMessage());
 
                 e.printStackTrace();
@@ -210,7 +210,7 @@ public class ChatGPTManager extends LLMManager {
         getThreadPool().execute(() -> {
             try {
                 responseReceiver.accept(promptSync(messageSuplier.get()));
-            } catch (RuntimeException e) {
+            } catch (Exception e) {
                 logger.severe("Error occurred while asynchronously prompting OpenAI's ChatGPT: " + e.getMessage());
 
                 e.printStackTrace();

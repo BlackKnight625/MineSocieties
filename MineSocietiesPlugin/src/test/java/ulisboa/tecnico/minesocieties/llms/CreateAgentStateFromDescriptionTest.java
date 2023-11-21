@@ -33,6 +33,7 @@ public class CreateAgentStateFromDescriptionTest extends BaseLLMTest {
                 She does not like C++ as it's too complicated.
                 She thinks Steve is very smart, adorable, and hard-working.
                 She's been through a lot lately.
+                Her cat is currently hungry.
                 """);
 
         CurrentContextExplainer visitor = new CurrentContextExplainer();

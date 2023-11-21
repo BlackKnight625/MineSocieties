@@ -93,4 +93,9 @@ public class SendChatTo implements IActionWithArguments, ISocialAction {
     public String accept(IActionVisitor visitor) {
         return visitor.visitSendChatTo(this);
     }
+
+    @Override
+    public int getThinkingTicks() {
+        return 60;
+    }
 }

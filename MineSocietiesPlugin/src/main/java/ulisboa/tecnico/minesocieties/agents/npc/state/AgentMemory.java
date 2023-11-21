@@ -11,6 +11,7 @@ public class AgentMemory implements IExplainableContext {
     private AgentOpinions opinions = new AgentOpinions();
     private AgentNotionOfEvents notionOfEvents = new AgentNotionOfEvents();
     private AgentShortTermMemory shortTermMemory = new AgentShortTermMemory();
+    private AgentLongTermMemory longTermMemory = new AgentLongTermMemory();
     private AgentLocation home;
 
     // Constructors
@@ -41,6 +42,10 @@ public class AgentMemory implements IExplainableContext {
 
     public AgentShortTermMemory getShortTermMemory() {
         return shortTermMemory;
+    }
+
+    public AgentLongTermMemory getLongTermMemory() {
+        return longTermMemory;
     }
 
     public AgentLocation getHome() {

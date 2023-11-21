@@ -40,9 +40,9 @@ public class AgentOpinions implements IExplainableContext {
         return getOpinion(fromCharacter.getName());
     }
 
-    public Collection<Opinion> getAllOpinions() {
+    public Map<String, Opinion> getAllOpinions() {
         opinionsLock.readLock();
-        var result = new ArrayList<>(opinions.values());
+        var result = new HashMap<>(opinions);
         opinionsLock.readUnlock();
 
         return result;

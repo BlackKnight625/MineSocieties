@@ -3,12 +3,14 @@ package ulisboa.tecnico.minesocieties.agents.npc.state;
 import ulisboa.tecnico.llms.LLMMessage;
 import ulisboa.tecnico.llms.LLMRole;
 import ulisboa.tecnico.minesocieties.MineSocieties;
-import ulisboa.tecnico.minesocieties.agents.actions.exceptions.MalformedFirstMemoriesResponseException;
+import ulisboa.tecnico.minesocieties.agents.actions.exceptions.MalformedNewStateResponseException;
 import ulisboa.tecnico.minesocieties.visitors.IContextVisitor;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+
+import static ulisboa.tecnico.minesocieties.utils.PromptUtils.*;
 
 /**
  *  Represents all the information that an Agent can have. Accessing an Agent's state should not be done on the
@@ -61,14 +63,14 @@ public class AgentState implements IExplainableContext {
      * @param firstMemories
      *  The first memories, in Natural Language, of this agent. This should not include any type of parenthesis
      * '[]', '{}', or the symbol '|', as they are used to instruct the LLM to tidy up the memories.
-     * @throws MalformedFirstMemoriesResponseException
+     * @throws MalformedNewStateResponseException
      *  Thrown if the LLM's response does not conform to the given instructions.
      */
-    public void insertDescriptionSync(String firstMemories) throws MalformedFirstMemoriesResponseException {
+    public void insertDescriptionSync(String firstMemories) throws MalformedNewStateResponseException {
         var messages = getPromptForDescriptionInterpretation(firstMemories);
         String response = MineSocieties.getPlugin().getLLMManager().promptSync(messages);
 
-        interpretFirstMemoriesResponse(firstMemories, response);
+        interpretNewStateResponse(response);
     }
 
     /**
@@ -83,7 +85,7 @@ public class AgentState implements IExplainableContext {
     public void insertDescriptionAsync(String firstMemories) {
         var messages = getPromptForDescriptionInterpretation(firstMemories);
 
-        MineSocieties.getPlugin().getLLMManager().promptAsync(messages, response -> interpretFirstMemoriesResponse(firstMemories, response));
+        MineSocieties.getPlugin().getLLMManager().promptAsync(messages, response -> interpretNewStateResponse(response));
     }
 
     private List<LLMMessage> getPromptForDescriptionInterpretation(String description) {
@@ -94,98 +96,94 @@ public class AgentState implements IExplainableContext {
         messageList.add(new LLMMessage(LLMRole.SYSTEM,
         "You are a people description analyzer. You will receive people's descriptions " +
                 "inside brackets '{}' and must interpret it. " +
-                "Write down the personality traits that best describe them as '|Personalities{<trait1>|<trait2>|...}' " +
-                "(traits should be a single word or hyphenated words, and they must belong to them), " +
-                "and their feelings as '|Emotions{<emotion1>|<emotion2>|...}' (single word). " +
-                "Infer knowledge and write it as '|Reflections{<thought1>|<thought2>|...}' " +
-                "(full sentence with the inferred knowledge). " +
-                "Share their opinions about others as '|Opinions{<name1>[<opinion1>]|<name2>[<opinion2>]|...}' " +
-                "Record short-term memories as '|ShortMemory{<sentence1>|<sentence2>|...}'. " +
-                "If a list should be empty, write '{}'. Finally, write a short explanation for your choices."
-                )
+                getStateFormat())
         );
 
         // Giving an example of input to the model
         messageList.add(new LLMMessage(LLMRole.USER,
-                "{Rafael is a software engineer. He loves chocolate. He thinks Francisco is tall, and is weird for not " +
+                "Rafael: {Rafael is a software engineer. He loves chocolate. He thinks Francisco is tall, and is weird for not " +
                      "liking pineapple on pizza. Rafael is smart and knows funny dark humour jokes. He's happy with himself. " +
-                        "He's going to a party next week.}"
+                        "He's going to a party next week. He needs to cook dinner tonight.}"
                 )
         );
 
         // Giving an example of output to the model
         messageList.add(new LLMMessage(LLMRole.ASSISTANT,
-                "|Personalities{engineer|chocolate-lover|smart|good-sense-of-humour}\n" +
-                        "|Emotions{happy}\n" +
-                        "|Reflections{Rafael likes software engineering because that's what he does and he's happy with " +
+                PERSONALITIES_FORMAT_BEGIN + "{engineer|chocolate-lover|smart|good-sense-of-humour}\n" +
+                        EMOTIONS_FORMAT_BEGIN + "{happy}\n" +
+                        REFLECTIONS_FORMAT_BEGIN + "{Rafael likes software engineering because that's what he does and he's happy with " +
                         "himself|Rafael thinks that not liking pineapple on pizza is weird|Rafael knows funny dark humour jokes|" +
                         "Rafael knows Francisco does not like pineapple on pizza}\n" +
-                        "|Opinions{Francisco[Rafael thinks Francisco is tall and weird]}\n" +
-                        "|ShortMemory{Rafael has a party to attend next week}\n" +
+                        OPINIONS_FORMAT_BEGIN + "{Francisco[Rafael thinks Francisco is tall and weird]}\n" +
+                        SHORT_MEMORY_FORMAT_BEGIN + "{Rafael needs to cook dinner tonight}\n" +
+                        LONG_MEMORY_FORMAT_BEGIN + "{Rafael has a party to attend next week}\n" +
                         "Explanation: Since Rafael is a software engineer and he's happy with himself, this means he likes software engineering. " +
-                        "Rafael is not tall, however, Francisco is tall according to Rafael."
+                        "Rafael is not tall, however, Francisco is tall according to Rafael. Cooking dinner tonight is something that " +
+                        "Rafael needs to remember only for this day, as such, it's considered short-term memory. Rafael is going to a party " +
+                        "next week, which is something that he must remember for a longer time, hence, it's considered long-term memory."
                 )
         );
 
         // Giving it the desired input
         messageList.add(new LLMMessage(LLMRole.USER,
-                "{" + description + "}"
+                name + ": {" + description + "}"
                 )
         );
 
         return messageList;
-
-        /*
-                "Interpret " + name + "'s description: {" + description + "}\n" +
-                "Write down the personality traits that best describes " + name + " as '|Personalities{<trait1>|<trait2>|...}' " +
-                "(traits should be a single word or hyphenated words, and they must belong to " + name + "). " +
-                "and " + name + "'s feelings as '|Emotions{<emotion1>|<emotion2>|...}' (single word). " +
-                "Infer knowledge and write it as '|Reflections{<thought1>|<thought2>|...}' " +
-                "(full sentence with the inferred knowledge)" +
-                "Share " + name + "'s opinions about others as '|Opinions{<name1>[<opinion1>]|<name2>[<opinion2>]|...}' " +
-                "Record short-term memories as '|ShortMemory{<sentence1>|<sentence2>|...}'. " +
-                "If a list should be empty, write '{}'. Finally, write a short explanation for your choices. " +
-                "Example:\nMemories- {Rafael is a software engineer. He loves chocolate. He thinks Francisco is tall, and is weird for not " +
-                "liking pineapple on pizza. Rafael is smart and knows funny dark humour jokes. He's happy with himself. He's going to " +
-                "a party next week.}\n" +
-                "|Personalities{engineer|chocolate-lover|smart|good-sense-of-humour}\n" +
-                "|Emotions{happy}\n" +
-                "|Reflections{Rafael likes software engineering because that's what he does and he's happy with " +
-                "himself|Rafael thinks that not liking pineapple on pizza is weird|Rafael knows funny dark humour jokes|" +
-                "Rafael knows Francisco does not like pineapple on pizza}\n" +
-                "|Opinions{Francisco[Rafael thinks Francisco is tall and weird]}\n" +
-                "|ShortMemory{Rafael has a party to attend next week}\n" +
-                "Notice how 'weird' is not part of Rafael's personality, since it is Francisco who is described as weird.";
-
-         */
     }
 
-    private void interpretFirstMemoriesResponse(String firstMemories, String response) throws MalformedFirstMemoriesResponseException {
-        int personalitiesIndex = response.indexOf("|Personalities");
-        int emotionsIndex = response.indexOf("|Emotions");
-        int reflectionsIndex = response.indexOf("|Reflections");
-        int opinionsIndex = response.indexOf("|Opinions");
-        int shortMemoryIndex = response.indexOf("|ShortMemory");
+    public String getStateFormat() {
+        return "Write down the personality traits that best describe them as " + PERSONALITIES_FORMAT +
+                " (traits should be a single word or hyphenated words, and they must belong to them), " +
+                "and their feelings as " + EMOTIONS_FORMAT + " (single word). " +
+                "Infer knowledge and write it as " + REFLECTIONS_FORMAT +
+                " (full sentence with the inferred knowledge). " +
+                "Share their opinions about others as " + OPINIONS_FORMAT +
+                " Record short-term memories as " + SHORT_MEMORY_FORMAT + ". " +
+                " Record long-term memories as " + LONG_MEMORY_FORMAT +
+                ". If a list should be empty, write '{}'. Finally, write a short explanation for your choices.\n";
+    }
+
+    /**
+     *  Called when a new AgentState should be created from an LLM's response to something. This will
+     * replace some of the contents inside this AgentState
+     * @param response
+     *  The response containing the new information to replace this AgentState
+     * @throws MalformedNewStateResponseException
+     *  Thrown when the response is not formatted correctly
+     */
+    public void interpretNewStateResponse(String response) throws MalformedNewStateResponseException {
+        int personalitiesIndex = response.indexOf(PERSONALITIES_FORMAT_BEGIN);
+        int emotionsIndex = response.indexOf(EMOTIONS_FORMAT_BEGIN);
+        int reflectionsIndex = response.indexOf(REFLECTIONS_FORMAT_BEGIN);
+        int opinionsIndex = response.indexOf(OPINIONS_FORMAT_BEGIN);
+        int shortMemoryIndex = response.indexOf(SHORT_MEMORY_FORMAT_BEGIN);
+        int longMemoryIndex = response.indexOf(LONG_MEMORY_FORMAT_BEGIN);
 
         // Checking if the LLM replied with the lists names
         if (personalitiesIndex == -1) {
-            throw new MalformedFirstMemoriesResponseException("LLM did not create a Personalities list.", firstMemories, response);
+            throw new MalformedNewStateResponseException("LLM did not create a Personalities list.", response);
         }
 
         if (emotionsIndex == -1) {
-            throw new MalformedFirstMemoriesResponseException("LLM did not create an Emotions list.", firstMemories, response);
+            throw new MalformedNewStateResponseException("LLM did not create an Emotions list.", response);
         }
 
         if (reflectionsIndex == -1) {
-            throw new MalformedFirstMemoriesResponseException("LLM did not create a Reflections list.", firstMemories, response);
+            throw new MalformedNewStateResponseException("LLM did not create a Reflections list.", response);
         }
 
         if (opinionsIndex == -1) {
-            throw new MalformedFirstMemoriesResponseException("LLM did not create an Opinions list.", firstMemories, response);
+            throw new MalformedNewStateResponseException("LLM did not create an Opinions list.", response);
         }
 
         if (shortMemoryIndex == -1) {
-            throw new MalformedFirstMemoriesResponseException("LLM did not create a ShortMemory list.", firstMemories, response);
+            throw new MalformedNewStateResponseException("LLM did not create a ShortMemory list.", response);
+        }
+
+        if (longMemoryIndex == -1) {
+            throw new MalformedNewStateResponseException("LLM did not create a LongMemory list.", response);
         }
 
         // Interpreting the personalities
@@ -201,7 +199,7 @@ public class AgentState implements IExplainableContext {
                 }
             }
         } catch (IndexOutOfBoundsException e) {
-            throw new MalformedFirstMemoriesResponseException("LLM malformed the Personalities list.", firstMemories, response);
+            throw new MalformedNewStateResponseException("LLM malformed the Personalities list.", response);
         }
 
         // Interpreting the emotions
@@ -217,7 +215,7 @@ public class AgentState implements IExplainableContext {
                 }
             }
         } catch (IndexOutOfBoundsException e) {
-            throw new MalformedFirstMemoriesResponseException("LLM malformed the Emotions list.", firstMemories, response);
+            throw new MalformedNewStateResponseException("LLM malformed the Emotions list.", response);
         }
 
         // Interpreting the reflections
@@ -235,7 +233,7 @@ public class AgentState implements IExplainableContext {
                 }
             }
         } catch (IndexOutOfBoundsException e) {
-            throw new MalformedFirstMemoriesResponseException("LLM malformed the Reflections list.", firstMemories, response);
+            throw new MalformedNewStateResponseException("LLM malformed the Reflections list.", response);
         }
 
         // Interpreting the opinions
@@ -257,10 +255,10 @@ public class AgentState implements IExplainableContext {
                 }
             }
         } catch (IndexOutOfBoundsException e) {
-            throw new MalformedFirstMemoriesResponseException("LLM malformed the Opinions list.", firstMemories, response);
+            throw new MalformedNewStateResponseException("LLM malformed the Opinions list.", response);
         }
 
-        // Interpreting the reflections
+        // Interpreting the short term memory
         try {
             String[] shortMemories = response.substring(
                     response.indexOf('{', shortMemoryIndex) + 1,
@@ -275,7 +273,25 @@ public class AgentState implements IExplainableContext {
                 }
             }
         } catch (IndexOutOfBoundsException e) {
-            throw new MalformedFirstMemoriesResponseException("LLM malformed the Short-Term Memory list.", firstMemories, response);
+            throw new MalformedNewStateResponseException("LLM malformed the Short-Term Memory list.", response);
+        }
+
+        // Interpreting the long term memory
+        try {
+            String[] longMemories = response.substring(
+                    response.indexOf('{', longMemoryIndex) + 1,
+                    response.indexOf('}', longMemoryIndex)
+            ).split("\\|");
+
+            AgentLongTermMemory agentLongTermMemory = memory.getLongTermMemory();
+
+            for (String longMemory : longMemories) {
+                if (!longMemory.isEmpty()) {
+                    agentLongTermMemory.addMemorySection(new LongTermMemorySection(Instant.now(), longMemory));
+                }
+            }
+        } catch (IndexOutOfBoundsException e) {
+            throw new MalformedNewStateResponseException("LLM malformed the Long-Term Memory list.", response);
         }
     }
 

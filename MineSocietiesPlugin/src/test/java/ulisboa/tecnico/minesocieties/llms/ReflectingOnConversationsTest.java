@@ -1,35 +1,25 @@
 package ulisboa.tecnico.minesocieties.llms;
 
-import org.bukkit.Location;
-import org.bukkit.WeatherType;
 import org.entityutils.entity.npc.player.AnimatedPlayerNPC;
 import org.entityutils.utils.data.PlayerNPCData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ulisboa.tecnico.agents.observation.WeatherChangeObservation;
 import ulisboa.tecnico.minesocieties.MineSocieties;
-import ulisboa.tecnico.minesocieties.agents.actions.ISocialAction;
-import ulisboa.tecnico.minesocieties.agents.actions.otherActions.Idle;
-import ulisboa.tecnico.minesocieties.agents.actions.otherActions.InformativeGoTo;
-import ulisboa.tecnico.minesocieties.agents.actions.otherActions.WaitFor;
-import ulisboa.tecnico.minesocieties.agents.actions.socialActions.SendChatTo;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.agents.npc.state.*;
+import ulisboa.tecnico.minesocieties.visitors.CurrentContextExplainer;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ChooseActionsFromActionListTest extends BaseLLMTest {
+public class ReflectingOnConversationsTest extends BaseLLMTest {
 
     // Private attributes
 
@@ -38,6 +28,11 @@ public class ChooseActionsFromActionListTest extends BaseLLMTest {
     private String steve = "Steve Johnson";
     private String jennifer = "Jennifer Lopes";
     private String nathan = "Nathan Daniels";
+    private AgentReference steveReference = new AgentReference(UUID.randomUUID(), steve);
+    private AgentReference jenniferReference = new AgentReference(UUID.randomUUID(), jennifer);
+    private AgentReference nathanReference = new AgentReference(UUID.randomUUID(), nathan);
+    private AgentReference alexReference;
+    private AgentState alexState;
 
     // Test methods
 
@@ -49,6 +44,8 @@ public class ChooseActionsFromActionListTest extends BaseLLMTest {
         UUID uuid = UUID.randomUUID();
         String name = "Alex Holmes";
 
+        alexReference = new AgentReference(uuid, name);
+
         agent = new SocialAgent(npc);
 
         when(npc.getData()).thenReturn(data);
@@ -56,20 +53,20 @@ public class ChooseActionsFromActionListTest extends BaseLLMTest {
         when(data.getUUID()).thenReturn(uuid);
         when(data.getName()).thenReturn(name);
 
-        AgentState state = new AgentState(
+        alexState = new AgentState(
                 new AgentPersona(name, 21, Instant.ofEpochSecond(
                         LocalDateTime.of(2000, Month.DECEMBER, 5, 12, 0).toEpochSecond(ZoneOffset.UTC)
                 )), new AgentLocation());
 
-        agent.setState(state);
+        agent.setState(alexState);
 
-        var memory = state.getMemory();
+        var memory = alexState.getMemory();
         var shortMemory = memory.getShortTermMemory();
         var opinions = memory.getOpinions();
         var reflections = memory.getReflections();
         var notionOfEvents = memory.getNotionOfEvents();
-        var moods = state.getMoods();
-        var personalities = state.getPersonalities();
+        var moods = alexState.getMoods();
+        var personalities = alexState.getPersonalities();
 
         shortMemory.addMemorySection(new ShortTermMemorySection(Instant.now(), steve + "'s birthday is in 2 days"));
         shortMemory.addMemorySection(new ShortTermMemorySection(Instant.now(), steve + " invited Alex to his birthday party"));
@@ -84,47 +81,24 @@ public class ChooseActionsFromActionListTest extends BaseLLMTest {
         personalities.addState(Personality.INTELLIGENT);
         personalities.addState("nerdy");
 
+
         MineSocieties.getPlugin().getSocialAgentManager().registerAgent(agent);
     }
 
     @Test
-    public void chooseToChatWithMultiplePeople() {
-        SendChatTo sendChatTo = mock(SendChatTo.class); // It's a mock due to its method that searches for nearby entities
+    public void reflectOnStolenPenConversation() {
+        var conversations = alexState.getMemory().getConversations();
 
-        when(sendChatTo.getNamesOfNearbyCharacters(agent)).thenReturn(List.of(steve, jennifer, nathan));
-        when(sendChatTo.acceptArgumentsExplainer(any(), any())).thenCallRealMethod();
-        when(sendChatTo.accept(any())).thenCallRealMethod();
+        conversations.addMemorySection(new Conversation(Instant.now(), "Hey Jennifer. Could I please have my pen back?", alexReference, jenniferReference));
+        conversations.addMemorySection(new Conversation(Instant.now(), "I lost it. I don't know where it is.", jenniferReference, alexReference));
+        conversations.addMemorySection(new Conversation(Instant.now(), "I know you have it. I saw you using it a while ago.", alexReference, jenniferReference));
+        conversations.addMemorySection(new Conversation(Instant.now(), "Fine. I'll give it back after lunch.", jenniferReference, alexReference));
 
-        List<ISocialAction> possibleActions = new ArrayList<>();
+        // Reflecting on the conversations
+        agent.reflectOnConversationsSync();
 
-        possibleActions.add(sendChatTo);
+        CurrentContextExplainer visitor = new CurrentContextExplainer();
 
-        var messages = agent.getPromptForNewAction(possibleActions, new WeatherChangeObservation(WeatherType.DOWNFALL));
-
-        String reply = MineSocieties.getPlugin().getLLMManager().promptSync(messages);
-
-        System.out.println(reply);
-    }
-
-    @Test
-    public void chooseFromAVarietyOfActions() {
-        SendChatTo sendChatTo = mock(SendChatTo.class);
-
-        when(sendChatTo.getNamesOfNearbyCharacters(agent)).thenReturn(List.of(jennifer, nathan));
-        when(sendChatTo.acceptArgumentsExplainer(any(), any())).thenCallRealMethod();
-        when(sendChatTo.accept(any())).thenCallRealMethod();
-
-        List<ISocialAction> possibleActions = new ArrayList<>();
-
-        possibleActions.add(sendChatTo);
-        possibleActions.add(new WaitFor("rain to stop falling"));
-        possibleActions.add(new InformativeGoTo(new Location(null, 0, 0, 0), "home"));
-        possibleActions.add(new Idle());
-
-        var messages = agent.getPromptForNewAction(possibleActions, new WeatherChangeObservation(WeatherType.DOWNFALL));
-
-        String reply = MineSocieties.getPlugin().getLLMManager().promptSync(messages);
-
-        System.out.println(reply);
+        System.out.println(visitor.explainState(alexState));
     }
 }
