@@ -287,7 +287,8 @@ public class SocialAgent extends SocialCharacter implements IAgent {
         // Giving an example of input to the model
         messageList.add(new LLMMessage(LLMRole.USER,
                         "Rafael: {Rafael is 22 years old. Their personality consists: ai-enthusiast, intelligent. Their current emotions are: " +
-                                "relaxed, focused. Francisco likes Rafael's thesis. Opinions about Rui Prada: Rafael trusts him.}{" +
+                                "relaxed, focused. Francisco likes Rafael's thesis. Opinions about Rui Prada: Rafael trusts him. " +
+                                "Opinions about Francisco: Rafael likes hanging out with Francisco.}{" +
                                 "Rui Prada told Rafael: {Hey, if you need any help with your thesis, let me know!}. " +
                                 "Rafael told Rui Prada: {I'm struggling a bit with chapter 3, as I'm not sure what needs to be written there.}. " +
                                 "Rui Prada told Rafael: {Well, let me look into the guidelines and I'll get back to you in a second. Also, don't forget " +
@@ -297,17 +298,18 @@ public class SocialAgent extends SocialCharacter implements IAgent {
 
         // Giving an example of output to the model
         messageList.add(new LLMMessage(LLMRole.ASSISTANT,
-                PERSONALITIES_FORMAT_BEGIN + "{ai-enthusiast, intelligent}\n" +
-                        EMOTIONS_FORMAT_BEGIN + "{stressed, focused}\n" +
-                        REFLECTIONS_FORMAT_BEGIN + "{Francisco likes Rafael's thesis. Rafael needs to work faster on chapter 2. Rui Prada is offering " +
-                        "Rafael help with writing his thesis.}\n" +
-                        OPINIONS_FORMAT_BEGIN + "{Rui Prada[Rafael trusts Rui Prada.]}\n" +
-                        SHORT_MEMORY_FORMAT_BEGIN + "{Rafael needs to submit chapter 2 tonight before 23h59. Rui Prada said he will help Rafael with chapter 3 in a second.}\n" +
-                        LONG_MEMORY_FORMAT_BEGIN + "{Rafael is struggling with chapter 3.}\n" +
+                PERSONALITIES_FORMAT_BEGIN + "{ai-enthusiast|intelligent}\n" +
+                        EMOTIONS_FORMAT_BEGIN + "{stressed|focused}\n" +
+                        REFLECTIONS_FORMAT_BEGIN + "{Francisco likes Rafael's thesis|Rafael needs to work faster on chapter 2|Rui Prada is offering " +
+                        "Rafael help with writing his thesis}\n" +
+                        OPINIONS_FORMAT_BEGIN + "{Rui Prada[Rafael trusts Rui Prada]|Francisco[Rafael likes hanging out with Francisco]}\n" +
+                        SHORT_MEMORY_FORMAT_BEGIN + "{Rafael needs to submit chapter 2 tonight before 23h59|Rui Prada said he will help Rafael with chapter 3 in a second}\n" +
+                        LONG_MEMORY_FORMAT_BEGIN + "{Rafael is struggling with chapter 3}\n" +
                         "Explanation: Nothing in the conversation suggests a personality change, as such, Rafael's personalities remain the same. " +
                         "Since Rafael was reminded that there's a deadline for tonight, it makes sense for Rafael to no longer be relaxed and instead " +
                         "be stressed. \"Francisco likes Rafael's thesis\" is an important reflection that should be kept, as it could be relevant in " +
                         "future conversations with Francisco. Rafael's trust in Rui Prada has to reason to be broken, so this opinion remains the same. " +
+                        "The same applies to Rafael's opinion regarding Francisco. " +
                         "Rafael was reminded about the close deadline for chapter 2's submission, which will take place soon, hence it's considered short-term memory. " +
                         "Rui Prada said he will look into the guidelines and then help Rafael with chapter 3, which according to him, should be quick, as such, " +
                         "this should be part of Rafael's short-term memory. " +
