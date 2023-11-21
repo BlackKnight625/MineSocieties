@@ -26,7 +26,6 @@ import ulisboa.tecnico.minesocieties.visitors.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -262,21 +261,18 @@ public class SocialAgent extends SocialCharacter implements IAgent {
     public void reflectOnConversationsSync() {
         if (state.getMemory().getConversations().entrySizes() != 0) {
             // There's some reflecting to do
-            state.interpretNewStateResponse(MineSocieties.getPlugin().getLLMManager().promptSync(getPromptForConversationReflecting()));
+            state.requestStateChangeSync(getPromptForConversationReflectingSync());
         }
     }
 
     public void reflectOnConversationsAsync() {
         if (state.getMemory().getConversations().entrySizes() != 0) {
             // There's some reflecting to do
-            MineSocieties.getPlugin().getLLMManager().promptAsyncSupplyMessageAsync(
-                    this::getPromptForConversationReflecting,
-                    state::interpretNewStateResponse
-                    );
+            state.requestStateChangeAsync(this::getPromptForConversationReflectingSync);
         }
     }
 
-    public List<LLMMessage> getPromptForConversationReflecting() {
+    public List<LLMMessage> getPromptForConversationReflectingSync() {
         List<LLMMessage> messageList = new ArrayList<>(4);
 
         // Telling the model exactly what to do
@@ -305,7 +301,7 @@ public class SocialAgent extends SocialCharacter implements IAgent {
                         EMOTIONS_FORMAT_BEGIN + "{stressed, focused}\n" +
                         REFLECTIONS_FORMAT_BEGIN + "{Francisco likes Rafael's thesis. Rafael needs to work faster on chapter 2. Rui Prada is offering " +
                         "Rafael help with writing his thesis.}\n" +
-                        OPINIONS_FORMAT_BEGIN + "{Rui Prada[Rafael trusts him.]}\n" +
+                        OPINIONS_FORMAT_BEGIN + "{Rui Prada[Rafael trusts Rui Prada.]}\n" +
                         SHORT_MEMORY_FORMAT_BEGIN + "{Rafael needs to submit chapter 2 tonight before 23h59. Rui Prada said he will help Rafael with chapter 3 in a second.}\n" +
                         LONG_MEMORY_FORMAT_BEGIN + "{Rafael is struggling with chapter 3.}\n" +
                         "Explanation: Nothing in the conversation suggests a personality change, as such, Rafael's personalities remain the same. " +

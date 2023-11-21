@@ -39,4 +39,8 @@ public class CollectionOfStates<T extends ISimpleExplanation> {
 
         return result;
     }
+
+    public void reset() {
+        statesLock.write(() -> states.clear());
+    }
 }

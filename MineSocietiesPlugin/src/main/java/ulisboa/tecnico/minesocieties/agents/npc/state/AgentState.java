@@ -9,6 +9,9 @@ import ulisboa.tecnico.minesocieties.visitors.IContextVisitor;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Supplier;
 
 import static ulisboa.tecnico.minesocieties.utils.PromptUtils.*;
 
@@ -25,6 +28,7 @@ public class AgentState implements IExplainableContext {
     private AgentMoods moods = new AgentMoods();
     private AgentPersonalities personalities = new AgentPersonalities();
     private AgentPersona persona;
+    private Lock stateLock = new ReentrantLock();
 
     // Constructors
 
@@ -55,6 +59,14 @@ public class AgentState implements IExplainableContext {
 
     // Other methods
 
+    public void startStateModification() {
+        stateLock.lock();
+    }
+
+    public void finishStateModification() {
+        stateLock.unlock();
+    }
+
     /**
      *  Gives this agent an initial description. This should only be called when the AgentState is brand new
      * and the agent does not have memories yet. Otherwise, this can mess up the existing memories.
@@ -67,10 +79,7 @@ public class AgentState implements IExplainableContext {
      *  Thrown if the LLM's response does not conform to the given instructions.
      */
     public void insertDescriptionSync(String firstMemories) throws MalformedNewStateResponseException {
-        var messages = getPromptForDescriptionInterpretation(firstMemories);
-        String response = MineSocieties.getPlugin().getLLMManager().promptSync(messages);
-
-        interpretNewStateResponse(response);
+        requestStateChangeSync(getPromptForDescriptionInterpretationSync(firstMemories));
     }
 
     /**
@@ -83,12 +92,49 @@ public class AgentState implements IExplainableContext {
      * '[]', '{}', or the symbol '|', as they are used to instruct the LLM to tidy up the memories.
      */
     public void insertDescriptionAsync(String firstMemories) {
-        var messages = getPromptForDescriptionInterpretation(firstMemories);
-
-        MineSocieties.getPlugin().getLLMManager().promptAsync(messages, response -> interpretNewStateResponse(response));
+        requestStateChangeAsync(() -> getPromptForDescriptionInterpretationSync(firstMemories));
     }
 
-    private List<LLMMessage> getPromptForDescriptionInterpretation(String description) {
+    /**
+     *  Called when the state should suffer changes decided by the LLM. Its response will then be interpreted and
+     * changes will be applied to this state accordingly. {@link #getStateFormat()} should be included in the messages,
+     * as it sets the format of the responses that will be interpreted.
+     * @param messages
+     *  The prompts to be sent to the LLM
+     */
+    public void requestStateChangeSync(List<LLMMessage> messages) {
+        startStateModification();
+
+        try {
+            interpretNewStateResponse(MineSocieties.getPlugin().getLLMManager().promptSync(messages));
+        } finally {
+            finishStateModification();
+        }
+    }
+
+    /**
+     *  Called when the state should suffer changes decided by the LLM. Its response will then be interpreted and
+     * changes will be applied to this state accordingly. {@link #getStateFormat()} should be included in the messages,
+     * as it sets the format of the responses that will be interpreted.
+     * @param messagesSuplier
+     *  A supplier for the prompts
+     */
+    public void requestStateChangeAsync(Supplier<List<LLMMessage>> messagesSuplier) {
+        MineSocieties.getPlugin().getLLMManager().promptAsyncSupplyMessageAsync(
+                () -> {
+                    startStateModification(); // Once the prompt is requested, this state becomes locked
+
+                    return messagesSuplier.get();
+                },
+                response -> {
+                    interpretNewStateResponse(response);
+                    finishStateModification(); // After changes are applied to the state, the state becomes unlocked
+                },
+                throwable -> finishStateModification() // If there's a problem during prompting, the state becomes unlocked
+        );
+    }
+
+    private List<LLMMessage> getPromptForDescriptionInterpretationSync(String description) {
         String name = persona.getName();
         List<LLMMessage> messageList = new ArrayList<>(4);
 
@@ -141,7 +187,7 @@ public class AgentState implements IExplainableContext {
                 " (full sentence with the inferred knowledge). " +
                 "Share their opinions about others as " + OPINIONS_FORMAT +
                 " Record short-term memories as " + SHORT_MEMORY_FORMAT + ". " +
-                " Record long-term memories as " + LONG_MEMORY_FORMAT +
+                " Record long-term memories and important details as " + LONG_MEMORY_FORMAT +
                 ". If a list should be empty, write '{}'. Finally, write a short explanation for your choices.\n";
     }
 
@@ -188,6 +234,8 @@ public class AgentState implements IExplainableContext {
 
         // Interpreting the personalities
         try {
+            personalities.reset();
+
             String[] personalities = response.substring(
                     response.indexOf('{', personalitiesIndex) + 1,
                     response.indexOf('}', personalitiesIndex)
@@ -204,6 +252,8 @@ public class AgentState implements IExplainableContext {
 
         // Interpreting the emotions
         try {
+            moods.reset();
+
             String[] emotions = response.substring(
                     response.indexOf('{', emotionsIndex) + 1,
                     response.indexOf('}', emotionsIndex)
@@ -227,6 +277,8 @@ public class AgentState implements IExplainableContext {
 
             AgentReflections agentReflections = memory.getReflections();
 
+            agentReflections.reset();
+
             for (String reflection : reflections) {
                 if (!reflection.isEmpty()) {
                     agentReflections.addMemorySection(new Reflection(Instant.now(), reflection));
@@ -244,6 +296,8 @@ public class AgentState implements IExplainableContext {
             ).split("\\|");
 
             AgentOpinions agentOpinions = memory.getOpinions();
+
+            agentOpinions.reset();
 
             for (String nameAndOpinion : opinions) {
                 if (!nameAndOpinion.isEmpty()) {
@@ -267,6 +321,8 @@ public class AgentState implements IExplainableContext {
 
             AgentShortTermMemory agentShortTermMemory = memory.getShortTermMemory();
 
+            agentShortTermMemory.reset();
+
             for (String shortMemory : shortMemories) {
                 if (!shortMemory.isEmpty()) {
                     agentShortTermMemory.addMemorySection(new ShortTermMemorySection(Instant.now(), shortMemory));
@@ -284,6 +340,8 @@ public class AgentState implements IExplainableContext {
             ).split("\\|");
 
             AgentLongTermMemory agentLongTermMemory = memory.getLongTermMemory();
+
+            agentLongTermMemory.reset();
 
             for (String longMemory : longMemories) {
                 if (!longMemory.isEmpty()) {

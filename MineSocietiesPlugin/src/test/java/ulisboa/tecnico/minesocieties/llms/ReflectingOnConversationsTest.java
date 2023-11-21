@@ -101,4 +101,23 @@ public class ReflectingOnConversationsTest extends BaseLLMTest {
 
         System.out.println(visitor.explainState(alexState));
     }
+
+    @Test
+    public void reflectOnSteveBirthdayPartyConversation() {
+        var conversations = alexState.getMemory().getConversations();
+
+        conversations.addMemorySection(new Conversation(Instant.now(), "Hey Steve! Do you know what gifts you want for your party?", alexReference, steveReference));
+        conversations.addMemorySection(new Conversation(Instant.now(), "Hey! My gaming mouse broke recently. However, they're quite expensive.", steveReference, alexReference));
+        conversations.addMemorySection(new Conversation(Instant.now(), "Ohh, don't worry! Just let me know what model you like and I'll search for a cool one.", alexReference, steveReference));
+        conversations.addMemorySection(new Conversation(Instant.now(), "Are you sure? I don't want you to go broke for this.", steveReference, alexReference));
+        conversations.addMemorySection(new Conversation(Instant.now(), "Yeah, no problem! It's going to be a big birthday, so a big gift is the least I can do.", alexReference, steveReference));
+        conversations.addMemorySection(new Conversation(Instant.now(), "Ohh well, thank you so much! I love LogiTech. Please don't go overboard... There's no need to spend too much.", steveReference, alexReference));
+
+        // Reflecting on the conversations
+        agent.reflectOnConversationsSync();
+
+        CurrentContextExplainer visitor = new CurrentContextExplainer();
+
+        System.out.println(visitor.explainState(alexState));
+    }
 }

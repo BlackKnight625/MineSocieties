@@ -1,5 +1,7 @@
 package ulisboa.tecnico.llms;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -44,6 +46,9 @@ public abstract class LLMManager {
 
     public abstract void promptAsyncSupplyPromptAsync(Supplier<String> promptSupplier, Consumer<String> responseReceiver);
 
+    public abstract void promptAsyncSupplyPromptAsync(Supplier<String> promptSupplier, Consumer<String> responseReceiver,
+                                                      @Nullable Consumer<Throwable> onError);
+
     /**
      *  Sends multiple messages to the LLM that are more specialized to the specific LLM type in order to
      * fine-tune it into replying with the desired format. To use this method, you must first understand
@@ -69,6 +74,9 @@ public abstract class LLMManager {
     public abstract void promptAsync(List<LLMMessage> messages, Consumer<String> responseReceiver);
 
     public abstract void promptAsyncSupplyMessageAsync(Supplier<List<LLMMessage>> messageSuplier, Consumer<String> responseReceiver);
+
+    public abstract void promptAsyncSupplyMessageAsync(Supplier<List<LLMMessage>> messageSuplier, Consumer<String> responseReceiver,
+                                                       @Nullable Consumer<Throwable> onError);
 
     public abstract void teardown();
 }

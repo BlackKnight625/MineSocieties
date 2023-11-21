@@ -52,4 +52,8 @@ public class AgentOpinions implements IExplainableContext {
     public String accept(IContextVisitor visitor) {
         return visitor.explainOpinions(this);
     }
+
+    public void reset() {
+        opinionsLock.write(() -> opinions.clear());
+    }
 }

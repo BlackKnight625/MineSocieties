@@ -1,5 +1,6 @@
 package ulisboa.tecnico.llms;
 
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -9,6 +10,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -148,7 +150,7 @@ public class ChatGPTManager extends LLMManager {
             // calls the method to extract the message.
             return extractMessageFromJSONResponse(responseString);
         } catch (IOException | RuntimeException e) {
-            throw new RuntimeException("An error occurred while trying to send a prompt OpenAI's ChatGPT. Body: " + body, e);
+            throw new RuntimeException("An error occurred while trying to send a prompt to OpenAI's ChatGPT. Body: " + body, e);
         }
     }
 
@@ -202,11 +204,21 @@ public class ChatGPTManager extends LLMManager {
 
     @Override
     public void promptAsyncSupplyPromptAsync(Supplier<String> promptSupplier, Consumer<String> responseReceiver) {
-        promptAsync(List.of(new LLMMessage(LLMRole.USER, promptSupplier.get())), responseReceiver);
+        promptAsyncSupplyPromptAsync(promptSupplier, responseReceiver, null);
+    }
+
+    @Override
+    public void promptAsyncSupplyPromptAsync(Supplier<String> promptSupplier, Consumer<String> responseReceiver, @Nullable Consumer<Throwable> onError) {
+        promptAsyncSupplyMessageAsync(() -> Collections.singletonList(new LLMMessage(LLMRole.USER, promptSupplier.get())), responseReceiver, onError);
     }
 
     @Override
     public void promptAsyncSupplyMessageAsync(Supplier<List<LLMMessage>> messageSuplier, Consumer<String> responseReceiver) {
+        promptAsyncSupplyMessageAsync(messageSuplier, responseReceiver, null);
+    }
+
+    @Override
+    public void promptAsyncSupplyMessageAsync(Supplier<List<LLMMessage>> messageSuplier, Consumer<String> responseReceiver, @Nullable Consumer<Throwable> onError) {
         getThreadPool().execute(() -> {
             try {
                 responseReceiver.accept(promptSync(messageSuplier.get()));
@@ -214,6 +226,10 @@ public class ChatGPTManager extends LLMManager {
                 logger.severe("Error occurred while asynchronously prompting OpenAI's ChatGPT: " + e.getMessage());
 
                 e.printStackTrace();
+
+                if (onError != null) {
+                    onError.accept(e);
+                }
             }
         });
     }
