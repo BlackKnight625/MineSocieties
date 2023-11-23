@@ -121,7 +121,7 @@ public class SocialAgent extends SocialCharacter implements IAgent {
                     () -> getPromptForNewAction(possibleActions, newlyObtainedObservation),
                     response -> {
                 try {
-                    interpretNewAction(response, possibleActions);
+                    interpretNewActionSync(response, possibleActions);
                 } catch (MalformedActionChoiceException | MalformedActionArgumentsException e) {
                     MineSocieties.getPlugin().getLogger().severe("Something went wrong while interpreting the LLM's reply to " +
                             "an Action Choice request. " + e.getMessage());
@@ -185,7 +185,7 @@ public class SocialAgent extends SocialCharacter implements IAgent {
         return messageList;
     }
 
-    private void interpretNewAction(String actionReply, List<ISocialAction> possibleActions) throws MalformedActionChoiceException, MalformedActionArgumentsException {
+    private void interpretNewActionSync(String actionReply, List<ISocialAction> possibleActions) throws MalformedActionChoiceException, MalformedActionArgumentsException {
         String[] replySections = actionReply.split("\\{");
 
         if (replySections.length == 0) {
@@ -254,8 +254,14 @@ public class SocialAgent extends SocialCharacter implements IAgent {
             reflectOnConversationsAsync();
         }
 
-        currentAction.cancel();
-        currentAction = newAction;
+        actionChoosingLock.lock();
+
+        try {
+            currentAction.cancel();
+            currentAction = newAction;
+        } finally {
+            actionChoosingLock.unlock();
+        }
     }
 
     public void reflectOnConversationsSync() {

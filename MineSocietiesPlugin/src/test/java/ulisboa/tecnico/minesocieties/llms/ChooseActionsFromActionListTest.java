@@ -46,7 +46,7 @@ public class ChooseActionsFromActionListTest extends BaseLLMTest {
         AnimatedPlayerNPC npc = mock(AnimatedPlayerNPC.class);
         PlayerNPCData data = mock(PlayerNPCData.class);
 
-        UUID uuid = UUID.randomUUID();
+        UUID uuid = new UUID(625, 625);
         String name = "Alex Holmes";
 
         agent = new SocialAgent(npc);
@@ -56,7 +56,7 @@ public class ChooseActionsFromActionListTest extends BaseLLMTest {
         when(data.getUUID()).thenReturn(uuid);
         when(data.getName()).thenReturn(name);
 
-        AgentState state = new AgentState(
+        AgentState state = new AgentState(uuid,
                 new AgentPersona(name, 21, Instant.ofEpochSecond(
                         LocalDateTime.of(2000, Month.DECEMBER, 5, 12, 0).toEpochSecond(ZoneOffset.UTC)
                 )), new AgentLocation());

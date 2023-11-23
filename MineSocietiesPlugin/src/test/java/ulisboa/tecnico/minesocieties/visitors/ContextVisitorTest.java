@@ -38,7 +38,7 @@ public class ContextVisitorTest {
         AgentReference alex = new AgentReference(UUID.randomUUID(), "Alex Jones");
         AgentReference steve = new AgentReference(UUID.randomUUID(), "Steve Johnson");
         Instant aWhileAgo = Instant.now().minus(5, ChronoUnit.MINUTES);
-        AgentState alexState = new AgentState(
+        AgentState alexState = new AgentState(new UUID(625, 625),
                 new AgentPersona(alex.getName(), 23, Instant.ofEpochSecond(
                         LocalDateTime.of(2000, Month.DECEMBER, 5, 12, 0).toEpochSecond(ZoneOffset.UTC)
                 )),
@@ -92,7 +92,7 @@ public class ContextVisitorTest {
     public void visitEmptyState() {
         AgentReference alex = new AgentReference(UUID.randomUUID(), "Alex Jones");
 
-        AgentState alexState = new AgentState(
+        AgentState alexState = new AgentState(new UUID(625, 625),
                 new AgentPersona(alex.getName(), 23, Instant.ofEpochSecond(
                         LocalDateTime.of(2000, Month.DECEMBER, 5, 12, 0).toEpochSecond(ZoneOffset.UTC)
                 )),

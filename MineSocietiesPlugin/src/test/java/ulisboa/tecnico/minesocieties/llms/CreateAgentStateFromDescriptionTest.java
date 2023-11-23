@@ -11,11 +11,12 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.ZoneOffset;
+import java.util.UUID;
 
 public class CreateAgentStateFromDescriptionTest extends BaseLLMTest {
 
     private AgentState getNewAgentState() {
-        return new AgentState(
+        return new AgentState(new UUID(625, 625),
                 new AgentPersona("Alex Johnson", 23, Instant.ofEpochSecond(
                         LocalDateTime.of(2000, Month.DECEMBER, 5, 12, 0).toEpochSecond(ZoneOffset.UTC)
                 )),

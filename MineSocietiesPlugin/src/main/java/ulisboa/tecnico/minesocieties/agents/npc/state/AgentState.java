@@ -1,17 +1,26 @@
 package ulisboa.tecnico.minesocieties.agents.npc.state;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import ulisboa.tecnico.llms.LLMMessage;
 import ulisboa.tecnico.llms.LLMRole;
 import ulisboa.tecnico.minesocieties.MineSocieties;
 import ulisboa.tecnico.minesocieties.agents.actions.exceptions.MalformedNewStateResponseException;
+import ulisboa.tecnico.minesocieties.utils.InstantTypeAdapter;
 import ulisboa.tecnico.minesocieties.visitors.IContextVisitor;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
+import java.util.logging.Level;
 
 import static ulisboa.tecnico.minesocieties.utils.PromptUtils.*;
 
@@ -28,13 +37,18 @@ public class AgentState implements IExplainableContext {
     private AgentMoods moods = new AgentMoods();
     private AgentPersonalities personalities = new AgentPersonalities();
     private AgentPersona persona;
-    private Lock stateLock = new ReentrantLock();
+    private UUID uuid;
+    private transient Lock stateLock = new ReentrantLock();
+
+    private static final Path STATES_PATH =  Path.of("plugins", "MineSocieties", "social_agents");
+    private static final Gson GSON;
 
     // Constructors
 
     public AgentState() {}
 
-    public AgentState(AgentPersona persona, AgentLocation home) {
+    public AgentState(UUID uuid, AgentPersona persona, AgentLocation home) {
+        this.uuid = uuid;
         this.memory = new AgentMemory(home);
         this.persona = persona;
     }
@@ -64,6 +78,8 @@ public class AgentState implements IExplainableContext {
     }
 
     public void finishStateModification() {
+        saveSync();
+
         stateLock.unlock();
     }
 
@@ -353,17 +369,41 @@ public class AgentState implements IExplainableContext {
         }
     }
 
-    // Saves this state in a file
-    public void saveSync() {
-        // TODO
+    public Path getStatePath() {
+        return Path.of(STATES_PATH.toString(), persona.getName() + "_" + uuid + ".txt");
     }
 
-    public void saveAsync() {
-        // TODO
+    /**
+     *  Saves this current state in its corresponding file
+     */
+    public void saveSync() {
+        try {
+            File file = getStatePath().toFile();
+
+            file.getParentFile().mkdirs();
+            file.createNewFile();
+
+            Files.write(getStatePath(), GSON.toJson(this).getBytes());
+        } catch (IOException e) {
+            MineSocieties.getPlugin().getLogger().log(Level.WARNING,
+                    "Unable to save the state of " + persona.getName() + " into a file.", e);
+        }
     }
 
     @Override
     public String accept(IContextVisitor visitor) {
         return visitor.explainState(this);
+    }
+
+    // Static
+    static {
+        // Creating the builder for the Gson that will serialize and deserialize an AgentState
+        GsonBuilder gsonBuilder = new GsonBuilder();
+
+        gsonBuilder.setPrettyPrinting();
+
+        gsonBuilder.registerTypeAdapter(Instant.class, new InstantTypeAdapter());
+
+        GSON = gsonBuilder.create();
     }
 }

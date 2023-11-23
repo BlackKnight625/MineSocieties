@@ -1,5 +1,6 @@
 package ulisboa.tecnico.agents;
 
+import org.apache.commons.lang3.text.WordUtils;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -12,6 +13,7 @@ import ulisboa.tecnico.agents.utils.ReadWriteLock;
 
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 /**
  *  The Manager of instances of agents. To use this API, all you must do is create an instance of
@@ -34,6 +36,8 @@ public abstract class AbstractAgentManager<A extends IAgent, P extends IPlayerAg
     private final ReadWriteLock characterByNameMapLock = new ReadWriteLock();
     private final JavaPlugin plugin;
 
+    private static final Pattern NAME_PATTERN = Pattern.compile("[\\w'\\-,.][^0-9_!¡?÷¿/\\\\+=@#$%ˆ&*(){}|~<>;:\\[\\]]{2,}");
+
     // Constructors
 
     public AbstractAgentManager(JavaPlugin plugin) {
@@ -52,7 +56,18 @@ public abstract class AbstractAgentManager<A extends IAgent, P extends IPlayerAg
         new EventListener(this).register();
     }
 
-    public A deployAgent(String name, Location location) {
+    public A deployAgent(String name, Location location) throws IllegalArgumentException {
+        // Sanitizing the name
+        name = name.replaceAll("\"", "");
+
+        // Making sure capitalization is correct
+        name = WordUtils.capitalizeFully(name);
+
+        if (!NAME_PATTERN.matcher(name).matches()) {
+            throw new IllegalArgumentException("The given name '" + name + "' does not abide to naming conventions. It must " +
+                    "follow this regex: " + NAME_PATTERN);
+        }
+
         A agent = getNewAgentInstance(name, location);
 
         registerAgent(agent);
