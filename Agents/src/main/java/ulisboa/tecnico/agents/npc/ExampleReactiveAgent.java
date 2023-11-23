@@ -54,12 +54,6 @@ public class ExampleReactiveAgent implements IAgent {
     }
 
     @Override
-    public void receivedAnyObservation(IObservation<IObserver> observation) {
-        // This agent only reacts to concrete observations
-        observation.accept(this);
-    }
-
-    @Override
     public void deleted() {
         // Do nothing
     }

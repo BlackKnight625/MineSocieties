@@ -31,8 +31,10 @@ public class EventListener implements Listener {
     public void weatherChanges(WeatherChangeEvent e) {
         WeatherType weatherType = e.toWeatherState() ? WeatherType.DOWNFALL : WeatherType.CLEAR;
 
+        WeatherChangeObservation observation = new WeatherChangeObservation(weatherType);
+
         manager.forEachValidCharacter(
-                character -> new WeatherChangeObservation(weatherType).accept(character)
+                observation::accept
         );
     }
 

@@ -21,6 +21,9 @@ import ulisboa.tecnico.minesocieties.agents.actions.otherActions.Idle;
 import ulisboa.tecnico.minesocieties.agents.actions.otherActions.Thinking;
 import ulisboa.tecnico.minesocieties.agents.actions.socialActions.SendChatTo;
 import ulisboa.tecnico.minesocieties.agents.npc.state.AgentState;
+import ulisboa.tecnico.minesocieties.agents.observation.ISocialObserver;
+import ulisboa.tecnico.minesocieties.agents.observation.wrapped.SocialReceivedChatFromObservation;
+import ulisboa.tecnico.minesocieties.agents.observation.wrapped.SocialWeatherChangeObservation;
 import ulisboa.tecnico.minesocieties.visitors.*;
 
 import java.util.ArrayList;
@@ -31,7 +34,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import static ulisboa.tecnico.minesocieties.utils.PromptUtils.*;
 
-public class SocialAgent extends SocialCharacter implements IAgent {
+public class SocialAgent extends SocialCharacter implements IAgent, ISocialObserver {
 
     // Private attributes
 
@@ -64,20 +67,17 @@ public class SocialAgent extends SocialCharacter implements IAgent {
     // Observation methods
 
     @Override
-    public void observeWeatherChange(WeatherChangeObservation observation) {
-
+    public void observeWeatherChange(SocialWeatherChangeObservation observation) {
+        receivedAnyObservation(observation);
     }
 
     @Override
-    public void receivedChatFrom(ReceivedChatObservation observation) {
-
+    public void receivedChatFrom(SocialReceivedChatFromObservation observation) {
+        receivedAnyObservation(observation);
     }
 
-    @Override
-    public void receivedAnyObservation(IObservation<IObserver> observation) {
+    public void receivedAnyObservation(IObservation<ISocialObserver> observation) {
         // This agent will prompt the LLM to know whether they should react to this observation
-        observation.accept(this);
-
         chooseNewAction(observation);
     }
 
@@ -111,7 +111,7 @@ public class SocialAgent extends SocialCharacter implements IAgent {
         this.npc.setAlive(true);
     }
 
-    public void chooseNewAction(@Nullable IObservation<IObserver> newlyObtainedObservation) {
+    public void chooseNewAction(@Nullable IObservation<ISocialObserver> newlyObtainedObservation) {
         var possibleActions = getPossibleActions();
 
         if (possibleActions.isEmpty()) {
@@ -130,7 +130,7 @@ public class SocialAgent extends SocialCharacter implements IAgent {
         }
     }
 
-    public List<LLMMessage> getPromptForNewAction(List<ISocialAction> possibleActions, @Nullable IObservation<IObserver> newlyObtainedObservation) {
+    public List<LLMMessage> getPromptForNewAction(List<ISocialAction> possibleActions, @Nullable IObservation<ISocialObserver> newlyObtainedObservation) {
         List<LLMMessage> messageList = new ArrayList<>(4);
 
         // Telling the model exactly what to do

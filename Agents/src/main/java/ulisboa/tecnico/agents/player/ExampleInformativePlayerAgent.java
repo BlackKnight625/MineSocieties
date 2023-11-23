@@ -45,12 +45,6 @@ public class ExampleInformativePlayerAgent implements IPlayerAgent {
         sendMessage(observation.getFrom().getName() + " sent you a message: " + observation.getChat());
     }
 
-    @Override
-    public void receivedAnyObservation(IObservation<IObserver> observation) {
-        // This agent only reacts to concrete observations
-        observation.accept(this);
-    }
-
     public void sendMessage(String message) {
         player.sendMessage(
                 Component.text("[EIPA] ")

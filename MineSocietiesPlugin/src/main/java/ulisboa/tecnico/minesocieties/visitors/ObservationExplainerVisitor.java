@@ -6,6 +6,8 @@ import ulisboa.tecnico.agents.observation.IObserver;
 import ulisboa.tecnico.agents.observation.ReceivedChatObservation;
 import ulisboa.tecnico.agents.observation.WeatherChangeObservation;
 import ulisboa.tecnico.minesocieties.agents.observation.ISocialObserver;
+import ulisboa.tecnico.minesocieties.agents.observation.wrapped.SocialReceivedChatFromObservation;
+import ulisboa.tecnico.minesocieties.agents.observation.wrapped.SocialWeatherChangeObservation;
 
 /**
  *  This class allows the explanation, in natural language, of observations that can be made by social agents.
@@ -28,8 +30,8 @@ public class ObservationExplainerVisitor implements ISocialObserver {
     // Visitor methods
 
     @Override
-    public void observeWeatherChange(WeatherChangeObservation observation) {
-        switch (observation.getWeatherType()) {
+    public void observeWeatherChange(SocialWeatherChangeObservation observation) {
+        switch (observation.getObservation().getWeatherType()) {
             case DOWNFALL -> {
                 lastExplanation = "Rain started to fall";
             }
@@ -40,13 +42,7 @@ public class ObservationExplainerVisitor implements ISocialObserver {
     }
 
     @Override
-    public void receivedChatFrom(ReceivedChatObservation observation) {
-        lastExplanation = observation.getFrom().getName() + " said {" + observation.getChat() + "}";
-    }
-
-    @Override
-    public void receivedAnyObservation(IObservation<IObserver> observation) {
-        // This visitor only explains concrete observations
-        observation.accept(this);
+    public void receivedChatFrom(SocialReceivedChatFromObservation observation) {
+        lastExplanation = observation.getObservation().getFrom().getName() + " said {" + observation.getObservation().getChat() + "}";
     }
 }

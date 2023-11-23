@@ -2,7 +2,7 @@ package ulisboa.tecnico.agents.observation;
 
 import ulisboa.tecnico.agents.ICharacter;
 
-public class ReceivedChatObservation implements IObservation<ICharacter> {
+public class ReceivedChatObservation implements IObservation<IObserver> {
 
     // Private attributes
     private final ICharacter from;
@@ -28,7 +28,7 @@ public class ReceivedChatObservation implements IObservation<ICharacter> {
     // Other methods
 
     @Override
-    public void accept(ICharacter observer) {
+    public void accept(IObserver observer) {
         observer.receivedChatFrom(this);
     }
 }

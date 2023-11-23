@@ -8,6 +8,8 @@ import ulisboa.tecnico.agents.observation.ReceivedChatObservation;
 import ulisboa.tecnico.agents.observation.WeatherChangeObservation;
 import ulisboa.tecnico.agents.player.IPlayerAgent;
 import ulisboa.tecnico.minesocieties.agents.SocialCharacter;
+import ulisboa.tecnico.minesocieties.agents.observation.wrapped.SocialReceivedChatFromObservation;
+import ulisboa.tecnico.minesocieties.agents.observation.wrapped.SocialWeatherChangeObservation;
 
 public class SocialPlayer extends SocialCharacter implements IPlayerAgent {
 
@@ -36,19 +38,13 @@ public class SocialPlayer extends SocialCharacter implements IPlayerAgent {
     // Observation methods
 
     @Override
-    public void observeWeatherChange(WeatherChangeObservation observation) {
+    public void observeWeatherChange(SocialWeatherChangeObservation observation) {
         // Do nothing
     }
 
     @Override
-    public void receivedChatFrom(ReceivedChatObservation observation) {
+    public void receivedChatFrom(SocialReceivedChatFromObservation observation) {
 
-    }
-
-    @Override
-    public void receivedAnyObservation(IObservation<IObserver> observation) {
-        // Social Players receive some feedback regarding a few observations
-        observation.accept(this);
     }
 
     // Other methods

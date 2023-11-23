@@ -15,6 +15,7 @@ import ulisboa.tecnico.minesocieties.agents.actions.otherActions.WaitFor;
 import ulisboa.tecnico.minesocieties.agents.actions.socialActions.SendChatTo;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.agents.npc.state.*;
+import ulisboa.tecnico.minesocieties.agents.observation.wrapped.SocialWeatherChangeObservation;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -99,7 +100,7 @@ public class ChooseActionsFromActionListTest extends BaseLLMTest {
 
         possibleActions.add(sendChatTo);
 
-        var messages = agent.getPromptForNewAction(possibleActions, new WeatherChangeObservation(WeatherType.DOWNFALL));
+        var messages = agent.getPromptForNewAction(possibleActions, new SocialWeatherChangeObservation(new WeatherChangeObservation(WeatherType.DOWNFALL)));
 
         String reply = MineSocieties.getPlugin().getLLMManager().promptSync(messages);
 
@@ -121,7 +122,7 @@ public class ChooseActionsFromActionListTest extends BaseLLMTest {
         possibleActions.add(new InformativeGoTo(new Location(null, 0, 0, 0), "home"));
         possibleActions.add(new Idle());
 
-        var messages = agent.getPromptForNewAction(possibleActions, new WeatherChangeObservation(WeatherType.DOWNFALL));
+        var messages = agent.getPromptForNewAction(possibleActions, new SocialWeatherChangeObservation(new WeatherChangeObservation(WeatherType.DOWNFALL)));
 
         String reply = MineSocieties.getPlugin().getLLMManager().promptSync(messages);
 
