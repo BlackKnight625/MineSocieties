@@ -50,4 +50,9 @@ public class Thinking extends TemporalAction<SocialAgent> implements ISocialActi
     public String accept(IActionVisitor visitor) {
         return visitor.visitThinking(this);
     }
+
+    @Override
+    public boolean canDoMicroActions() {
+        return true;
+    }
 }

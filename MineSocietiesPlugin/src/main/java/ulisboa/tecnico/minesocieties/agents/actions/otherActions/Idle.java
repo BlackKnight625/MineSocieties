@@ -15,4 +15,9 @@ public class Idle implements ISocialAction {
     public String accept(IActionVisitor visitor) {
         return visitor.visitIdle(this);
     }
+
+    @Override
+    public boolean canDoMicroActions() {
+        return true;
+    }
 }

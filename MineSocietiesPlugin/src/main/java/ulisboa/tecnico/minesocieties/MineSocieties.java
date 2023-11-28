@@ -7,6 +7,7 @@ import ulisboa.tecnico.agents.ExampleReactiveAgentManager;
 import ulisboa.tecnico.llms.ChatGPTManager;
 import ulisboa.tecnico.llms.LLMManager;
 import ulisboa.tecnico.minesocieties.agents.SocialAgentManager;
+import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.commands.CommandManager;
 
 public class MineSocieties extends JavaPlugin {
@@ -40,9 +41,9 @@ public class MineSocieties extends JavaPlugin {
         // Plugin startup logic
 
 
-        // reactiveAgentManager = new ExampleReactiveAgentManager(this);
+        reactiveAgentManager = new ExampleReactiveAgentManager(this);
 
-        // reactiveAgentManager.initialize();
+        reactiveAgentManager.initialize();
 
         socialAgentManager = new SocialAgentManager(this);
 
@@ -75,6 +76,14 @@ public class MineSocieties extends JavaPlugin {
 
         maxChatRange = getConfig().getInt("maxChatRange");
         chatBroadcast = getConfig().getBoolean("chatBroadcast");
+
+        // Ticking all agents
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                socialAgentManager.forEachValidAgent(SocialAgent::tick);
+            }
+        }.runTaskTimer(this, 1, 1);
     }
 
     @Override

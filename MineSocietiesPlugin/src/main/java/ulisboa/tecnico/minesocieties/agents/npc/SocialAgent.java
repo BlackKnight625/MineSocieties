@@ -1,5 +1,6 @@
 package ulisboa.tecnico.minesocieties.agents.npc;
 
+import org.bukkit.util.Vector;
 import org.entityutils.entity.npc.player.AnimatedPlayerNPC;
 import org.jetbrains.annotations.Nullable;
 import ulisboa.tecnico.agents.actions.ActionStatus;
@@ -17,12 +18,20 @@ import ulisboa.tecnico.minesocieties.agents.actions.otherActions.ContinueCurrent
 import ulisboa.tecnico.minesocieties.agents.actions.otherActions.Idle;
 import ulisboa.tecnico.minesocieties.agents.actions.otherActions.Thinking;
 import ulisboa.tecnico.minesocieties.agents.actions.socialActions.SendChatTo;
+import ulisboa.tecnico.minesocieties.agents.npc.state.AgentLocation;
+import ulisboa.tecnico.minesocieties.agents.npc.state.AgentPersona;
 import ulisboa.tecnico.minesocieties.agents.npc.state.AgentState;
+import ulisboa.tecnico.minesocieties.agents.npc.state.Conversation;
 import ulisboa.tecnico.minesocieties.agents.observation.ISocialObserver;
 import ulisboa.tecnico.minesocieties.agents.observation.wrapped.SocialReceivedChatFromObservation;
 import ulisboa.tecnico.minesocieties.agents.observation.wrapped.SocialWeatherChangeObservation;
 import ulisboa.tecnico.minesocieties.visitors.*;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -36,8 +45,9 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
     // Private attributes
 
     private final AnimatedPlayerNPC npc;
-    private AgentState state = new AgentState();
+    private AgentState state;
     private ISocialAction currentAction = new Idle();
+    private MessageDisplay messageDisplay = new MessageDisplay(this);
     private final Lock actionChoosingLock = new ReentrantLock();
 
     // Constructors
@@ -61,16 +71,33 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
         this.state = state;
     }
 
+    public MessageDisplay getMessageDisplay() {
+        return messageDisplay;
+    }
+
     // Observation methods
 
     @Override
     public void observeWeatherChange(SocialWeatherChangeObservation observation) {
         receivedAnyObservation(observation);
+
+        // Making the agent look up, in case the current actions allows so
+        if (currentAction.canDoMicroActions()) {
+            npc.setDirection(npc.getData().getYaw(), -45f);
+        }
     }
 
     @Override
     public void receivedChatFrom(SocialReceivedChatFromObservation observation) {
         receivedAnyObservation(observation);
+
+        // Adding this conversation to the agent's memory
+        state.getMemory().getConversations().addMemorySection(new Conversation(observation, this));
+
+        // Making the agent look at the speaker, in case the current action allows so
+        if (currentAction.canDoMicroActions()) {
+            npc.lookAt(observation.getObservation().getFrom().getLocation());
+        }
     }
 
     public void receivedAnyObservation(IObservation<ISocialObserver> observation) {
@@ -82,6 +109,8 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
 
     public void tick() {
         act();
+
+        messageDisplay.tick();
     }
 
     /**
@@ -97,7 +126,7 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
                 chooseNewAction(null);
             } else {
                 // Start thinking about what to do next
-                selectedNewAction(new Thinking("what to do next", 20));
+                selectedNewAction(new Thinking("what to do next", currentAction.getThinkingTicks()));
             }
         }
     }
@@ -105,7 +134,20 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
 
     @Override
     public void deploy() {
-        this.npc.setAlive(true);
+        npc.setAlive(true);
+
+        if (state == null) {
+            // It's the 1st time ever that this agent is being deployed. Giving it an initial state
+            state = new AgentState(
+                    getUUID(),
+                    new AgentPersona(getName(), Instant.ofEpochSecond(
+                            LocalDateTime.of(2000, Month.DECEMBER, 5, 12, 0).toEpochSecond(ZoneOffset.UTC)
+                    )), // They all have my birthday by default, toot toot!
+                    new AgentLocation(getLocation())
+            );
+        }
+
+        messageDisplay.initialize();
     }
 
     public void chooseNewAction(@Nullable IObservation<ISocialObserver> newlyObtainedObservation) {

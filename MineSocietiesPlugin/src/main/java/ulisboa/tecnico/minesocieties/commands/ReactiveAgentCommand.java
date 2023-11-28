@@ -6,7 +6,7 @@ import revxrsal.commands.annotation.Subcommand;
 import revxrsal.commands.exception.CommandErrorException;
 import ulisboa.tecnico.minesocieties.MineSocieties;
 
-@Command("agent reactive")
+@Command("agent example")
 public class ReactiveAgentCommand {
 
     @Subcommand("deploy")

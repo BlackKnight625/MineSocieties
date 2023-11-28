@@ -17,7 +17,7 @@ public class CreateAgentStateFromDescriptionTest extends BaseLLMTest {
 
     private AgentState getNewAgentState() {
         return new AgentState(new UUID(625, 625),
-                new AgentPersona("Alex Johnson", 23, Instant.ofEpochSecond(
+                new AgentPersona("Alex Johnson", Instant.ofEpochSecond(
                         LocalDateTime.of(2000, Month.DECEMBER, 5, 12, 0).toEpochSecond(ZoneOffset.UTC)
                 )),
                 new AgentLocation(new Vector(0, 0, 0), "Earth", "Alex's home")

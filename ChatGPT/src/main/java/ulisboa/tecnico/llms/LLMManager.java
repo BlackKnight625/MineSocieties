@@ -73,8 +73,26 @@ public abstract class LLMManager {
      */
     public abstract void promptAsync(List<LLMMessage> messages, Consumer<String> responseReceiver);
 
+    /**
+     *  Asynchronously prompts the LLM, calling the supplier's get method asynchronously right before
+     * sending the full prompt to the LLM. See {@link #promptAsync(List, Consumer)} for more information.
+     * @param messageSuplier
+     *  The supplier that supplies the messages for the prompt
+     * @param responseReceiver
+     *  The consumer that will get notified with the eventual response
+     */
     public abstract void promptAsyncSupplyMessageAsync(Supplier<List<LLMMessage>> messageSuplier, Consumer<String> responseReceiver);
 
+    /**
+     *  Same as {@link #promptAsyncSupplyMessageAsync(Supplier, Consumer)} with the added benefit of alerting the provided onError
+     * consumer if something goes wrong with sending the prompt (gets notified after sending error messages to the loggers)
+     * @param messageSuplier
+     *  The supplier that supplies the messages for the prompt
+     * @param responseReceiver
+     *  The consumer that will get notified with the eventual response
+     * @param onError
+     *  The consumer that will get notified with errors if they happen
+     */
     public abstract void promptAsyncSupplyMessageAsync(Supplier<List<LLMMessage>> messageSuplier, Consumer<String> responseReceiver,
                                                        @Nullable Consumer<Throwable> onError);
 

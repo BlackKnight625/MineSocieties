@@ -1,5 +1,8 @@
 package ulisboa.tecnico.minesocieties.agents.npc.state;
 
+import ulisboa.tecnico.minesocieties.agents.SocialCharacter;
+import ulisboa.tecnico.minesocieties.agents.observation.wrapped.SocialReceivedChatFromObservation;
+
 import java.time.Instant;
 
 public class Conversation extends InstantMemory {
@@ -19,6 +22,14 @@ public class Conversation extends InstantMemory {
         this.listener = listener;
     }
 
+    public Conversation(SocialReceivedChatFromObservation observation, SocialCharacter receiver) {
+        this(
+                Instant.now(),
+                observation.getObservation().getChat(),
+                new AgentReference(observation.getObservation().getFrom()),
+                new AgentReference(receiver)
+        );
+    }
     // Getters and setters
 
     public String getConversation() {

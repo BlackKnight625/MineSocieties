@@ -1,5 +1,6 @@
 package ulisboa.tecnico.agents.npc;
 
+import org.bukkit.Location;
 import org.entityutils.entity.npc.player.AnimatedPlayerNPC;
 import org.entityutils.utils.data.PlayerNPCData;
 import ulisboa.tecnico.agents.ICharacter;
@@ -42,5 +43,10 @@ public interface IAgent extends ICharacter {
     @Override
     default boolean isValid() {
         return getNPCData().isValid();
+    }
+
+    @Override
+    default Location getLocation() {
+        return getAgent().getData().getLocation().clone();
     }
 }

@@ -1,5 +1,6 @@
 package ulisboa.tecnico.agents.player;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import ulisboa.tecnico.agents.ICharacter;
 
@@ -24,5 +25,10 @@ public interface IPlayerAgent extends ICharacter {
     @Override
     default UUID getUUID() {
         return getPlayer().getUniqueId();
+    }
+
+    @Override
+    default Location getLocation() {
+        return getPlayer().getLocation();
     }
 }

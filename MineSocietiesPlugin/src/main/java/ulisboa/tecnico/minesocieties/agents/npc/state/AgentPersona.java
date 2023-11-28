@@ -2,23 +2,24 @@ package ulisboa.tecnico.minesocieties.agents.npc.state;
 
 import ulisboa.tecnico.minesocieties.visitors.IContextVisitor;
 
-import java.time.Instant;
+import java.time.*;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 
 public class AgentPersona implements IExplainableContext {
 
     // Private attributes
 
     private String name;
-    private int age;
     private Instant birthday;
 
     // Constructors
 
     public AgentPersona() {}
 
-    public AgentPersona(String name, int age, Instant birthday) {
+    public AgentPersona(String name, Instant birthday) {
         this.name = name;
-        this.age = age;
         this.birthday = birthday;
     }
 
@@ -29,7 +30,7 @@ public class AgentPersona implements IExplainableContext {
     }
 
     public int getAge() {
-        return age;
+        return Period.between(LocalDate.ofInstant(birthday, ZoneId.systemDefault()), LocalDate.now()).getYears();
     }
 
     public Instant getBirthday() {

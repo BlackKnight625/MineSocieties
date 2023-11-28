@@ -34,4 +34,9 @@ public class WaitFor implements ISocialAction {
     public String accept(IActionVisitor visitor) {
         return visitor.visitWaitFor(this);
     }
+
+    @Override
+    public boolean canDoMicroActions() {
+        return true;
+    }
 }

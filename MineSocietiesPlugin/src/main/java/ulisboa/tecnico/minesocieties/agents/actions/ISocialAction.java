@@ -16,4 +16,13 @@ public interface ISocialAction extends IAction<SocialAgent> {
     default int getThinkingTicks() {
         return 20;
     }
+
+    /**
+     * @return
+     *  Returns whether an agent executing this action can also execute micro actions such as
+     * turning
+     */
+    default boolean canDoMicroActions() {
+        return false;
+    }
 }

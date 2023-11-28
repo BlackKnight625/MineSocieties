@@ -1,5 +1,6 @@
 package ulisboa.tecnico.minesocieties.agents.actions.socialActions;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -10,8 +11,11 @@ import ulisboa.tecnico.minesocieties.agents.SocialCharacter;
 import ulisboa.tecnico.minesocieties.agents.actions.IActionWithArguments;
 import ulisboa.tecnico.minesocieties.agents.actions.ISocialAction;
 import ulisboa.tecnico.minesocieties.agents.actions.exceptions.MalformedActionArgumentsException;
+import ulisboa.tecnico.minesocieties.agents.npc.Message;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.agents.npc.state.AgentReference;
+import ulisboa.tecnico.minesocieties.utils.ComponentUtils;
+import ulisboa.tecnico.minesocieties.utils.LocationUtils;
 import ulisboa.tecnico.minesocieties.visitors.IActionArgumentsExplainerVisitor;
 import ulisboa.tecnico.minesocieties.visitors.IActionVisitor;
 
@@ -46,18 +50,7 @@ public class SendChatTo implements IActionWithArguments, ISocialAction {
     // Other methods
 
     public List<String> getNamesOfNearbyCharacters(SocialAgent agent) {
-        List<String> names = new LinkedList<>();
-        Player playerAgent = Bukkit.getPlayer(agent.getAgent().getData().getUUID());
-        int maxChatRange = MineSocieties.getPlugin().getMaxChatRange();
-
-        for (Entity entity : playerAgent.getWorld().getNearbyEntities(playerAgent.getLocation(), maxChatRange, maxChatRange, maxChatRange)) {
-            if (entity instanceof Player other && !playerAgent.getUniqueId().equals(other.getUniqueId())) {
-                // Found a nearby player
-                names.add(other.getName());
-            }
-        }
-
-        return names;
+        return LocationUtils.getNearbyCharacterNamesExcludingSelf(agent.getLocation(), agent.getUUID());
     }
 
     @Override
@@ -78,7 +71,16 @@ public class SendChatTo implements IActionWithArguments, ISocialAction {
 
         characterReceiver.receivedChatFrom(observation);
 
-        // TODO Possible broadcast messages. Display message above agent's head. Make agent look at the message receiver
+        actioner.getAgent().lookAt(characterReceiver.getLocation());
+
+        int messageDurationTicks = Math.max(20, message.length() * 2); // More or less 0.5 seconds per word. At least 1 second total
+
+        actioner.getMessageDisplay().displayMessage(new Message(messageDurationTicks,
+                ComponentUtils.speechBubbleTo(receiver.getName(), message)));
+
+        if (MineSocieties.getPlugin().isChatBroadcasted()) {
+            Bukkit.broadcast(ComponentUtils.sendMessageToPrefix(actioner.getName(), receiver.getName(), message));
+        }
 
         return ActionStatus.SUCCESS;
     }

@@ -58,7 +58,7 @@ public class ChooseActionsFromActionListTest extends BaseLLMTest {
         when(data.getName()).thenReturn(name);
 
         AgentState state = new AgentState(uuid,
-                new AgentPersona(name, 21, Instant.ofEpochSecond(
+                new AgentPersona(name, Instant.ofEpochSecond(
                         LocalDateTime.of(2000, Month.DECEMBER, 5, 12, 0).toEpochSecond(ZoneOffset.UTC)
                 )), new AgentLocation());
 
