@@ -5,9 +5,6 @@ import org.jetbrains.annotations.Nullable;
 import ulisboa.tecnico.agents.actions.ActionStatus;
 import ulisboa.tecnico.agents.npc.IAgent;
 import ulisboa.tecnico.agents.observation.IObservation;
-import ulisboa.tecnico.agents.observation.IObserver;
-import ulisboa.tecnico.agents.observation.ReceivedChatObservation;
-import ulisboa.tecnico.agents.observation.WeatherChangeObservation;
 import ulisboa.tecnico.llms.LLMMessage;
 import ulisboa.tecnico.llms.LLMRole;
 import ulisboa.tecnico.minesocieties.MineSocieties;
@@ -286,7 +283,10 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
                         "You are a knowledge extractor AI. " +
                                 "You will receive a person's description and a list of recent conversations inside brackets " +
                                 "'<name>: {<description>}{<conversations>}'. " +
-                                state.getStateFormat()
+                                state.getAdditionalStateFormat() +
+                                "\nNote: Both long-term and short-term memories should contain knowledge originated solely from the conversations. " +
+                                "If a memory is already present in the person's description, then do not include it. " +
+                                "The person's description should serve as context. "
                 )
         );
 
@@ -306,20 +306,14 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
         messageList.add(new LLMMessage(LLMRole.ASSISTANT,
                 PERSONALITIES_FORMAT_BEGIN + "{ai-enthusiast|intelligent}\n" +
                         EMOTIONS_FORMAT_BEGIN + "{stressed|focused}\n" +
-                        REFLECTIONS_FORMAT_BEGIN + "{Francisco likes Rafael's thesis|Rafael needs to work faster on chapter 2|Rui Prada is offering " +
-                        "Rafael help with writing his thesis}\n" +
-                        OPINIONS_FORMAT_BEGIN + "{Rui Prada[Rafael trusts Rui Prada]|Francisco[Rafael likes hanging out with Francisco]}\n" +
                         SHORT_MEMORY_FORMAT_BEGIN + "{Rafael needs to submit chapter 2 tonight before 23h59|Rui Prada said he will help Rafael with chapter 3 in a second}\n" +
                         LONG_MEMORY_FORMAT_BEGIN + "{Rafael is struggling with chapter 3}\n" +
                         "Explanation: Nothing in the conversation suggests a personality change, as such, Rafael's personalities remain the same. " +
                         "Since Rafael was reminded that there's a deadline for tonight, it makes sense for Rafael to no longer be relaxed and instead " +
-                        "be stressed. \"Francisco likes Rafael's thesis\" is an important reflection that should be kept, as it could be relevant in " +
-                        "future conversations with Francisco. Rafael's trust in Rui Prada has to reason to be broken, so this opinion remains the same. " +
-                        "The same applies to Rafael's opinion regarding Francisco. " +
-                        "Rafael was reminded about the close deadline for chapter 2's submission, which will take place soon, hence it's considered short-term memory. " +
-                        "Rui Prada said he will look into the guidelines and then help Rafael with chapter 3, which according to him, should be quick, as such, " +
-                        "this should be part of Rafael's short-term memory. " +
-                        "Rafael's struggles with chapter 3 is something that prevails until contested. As such, it's long-term memory. "
+                        "be stressed. From this conversation, Rafael should remember about the upcoming deadline and Rui Prada's offer for help. Since both " +
+                        "of these things will take place shortly, they only need to be remembered for a bit, therefore, they're considered short-term memory. " +
+                        "Rafael mentions during the conversation that he's struggling with chapter 3. This should remain in his long-term memory since it's " +
+                        "something that can last. No more information can be gathered from the conversation."
                 )
         );
 

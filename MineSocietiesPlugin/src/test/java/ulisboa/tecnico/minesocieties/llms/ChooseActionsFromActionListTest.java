@@ -66,19 +66,17 @@ public class ChooseActionsFromActionListTest extends BaseLLMTest {
 
         var memory = state.getMemory();
         var shortMemory = memory.getShortTermMemory();
-        var opinions = memory.getOpinions();
-        var reflections = memory.getReflections();
-        var notionOfEvents = memory.getNotionOfEvents();
         var moods = state.getMoods();
         var personalities = state.getPersonalities();
+        var longMemory = memory.getLongTermMemory();
 
         shortMemory.addMemorySection(new ShortTermMemorySection(Instant.now(), steve + "'s birthday is in 2 days"));
         shortMemory.addMemorySection(new ShortTermMemorySection(Instant.now(), steve + " invited Alex to his birthday party"));
-        opinions.formOpinion(steve, new Opinion("Alex thinks " + steve + " is cute. He likes chocolate"));
-        opinions.formOpinion(jennifer, new Opinion("Alex thinks " + jennifer + " is a liar"));
-        reflections.addMemorySection(new Reflection(Instant.now(), jennifer + " stole a pen from Alex"));
-        reflections.addMemorySection(new Reflection(Instant.now(), nathan + " helped Alex with a Physics exercise"));
-        notionOfEvents.addMemorySection(new NotionOfEvent(Instant.now().minus(1, ChronoUnit.DAYS),
+        longMemory.addMemorySection(new LongTermMemorySection(Instant.now(), "Alex thinks " + steve + " is cute. He likes chocolate"));
+        longMemory.addMemorySection(new LongTermMemorySection(Instant.now(), "Alex thinks " + jennifer + " is a liar"));
+        longMemory.addMemorySection(new LongTermMemorySection(Instant.now(), jennifer + " stole a pen from Alex"));
+        longMemory.addMemorySection(new LongTermMemorySection(Instant.now(), nathan + " helped Alex with a Physics exercise"));
+        longMemory.addMemorySection(new LongTermMemorySection(Instant.now().minus(1, ChronoUnit.DAYS),
                 jennifer + " slapped " + nathan));
         moods.addState(Mood.HAPPY);
         moods.addState(Mood.LOVE);

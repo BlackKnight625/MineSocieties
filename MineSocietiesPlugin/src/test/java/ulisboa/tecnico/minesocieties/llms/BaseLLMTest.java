@@ -35,6 +35,9 @@ public class BaseLLMTest {
 
         System.out.println("API key: " + apiKey);
 
+        // gpt-3.5-turbo
+        // gpt-4-1106-preview
+
         llmManager = new ChatGPTManager(apiKey, "gpt-3.5-turbo", Logger.getGlobal(), Logger.getGlobal());
 
         llmManager.initialize();

@@ -113,7 +113,7 @@ public class AgentState implements IExplainableContext {
 
     /**
      *  Called when the state should suffer changes decided by the LLM. Its response will then be interpreted and
-     * changes will be applied to this state accordingly. {@link #getStateFormat()} should be included in the messages,
+     * changes will be applied to this state accordingly. {@link #getNewStateFormat()} should be included in the messages,
      * as it sets the format of the responses that will be interpreted.
      * @param messages
      *  The prompts to be sent to the LLM
@@ -122,7 +122,7 @@ public class AgentState implements IExplainableContext {
         startStateModification();
 
         try {
-            interpretNewStateResponse(MineSocieties.getPlugin().getLLMManager().promptSync(messages));
+            interpretStateResponse(MineSocieties.getPlugin().getLLMManager().promptSync(messages));
         } finally {
             finishStateModification();
         }
@@ -130,7 +130,7 @@ public class AgentState implements IExplainableContext {
 
     /**
      *  Called when the state should suffer changes decided by the LLM. Its response will then be interpreted and
-     * changes will be applied to this state accordingly. {@link #getStateFormat()} should be included in the messages,
+     * changes will be applied to this state accordingly. {@link #getNewStateFormat()} should be included in the messages,
      * as it sets the format of the responses that will be interpreted.
      * @param messagesSuplier
      *  A supplier for the prompts
@@ -143,7 +143,7 @@ public class AgentState implements IExplainableContext {
                     return messagesSuplier.get();
                 },
                 response -> {
-                    interpretNewStateResponse(response);
+                    interpretStateResponse(response);
                     finishStateModification(); // After changes are applied to the state, the state becomes unlocked
                 },
                 throwable -> finishStateModification() // If there's a problem during prompting, the state becomes unlocked
@@ -158,7 +158,7 @@ public class AgentState implements IExplainableContext {
         messageList.add(new LLMMessage(LLMRole.SYSTEM,
         "You are a people description analyzer. You will receive people's descriptions " +
                 "inside brackets '{}' and must interpret it. " +
-                getStateFormat())
+                getNewStateFormat())
         );
 
         // Giving an example of input to the model
@@ -173,16 +173,17 @@ public class AgentState implements IExplainableContext {
         messageList.add(new LLMMessage(LLMRole.ASSISTANT,
                 PERSONALITIES_FORMAT_BEGIN + "{engineer|chocolate-lover|smart|good-sense-of-humour}\n" +
                         EMOTIONS_FORMAT_BEGIN + "{happy}\n" +
-                        REFLECTIONS_FORMAT_BEGIN + "{Rafael likes software engineering because that's what he does and he's happy with " +
-                        "himself|Rafael thinks that not liking pineapple on pizza is weird|Rafael knows funny dark humour jokes|" +
-                        "Rafael knows Francisco does not like pineapple on pizza}\n" +
-                        OPINIONS_FORMAT_BEGIN + "{Francisco[Rafael thinks Francisco is tall and weird]}\n" +
                         SHORT_MEMORY_FORMAT_BEGIN + "{Rafael needs to cook dinner tonight}\n" +
-                        LONG_MEMORY_FORMAT_BEGIN + "{Rafael has a party to attend next week}\n" +
+                        LONG_MEMORY_FORMAT_BEGIN + "{Rafael likes software engineering|Rafael is happy with himself|" +
+                        "Rafael thinks that not liking pineapple on pizza is weird|Rafael knows funny dark humour jokes|" +
+                        "Rafael knows Francisco does not like pineapple on pizza|" +
+                        "Rafael thinks Francisco is tall and weird|Rafael has a party to attend next week}\n" +
                         "Explanation: Since Rafael is a software engineer and he's happy with himself, this means he likes software engineering. " +
                         "Rafael is not tall, however, Francisco is tall according to Rafael. Cooking dinner tonight is something that " +
                         "Rafael needs to remember only for this day, as such, it's considered short-term memory. Rafael is going to a party " +
-                        "next week, which is something that he must remember for a longer time, hence, it's considered long-term memory."
+                        "next week, which is something that he must remember for a longer time, hence, it's considered long-term memory. " +
+                        "Rafael thinks Francisco is weird for not liking pineapple on pizza, therefore, he thinks it's weird when someone doesn't " +
+                        "like pinneapple on pizza."
                 )
         );
 
@@ -195,31 +196,36 @@ public class AgentState implements IExplainableContext {
         return messageList;
     }
 
-    public String getStateFormat() {
+    public String getNewStateFormat() {
         return "Write down the personality traits that best describe them as " + PERSONALITIES_FORMAT +
                 " (traits should be a single word or hyphenated words, and they must belong to them), " +
                 "and their feelings as " + EMOTIONS_FORMAT + " (single word). " +
-                "Infer knowledge and write it as " + REFLECTIONS_FORMAT +
-                " (full sentence with the inferred knowledge). " +
-                "Share their opinions about others as " + OPINIONS_FORMAT +
                 " Record short-term memories as " + SHORT_MEMORY_FORMAT + ". " +
-                " Record long-term memories and important details as " + LONG_MEMORY_FORMAT +
+                " Record long-term memories, important details and inferred knowledge as " + LONG_MEMORY_FORMAT +
+                ". If a list should be empty, write '{}'. Finally, write a short explanation for your choices.\n";
+    }
+
+    public String getAdditionalStateFormat() {
+        return "Write down their current personality traits as " + PERSONALITIES_FORMAT +
+                " (traits should be a single word or hyphenated words, and they must belong to them), " +
+                "which may be the same or may be different ones, " +
+                "and their feelings as " + EMOTIONS_FORMAT + " (single word). " +
+                " Record new short-term memories as " + SHORT_MEMORY_FORMAT + ". " +
+                " Record new long-term memories, important details and inferred knowledge as " + LONG_MEMORY_FORMAT +
                 ". If a list should be empty, write '{}'. Finally, write a short explanation for your choices.\n";
     }
 
     /**
-     *  Called when a new AgentState should be created from an LLM's response to something. This will
-     * replace some of the contents inside this AgentState
+     *  Called when this AgentState should be modified according to an LLM's response to something. This will
+     * replace some contents inside this AgentState
      * @param response
      *  The response containing the new information to replace this AgentState
      * @throws MalformedNewStateResponseException
      *  Thrown when the response is not formatted correctly
      */
-    public void interpretNewStateResponse(String response) throws MalformedNewStateResponseException {
+    public void interpretStateResponse(String response) throws MalformedNewStateResponseException {
         int personalitiesIndex = response.indexOf(PERSONALITIES_FORMAT_BEGIN);
         int emotionsIndex = response.indexOf(EMOTIONS_FORMAT_BEGIN);
-        int reflectionsIndex = response.indexOf(REFLECTIONS_FORMAT_BEGIN);
-        int opinionsIndex = response.indexOf(OPINIONS_FORMAT_BEGIN);
         int shortMemoryIndex = response.indexOf(SHORT_MEMORY_FORMAT_BEGIN);
         int longMemoryIndex = response.indexOf(LONG_MEMORY_FORMAT_BEGIN);
 
@@ -232,14 +238,6 @@ public class AgentState implements IExplainableContext {
             throw new MalformedNewStateResponseException("LLM did not create an Emotions list.", response);
         }
 
-        if (reflectionsIndex == -1) {
-            throw new MalformedNewStateResponseException("LLM did not create a Reflections list.", response);
-        }
-
-        if (opinionsIndex == -1) {
-            throw new MalformedNewStateResponseException("LLM did not create an Opinions list.", response);
-        }
-
         if (shortMemoryIndex == -1) {
             throw new MalformedNewStateResponseException("LLM did not create a ShortMemory list.", response);
         }
@@ -250,6 +248,7 @@ public class AgentState implements IExplainableContext {
 
         // Interpreting the personalities
         try {
+            // The LLM chooses to keep/discard/add new personalities. As such, current ones get reset
             personalities.reset();
 
             String[] personalities = response.substring(
@@ -268,6 +267,7 @@ public class AgentState implements IExplainableContext {
 
         // Interpreting the emotions
         try {
+            // The LLM chooses to keep/discard/add new moods. As such, current ones get reset
             moods.reset();
 
             String[] emotions = response.substring(
@@ -284,50 +284,6 @@ public class AgentState implements IExplainableContext {
             throw new MalformedNewStateResponseException("LLM malformed the Emotions list.", response);
         }
 
-        // Interpreting the reflections
-        try {
-            String[] reflections = response.substring(
-                    response.indexOf('{', reflectionsIndex) + 1,
-                    response.indexOf('}', reflectionsIndex)
-            ).split("\\|");
-
-            AgentReflections agentReflections = memory.getReflections();
-
-            agentReflections.reset();
-
-            for (String reflection : reflections) {
-                if (!reflection.isEmpty()) {
-                    agentReflections.addMemorySection(new Reflection(Instant.now(), reflection));
-                }
-            }
-        } catch (IndexOutOfBoundsException e) {
-            throw new MalformedNewStateResponseException("LLM malformed the Reflections list.", response);
-        }
-
-        // Interpreting the opinions
-        try {
-            String[] opinions = response.substring(
-                    response.indexOf('{', opinionsIndex) + 1,
-                    response.indexOf('}', opinionsIndex)
-            ).split("\\|");
-
-            AgentOpinions agentOpinions = memory.getOpinions();
-
-            agentOpinions.reset();
-
-            for (String nameAndOpinion : opinions) {
-                if (!nameAndOpinion.isEmpty()) {
-                    String[] nameAndOpinionSplit = nameAndOpinion.split("\\[");
-                    String name = nameAndOpinionSplit[0];
-                    String opinion = nameAndOpinionSplit[1].substring(0, nameAndOpinionSplit[1].length() - 1); // Deleting the last ']' char
-
-                    agentOpinions.formOpinion(name, new Opinion(opinion));
-                }
-            }
-        } catch (IndexOutOfBoundsException e) {
-            throw new MalformedNewStateResponseException("LLM malformed the Opinions list.", response);
-        }
-
         // Interpreting the short term memory
         try {
             String[] shortMemories = response.substring(
@@ -336,8 +292,6 @@ public class AgentState implements IExplainableContext {
             ).split("\\|");
 
             AgentShortTermMemory agentShortTermMemory = memory.getShortTermMemory();
-
-            agentShortTermMemory.reset();
 
             for (String shortMemory : shortMemories) {
                 if (!shortMemory.isEmpty()) {
@@ -356,8 +310,6 @@ public class AgentState implements IExplainableContext {
             ).split("\\|");
 
             AgentLongTermMemory agentLongTermMemory = memory.getLongTermMemory();
-
-            agentLongTermMemory.reset();
 
             for (String longMemory : longMemories) {
                 if (!longMemory.isEmpty()) {

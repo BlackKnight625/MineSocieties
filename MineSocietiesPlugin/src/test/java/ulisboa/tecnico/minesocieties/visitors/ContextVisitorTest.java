@@ -56,23 +56,12 @@ public class ContextVisitorTest {
         aWhileAgo = aWhileAgo.plus(15, ChronoUnit.SECONDS);
         alexConversations.addMemorySection(new Conversation(aWhileAgo, "Indeed. If you don't mind, I must go back to it. Bye!", steve, alex));
 
-        // Creating some reflections
-        AgentReflections alexReflections = alexMemory.getReflections();
+        // Creating some long term memories
+        AgentLongTermMemory longTermMemory = alexMemory.getLongTermMemory();
         aWhileAgo = aWhileAgo.minus(1, ChronoUnit.HOURS);
-        alexReflections.addMemorySection(new Reflection(aWhileAgo, "They consider their thesis to be very hard"));
+        longTermMemory.addMemorySection(new LongTermMemorySection(aWhileAgo, "They consider their thesis to be very hard"));
         aWhileAgo = aWhileAgo.minus(2, ChronoUnit.HOURS);
-        alexReflections.addMemorySection(new Reflection(aWhileAgo, "They think Steve Johnson's thesis theme is very interesting"));
-
-        // Creating some opinions
-        AgentOpinions alexOpinions = alexMemory.getOpinions();
-        alexOpinions.formOpinion(steve.getName(), new Opinion("They think Steve Johnson is a very nice and kind person"));
-
-        // Creating notionf os events
-        AgentNotionOfEvents alexNotionOfEvents = alexMemory.getNotionOfEvents();
-        aWhileAgo = aWhileAgo.minus(2, ChronoUnit.HOURS);
-        alexNotionOfEvents.addMemorySection(new NotionOfEvent(aWhileAgo, "rain started to fall"));
-        aWhileAgo = aWhileAgo.minus(1, ChronoUnit.HOURS);
-        alexNotionOfEvents.addMemorySection(new NotionOfEvent(aWhileAgo, "the sun rose up"));
+        longTermMemory.addMemorySection(new LongTermMemorySection(aWhileAgo, "They think Steve Johnson's thesis theme is very interesting"));
 
         // Creating moods
         AgentMoods alexMoods = alexState.getMoods();

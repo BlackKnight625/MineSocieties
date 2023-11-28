@@ -27,12 +27,6 @@ public class CurrentContextExplainer implements IContextVisitor {
     public String explainMemory(AgentMemory memory) {
         StringBuilder builder = new StringBuilder();
 
-        builder.append(memory.getReflections().accept(this));
-        builder.append(' ');
-        builder.append(memory.getOpinions().accept(this));
-        builder.append(' ');
-        builder.append(memory.getNotionOfEvents().accept(this));
-        builder.append(' ');
         builder.append(memory.getShortTermMemory().accept(this));
         builder.append(' ');
         builder.append(memory.getLongTermMemory().accept(this));
