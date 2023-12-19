@@ -1,8 +1,10 @@
 package ulisboa.tecnico.minesocieties.agents.npc;
 
 import net.kyori.adventure.text.Component;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.TextDisplay;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import ulisboa.tecnico.minesocieties.MineSocieties;
@@ -21,7 +23,7 @@ public class MessageDisplay {
     private TextDisplay textDisplay;
     private Vector lastAgentLocation = new Vector();
 
-    private static final int MAX_WIDTH = 30;
+    private static final int MAX_WIDTH = 150;
     private static final Vector OFFSET = new Vector(0, 2, 0);
 
     // Constructors
@@ -37,7 +39,10 @@ public class MessageDisplay {
 
         textDisplay.setLineWidth(MAX_WIDTH);
         textDisplay.setAlignment(TextDisplay.TextAlignment.CENTER);
-        textDisplay.setBillboard(Display.Billboard.CENTER);
+        textDisplay.setBillboard(Display.Billboard.VERTICAL);
+
+        // Associating text display with the agent
+        agent.addUuidToContainer(textDisplay.getPersistentDataContainer());
     }
 
     public void displayMessage(Message message) {

@@ -19,6 +19,12 @@ public class EventListener implements Listener {
         this.manager = manager;
     }
 
+    // Getters and setters
+
+    public AbstractAgentManager<?, ?, ?> getManager() {
+        return this.manager;
+    }
+
     // Other methods
 
     public void register() {

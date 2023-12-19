@@ -1,9 +1,6 @@
 package ulisboa.tecnico.minesocieties.agents.actions.socialActions;
 
-import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 import ulisboa.tecnico.agents.actions.ActionStatus;
 import ulisboa.tecnico.agents.observation.ReceivedChatObservation;
 import ulisboa.tecnico.minesocieties.MineSocieties;
@@ -65,6 +62,10 @@ public class SendChatTo implements IActionWithArguments, ISocialAction {
 
     @Override
     public ActionStatus act(SocialAgent actioner) {
+        // TODO: Also show player's messages in a similar format in chat. Distinguish between the options (BROADCAST_ALL, BROADCAST_NEARBY, PRIVATE),
+        // where if server owners choose BROADCAST_ALL, all messages between agents <-> players and agents <-> agents are broadcasted to
+        // everyone, BROADCAST_NEARBY only broadcasts messages between agents <-> players and agents <-> agents to nearby players, 
+        // and PRIVATE only shows messages to the ones engaging in conversation
         SocialCharacter characterReceiver = MineSocieties.getPlugin().getSocialAgentManager().getCharacter(receiver.getUuid());
 
         ReceivedChatObservation observation = new ReceivedChatObservation(actioner, message);

@@ -1,5 +1,8 @@
 package ulisboa.tecnico.minesocieties.agents.npc;
 
+import org.bukkit.NamespacedKey;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
 import org.entityutils.entity.npc.player.AnimatedPlayerNPC;
 import org.jetbrains.annotations.Nullable;
@@ -35,6 +38,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -231,13 +235,13 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
             throw new MalformedActionChoiceException(actionReply, "Action choice is malformed: There's no curly brackets '{'.");
         }
 
-        if (replySections.length != 3) {
+        if (replySections.length != 4 /*It's 4 due to the 1st empty section that the split method generates*/) {
             throw new MalformedActionChoiceException(actionReply, "Action choice does not contain 3 sections of curly brackets. " +
                     "It only contains " + replySections.length + ".");
         }
 
         // Extracting the action number
-        int actionNumberEndIndex = replySections[0].indexOf('}');
+        int actionNumberEndIndex = replySections[1].indexOf('}');
 
         if (actionNumberEndIndex == -1) {
             throw new MalformedActionChoiceException(actionReply, "Action choice is malformed: There's no curly brackets '}'.");
@@ -246,7 +250,7 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
         int actionNumber;
 
         try {
-            actionNumber = Integer.parseInt(replySections[0].substring(0, actionNumberEndIndex));
+            actionNumber = Integer.parseInt(replySections[1].substring(0, actionNumberEndIndex));
         } catch (NumberFormatException e) {
             throw new MalformedActionChoiceException(e, actionReply, "Could not read the Action choice number.");
         }
@@ -271,13 +275,13 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
 
         if (action instanceof IActionWithArguments actionWithArguments) {
             // This action has arguments. They must be read
-            int actionArgumentsEndIndex = replySections[1].indexOf('}');
+            int actionArgumentsEndIndex = replySections[2].indexOf('}');
 
             if (actionArgumentsEndIndex == -1) {
                 throw new MalformedActionChoiceException(actionReply, "Action arguments are malformed: There's no curly brackets '}'.");
             }
 
-            String arguments = replySections[1].substring(0, actionArgumentsEndIndex);
+            String arguments = replySections[2].substring(0, actionArgumentsEndIndex);
             ActionArgumentsExplainer actionArgumentsExplainer = new ActionArgumentsExplainer();
 
             actionWithArguments.acceptArgumentsInterpreter(actionArgumentsExplainer, arguments);
@@ -438,5 +442,39 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
     @Override
     public void deleted() {
 
+    }
+
+    public void addUuidToContainer(PersistentDataContainer container) {
+        addToDataContainer(container, "npc", PersistentDataType.STRING, getUUID().toString());
+    }
+
+    private static NamespacedKey getNamespacedKey(String key) {
+        return new NamespacedKey(MineSocieties.getPlugin(), key);
+    }
+
+    public static void addUuidToContainer(PersistentDataContainer container, UUID uuid) {
+        addToDataContainer(container, "npc", PersistentDataType.STRING, uuid.toString());
+    }
+
+    public static @Nullable UUID getUuidFromContainer(PersistentDataContainer container) {
+        String uuidString = getFromDataContainer(container, "npc", PersistentDataType.STRING);
+
+        if (uuidString == null) {
+            return null;
+        } else {
+            return UUID.fromString(uuidString);
+        }
+    }
+
+    public static <T, Z> void addToDataContainer(PersistentDataContainer container, String key, PersistentDataType<T, Z> dataType, Z data) {
+        container.set(getNamespacedKey(key), dataType, data);
+    }
+
+    public static <T, Z> @Nullable Z getFromDataContainer(PersistentDataContainer container, String key, PersistentDataType<T, Z> dataType) {
+        return container.get(getNamespacedKey(key), dataType);
+    }
+
+    public static <T, Z> boolean hasInDataContainer(PersistentDataContainer container, String key, PersistentDataType<T, Z> dataType) {
+        return container.has(getNamespacedKey(key), dataType);
     }
 }

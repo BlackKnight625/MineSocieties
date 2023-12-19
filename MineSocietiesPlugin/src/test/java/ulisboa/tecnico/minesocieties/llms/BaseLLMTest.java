@@ -1,8 +1,12 @@
 package ulisboa.tecnico.minesocieties.llms;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Server;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.mockito.BDDMockito;
 import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
 import ulisboa.tecnico.llms.ChatGPTManager;
 import ulisboa.tecnico.llms.LLMManager;
 import ulisboa.tecnico.minesocieties.MineSocieties;
@@ -37,6 +41,15 @@ public class BaseLLMTest {
 
         // gpt-3.5-turbo
         // gpt-4-1106-preview
+
+        Logger logger = Logger.getGlobal();
+
+        Server server = Mockito.mock(Server.class);
+
+        Mockito.when(server.isPrimaryThread()).thenReturn(true);
+        Mockito.when(server.getLogger()).thenReturn(logger);
+
+        Bukkit.setServer(server);
 
         llmManager = new ChatGPTManager(apiKey, "gpt-3.5-turbo", Logger.getGlobal(), Logger.getGlobal());
 

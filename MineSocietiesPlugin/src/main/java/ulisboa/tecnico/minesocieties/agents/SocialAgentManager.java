@@ -9,6 +9,7 @@ import revxrsal.commands.exception.CommandErrorException;
 import ulisboa.tecnico.agents.AbstractAgentManager;
 import ulisboa.tecnico.agents.observation.ReceivedChatObservation;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
+import ulisboa.tecnico.minesocieties.agents.observation.SocialEventListener;
 import ulisboa.tecnico.minesocieties.agents.observation.wrapped.SocialReceivedChatFromObservation;
 import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
 import ulisboa.tecnico.minesocieties.commands.SocialAgentCommand;
@@ -22,6 +23,11 @@ public class SocialAgentManager extends AbstractAgentManager<SocialAgent, Social
     }
 
     // Other methods
+
+    @Override
+    public void initialize() {
+        new SocialEventListener(this).register();
+    }
 
     @Override
     protected SocialAgent getNewAgentInstance(String name, Location location) {
