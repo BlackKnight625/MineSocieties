@@ -55,4 +55,9 @@ public class Thinking extends TemporalAction<SocialAgent> implements ISocialActi
     public boolean canDoMicroActions() {
         return true;
     }
+
+    @Override
+    public boolean shouldBeRemembered() {
+        return false; // The agents don't need to remember that they've been thinking for a while
+    }
 }

@@ -29,6 +29,8 @@ public class CurrentContextExplainer implements IContextVisitor {
 
         builder.append(memory.getConversations().accept(this));
         builder.append(' ');
+        builder.append(memory.getPastActions().accept(this));
+        builder.append(' ');
         builder.append(memory.getShortTermMemory().accept(this));
         builder.append(' ');
         builder.append(memory.getLongTermMemory().accept(this));
@@ -44,13 +46,10 @@ public class CurrentContextExplainer implements IContextVisitor {
 
     @Override
     public String explainConversations(AgentConversations conversations) {
-        Instant now = Instant.now();
         StringBuilder builder = new StringBuilder();
 
         for (Conversation conversation : conversations.getMemorySections()) {
-            Instant longAgo = now.minus(conversation.getInstant().toEpochMilli(), ChronoUnit.MILLIS);
-
-            builder.append(longAgo(longAgo));
+            builder.append(conversation.getExactHowLongAgo()).append(", ");
 
             // Appending the speaker and listener's names
             builder.append(conversation.getSpeaker().getName()).append(" told ").append(conversation.getListener().getName());
@@ -100,13 +99,10 @@ public class CurrentContextExplainer implements IContextVisitor {
 
     @Override
     public String explainNotionOfEvents(AgentNotionOfEvents notionOfEvents) {
-        Instant now = Instant.now();
         StringBuilder builder = new StringBuilder();
 
         for (NotionOfEvent notion : notionOfEvents.getMemorySections()) {
-            Instant longAgo = now.minus(notion.getInstant().toEpochMilli(), ChronoUnit.MILLIS);
-
-            builder.append(longAgo(longAgo));
+            builder.append(notion.getApproximateHowLongAgo()).append(", ");
             builder.append(notion.getEventDescription());
             builder.append(". ");
         }
@@ -182,40 +178,6 @@ public class CurrentContextExplainer implements IContextVisitor {
         }
     }
 
-    private String longAgo(Instant longAgo) {
-        StringBuilder builder = new StringBuilder();
-        long secondsAgo = longAgo.getEpochSecond();
-        long minutesAgo = secondsAgo / 60L;
-        long hoursAgo = minutesAgo / 60L;
-        long daysAgo = hoursAgo / 24L;
-        long weeksAgo = daysAgo / 7L;
-        long monthsAgo = daysAgo / 30L;
-        long yearsAgo = daysAgo / 365L;
-
-        // Explaining how long ago the something took place
-        if (yearsAgo > 0) {
-            // Happened a very long time ago
-            builder.append(yearsAgo).append(yearsAgo == 1 ? " year " : " years ").append("ago, ");
-        } else if (monthsAgo > 0) {
-            // Happened long ago
-            builder.append(monthsAgo).append(monthsAgo == 1 ? " month " : " months ").append("ago, ");
-        } else if (weeksAgo > 0) {
-            // Happened a while ago
-            builder.append(weeksAgo).append(weeksAgo == 1 ? " week " : " weeks ").append("ago, ");
-        } else if (hoursAgo > 0) {
-            // Happened a few hours ago
-            builder.append(hoursAgo).append(hoursAgo == 1 ? " hour " : " hours ").append("ago, ");
-        } else if (minutesAgo > 0) {
-            // Was recent
-            builder.append(minutesAgo).append(minutesAgo == 1 ? " minute " : " minutes ").append("ago, ");
-        } else {
-            // Was very recent
-            builder.append(secondsAgo).append(secondsAgo == 1 ? " second " : " seconds ").append("ago, ");
-        }
-
-        return builder.toString();
-    }
-
     @Override
     public String explainShortTermMemory(AgentShortTermMemory shortTermMemory) {
         StringBuilder builder = new StringBuilder();
@@ -243,6 +205,26 @@ public class CurrentContextExplainer implements IContextVisitor {
         if (!longTermMemorySectionCollection.isEmpty()) {
             for (LongTermMemorySection longTermMemorySection : longTermMemorySectionCollection) {
                 builder.append(longTermMemorySection.getMemorySection());
+                builder.append(". ");
+            }
+
+            builder.deleteCharAt(builder.length() - 1);
+
+            return builder.toString();
+        } else {
+            return "";
+        }
+    }
+
+    @Override
+    public String explainPastActions(AgentPastActions pastActions) {
+        StringBuilder builder = new StringBuilder();
+        var pastActionsCollection = pastActions.getMemorySections();
+
+        if (!pastActionsCollection.isEmpty()) {
+            for (PastAction pastAction : pastActionsCollection) {
+                builder.append(pastAction.getExactHowLongAgo()).append(", they ");
+                builder.append(pastAction.getPastAction());
                 builder.append(". ");
             }
 

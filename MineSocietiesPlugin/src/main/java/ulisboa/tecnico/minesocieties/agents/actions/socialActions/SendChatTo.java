@@ -101,4 +101,9 @@ public class SendChatTo implements IActionWithArguments, ISocialAction {
     public int getThinkingTicks() {
         return 60;
     }
+
+    @Override
+    public boolean shouldBeRemembered() {
+        return false; // Conversations have their own section in an agent's memory
+    }
 }

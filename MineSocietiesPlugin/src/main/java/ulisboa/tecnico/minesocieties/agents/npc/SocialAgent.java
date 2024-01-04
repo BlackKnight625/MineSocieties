@@ -3,7 +3,6 @@ package ulisboa.tecnico.minesocieties.agents.npc;
 import org.bukkit.NamespacedKey;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.util.Vector;
 import org.entityutils.entity.npc.player.AnimatedPlayerNPC;
 import org.jetbrains.annotations.Nullable;
 import ulisboa.tecnico.agents.actions.ActionStatus;
@@ -21,10 +20,7 @@ import ulisboa.tecnico.minesocieties.agents.actions.otherActions.ContinueCurrent
 import ulisboa.tecnico.minesocieties.agents.actions.otherActions.Idle;
 import ulisboa.tecnico.minesocieties.agents.actions.otherActions.Thinking;
 import ulisboa.tecnico.minesocieties.agents.actions.socialActions.SendChatTo;
-import ulisboa.tecnico.minesocieties.agents.npc.state.AgentLocation;
-import ulisboa.tecnico.minesocieties.agents.npc.state.AgentPersona;
-import ulisboa.tecnico.minesocieties.agents.npc.state.AgentState;
-import ulisboa.tecnico.minesocieties.agents.npc.state.Conversation;
+import ulisboa.tecnico.minesocieties.agents.npc.state.*;
 import ulisboa.tecnico.minesocieties.agents.observation.ISocialObserver;
 import ulisboa.tecnico.minesocieties.agents.observation.wrapped.SocialReceivedChatFromObservation;
 import ulisboa.tecnico.minesocieties.agents.observation.wrapped.SocialWeatherChangeObservation;
@@ -51,6 +47,7 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
     private final AnimatedPlayerNPC npc;
     private AgentState state;
     private ISocialAction currentAction = new Idle();
+    private ActionStatus currentActionStatus = ActionStatus.SUCCESS;
     private MessageDisplay messageDisplay = new MessageDisplay(this);
     private final Lock actionChoosingLock = new ReentrantLock();
 
@@ -95,8 +92,15 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
     public void receivedChatFrom(SocialReceivedChatFromObservation observation) {
         receivedAnyObservation(observation);
 
+        Conversation conversation = new Conversation(observation, this);
+
         // Adding this conversation to the agent's memory
-        state.getMemory().getConversations().addMemorySection(new Conversation(observation, this));
+        state.getMemory().getConversations().addMemorySection(conversation);
+
+        // Also adding this to the sender in case it's also an agent
+        if (observation.getObservation().getFrom() instanceof SocialAgent sender) {
+            sender.getState().getMemory().getConversations().addMemorySection(conversation);
+        }
 
         // Making the agent look at the speaker, in case the current action allows so
         if (currentAction.canDoMicroActions()) {
@@ -124,13 +128,15 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
     public void act() {
         ActionStatus status = currentAction.act(this);
 
+        currentActionStatus = status;
+
         if (status.isFinished()) {
             if (currentAction instanceof Thinking) {
                 // Choosing a new action
                 chooseNewAction(null);
             } else {
                 // Start thinking about what to do next
-                selectedNewAction(new Thinking("what to do next", currentAction.getThinkingTicks()));
+                selectedNewActionSync(new Thinking("what to do next", currentAction.getThinkingTicks()));
             }
         }
     }
@@ -159,6 +165,7 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
 
         if (possibleActions.isEmpty()) {
             // No actions may be taken by this agent
+            MineSocieties.getPlugin().getLogger().warning("Agent " + getName() + " doesn't have any possible actions to choose from.");
         } else {
             MineSocieties.getPlugin().getLLMManager().promptAsyncSupplyMessageAsync(
                     () -> getPromptForNewAction(possibleActions, newlyObtainedObservation),
@@ -178,7 +185,7 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
 
         // Telling the model exactly what to do
         messageList.add(new LLMMessage(LLMRole.SYSTEM,
-                "You are a decision making AI for " + getName() + ". " +
+                "You are a decision making AI. " +
                         "You will receive their description and a list of possible actions. " +
                         "You must choose the action that is the most appropriate for " + getName() +
                         " given the sittuation they find themselves in. Write down your choice as " +
@@ -287,10 +294,10 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
             actionWithArguments.acceptArgumentsInterpreter(actionArgumentsExplainer, arguments);
         }
 
-        selectedNewAction(action);
+        selectedNewActionSync(action);
     }
 
-    public void selectedNewAction(ISocialAction newAction) {
+    public void selectedNewActionSync(ISocialAction newAction) {
         if (!(newAction instanceof Thinking) && !(newAction instanceof SendChatTo)) {
             // The agent is not thinking, and it's not chatting. Check if the agent should reflect uppon recent conversations
 
@@ -301,7 +308,18 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
 
         try {
             currentAction.cancel();
+
+            if (currentAction.shouldBeRemembered()) {
+                AgentPastActions pastActions = getState().getMemory().getPastActions();
+
+                pastActions.addMemorySection(new PastAction(currentAction, Instant.now()));
+
+                // Forgetting old actions
+                pastActions.forgetMemorySectionOlderThan(Instant.now().minus(1, ChronoUnit.HOURS));
+            }
+
             currentAction = newAction;
+            currentActionStatus = ActionStatus.IN_PROGRESS;
         } finally {
             actionChoosingLock.unlock();
         }
@@ -315,6 +333,9 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
     }
 
     public void reflectOnConversationsAsync() {
+        System.out.println("Checking if the agent needs to have its conversations reflected upon. Size: " +
+                state.getMemory().getConversations().entrySizes());
+
         if (state.getMemory().getConversations().entrySizes() != 0) {
             // There's some reflecting to do
             state.requestStateChangeAsync(this::getPromptForConversationReflectingSync);
@@ -431,7 +452,12 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
 
         // Adding all actions that this agent can take
         possibleActions.add(new SendChatTo());
-        possibleActions.add(new ContinueCurrentAction());
+        possibleActions.add(new Idle()); // Temporary. An agent that chooses to be idle won't do anything until they receive an observation
+
+        if (!currentActionStatus.isFinished()) {
+            // Agent can decide to continue its current action
+            possibleActions.add(new ContinueCurrentAction());
+        }
 
         // Removing actions that cannot be executed
         possibleActions.removeIf(action -> !action.canBeExecuted(this));

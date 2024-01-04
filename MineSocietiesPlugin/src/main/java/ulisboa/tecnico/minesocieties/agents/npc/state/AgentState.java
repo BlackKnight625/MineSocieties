@@ -74,12 +74,14 @@ public class AgentState implements IExplainableContext {
     // Other methods
 
     public void startStateModification() {
+        System.out.println("Locked State lock for " + persona.getName());
         stateLock.lock();
     }
 
     public void finishStateModification() {
         saveSync();
 
+        System.out.println("Unlocked State lock for " + persona.getName());
         stateLock.unlock();
     }
 
@@ -322,7 +324,7 @@ public class AgentState implements IExplainableContext {
     }
 
     public Path getStatePath() {
-        return Path.of(STATES_PATH.toString(), persona.getName() + "_" + uuid + ".txt");
+        return Path.of(STATES_PATH.toString(), persona.getName() + "_" + uuid + ".json");
     }
 
     /**

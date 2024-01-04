@@ -27,4 +27,6 @@ public interface IContextVisitor {
     String explainShortTermMemory(AgentShortTermMemory shortTermMemory);
 
     String explainLongTermMemory(AgentLongTermMemory longTermMemory);
+
+    String explainPastActions(AgentPastActions pastActions);
 }

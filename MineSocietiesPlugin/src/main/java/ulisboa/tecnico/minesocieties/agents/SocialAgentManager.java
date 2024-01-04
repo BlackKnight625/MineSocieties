@@ -1,5 +1,6 @@
 package ulisboa.tecnico.minesocieties.agents;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -8,11 +9,13 @@ import org.jetbrains.annotations.Nullable;
 import revxrsal.commands.exception.CommandErrorException;
 import ulisboa.tecnico.agents.AbstractAgentManager;
 import ulisboa.tecnico.agents.observation.ReceivedChatObservation;
+import ulisboa.tecnico.minesocieties.MineSocieties;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.agents.observation.SocialEventListener;
 import ulisboa.tecnico.minesocieties.agents.observation.wrapped.SocialReceivedChatFromObservation;
 import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
 import ulisboa.tecnico.minesocieties.commands.SocialAgentCommand;
+import ulisboa.tecnico.minesocieties.utils.ComponentUtils;
 
 public class SocialAgentManager extends AbstractAgentManager<SocialAgent, SocialPlayer, SocialCharacter> {
 
@@ -55,5 +58,9 @@ public class SocialAgentManager extends AbstractAgentManager<SocialAgent, Social
         );
 
         agent.receivedChatFrom(observation);
+
+        if (MineSocieties.getPlugin().isChatBroadcasted()) {
+            Bukkit.broadcast(ComponentUtils.sendMessageToPrefix(player.getName(), agent.getName(), message));
+        }
     }
 }

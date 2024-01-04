@@ -7,9 +7,9 @@ public class AgentMemory implements IExplainableContext {
     // Private attributes
 
     private AgentConversations conversations = new AgentConversations();
-    // TODO: Create a subclass of memory sections that mentions when it took place when converted to natural language
     private AgentShortTermMemory shortTermMemory = new AgentShortTermMemory();
     private AgentLongTermMemory longTermMemory = new AgentLongTermMemory();
+    private AgentPastActions pastActions = new AgentPastActions();
     private AgentLocation home;
 
     // Constructors
@@ -32,6 +32,10 @@ public class AgentMemory implements IExplainableContext {
 
     public AgentLongTermMemory getLongTermMemory() {
         return longTermMemory;
+    }
+
+    public AgentPastActions getPastActions() {
+        return pastActions;
     }
 
     public AgentLocation getHome() {

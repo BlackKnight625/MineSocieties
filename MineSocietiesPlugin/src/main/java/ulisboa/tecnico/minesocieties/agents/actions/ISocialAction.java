@@ -25,4 +25,12 @@ public interface ISocialAction extends IAction<SocialAgent> {
     default boolean canDoMicroActions() {
         return false;
     }
+
+    /**
+     * @return
+     *  Returns whether this action should be remembered as an agent's past actions
+     */
+    default boolean shouldBeRemembered() {
+        return true;
+    }
 }
