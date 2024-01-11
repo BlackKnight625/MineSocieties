@@ -6,6 +6,8 @@ import org.bukkit.World;
 import org.bukkit.util.Vector;
 import ulisboa.tecnico.minesocieties.visitors.IContextVisitor;
 
+import java.util.Objects;
+
 public class AgentLocation implements IExplainableContext {
 
     // Private attributes
@@ -68,5 +70,18 @@ public class AgentLocation implements IExplainableContext {
                 ", worldName='" + worldName + '\'' +
                 ", description='" + description + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AgentLocation that = (AgentLocation) o;
+        return position.equals(that.position) && worldName.equals(that.worldName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(position, worldName);
     }
 }

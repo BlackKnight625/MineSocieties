@@ -11,13 +11,21 @@ import ulisboa.tecnico.agents.AbstractAgentManager;
 import ulisboa.tecnico.agents.observation.ReceivedChatObservation;
 import ulisboa.tecnico.minesocieties.MineSocieties;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
+import ulisboa.tecnico.minesocieties.agents.npc.state.AgentState;
 import ulisboa.tecnico.minesocieties.agents.observation.SocialEventListener;
 import ulisboa.tecnico.minesocieties.agents.observation.wrapped.SocialReceivedChatFromObservation;
 import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
 import ulisboa.tecnico.minesocieties.commands.SocialAgentCommand;
 import ulisboa.tecnico.minesocieties.utils.ComponentUtils;
 
+import java.io.File;
+import java.nio.file.Path;
+
 public class SocialAgentManager extends AbstractAgentManager<SocialAgent, SocialPlayer, SocialCharacter> {
+
+    // Public attributes
+
+    public static final Path STATES_PATH =  Path.of("plugins", "MineSocieties", "social_agents");
 
     // Constructors
 
@@ -62,5 +70,50 @@ public class SocialAgentManager extends AbstractAgentManager<SocialAgent, Social
         if (MineSocieties.getPlugin().isChatBroadcasted()) {
             Bukkit.broadcast(ComponentUtils.sendMessageToPrefix(player.getName(), agent.getName(), message));
         }
+    }
+
+    public void loadSavedAgents() {
+        File agentDirectory = new File(STATES_PATH.toUri());
+
+        if (agentDirectory.exists()) {
+            File[] agentFiles = agentDirectory.listFiles();
+
+            for (File agentFile : agentFiles) {
+                MineSocieties.getPlugin().getLogger().info("Loading agent from file " + agentFile.getPath());
+
+                try {
+                    AgentState loadedState = AgentState.load(agentFile.getAbsolutePath());
+
+                    SocialAgent loadedAgent = deployAgent(
+                            loadedState.getPersona().getName(),
+                            loadedState.getCurrentLocation().toBukkitLocation(),
+                            a -> {
+                                // Before deploying the agent, its UUID must be replaced with the loaded one and
+                                // the loaded state must be placed in the agent
+                                a.getAgent().getData().setUUID(loadedState.getUUID());
+                                a.setState(loadedState);
+                            }
+                    );
+
+                    MineSocieties.getPlugin().getLogger().info("Successfully deployed " + loadedAgent.getName() + " at " +
+                            loadedAgent.getLocation());
+                } catch (AgentState.StateReadException e) {
+                    MineSocieties.getPlugin().getLogger().severe("Error loading a saved agent state");
+                    e.printStackTrace();
+                }
+            }
+        } else {
+            MineSocieties.getPlugin().getLogger().info("Creating a directory for storing social agents");
+
+            agentDirectory.mkdirs();
+        }
+    }
+
+    public void addPlayerAsViewer(Player player) {
+        forEachValidAgent(a -> a.getAgent().setAlive2(player, true));
+    }
+
+    public void removePlayerAsViewer(Player player) {
+        forEachValidAgent(a -> a.getAgent().setAlive2(player, false));
     }
 }

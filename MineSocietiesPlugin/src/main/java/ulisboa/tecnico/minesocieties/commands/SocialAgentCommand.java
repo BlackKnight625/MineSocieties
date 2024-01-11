@@ -30,6 +30,14 @@ public class SocialAgentCommand {
         MineSocieties.getPlugin().getSocialAgentManager().talkWith(getSocialPlayer(player), who, message);
     }
 
+    @Subcommand("debug")
+    public void debug1(Player player) {
+        MineSocieties.getPlugin().getSocialAgentManager().forEachValidAgent(a -> {
+            System.out.println("Name: " + a.getName() + ", UUID: " + a.getUUID());
+        });
+    }
+
+
     private SocialPlayer getSocialPlayer(Player player) {
         return MineSocieties.getPlugin().getSocialAgentManager().getPlayerWrapper(player);
     }

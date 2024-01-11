@@ -57,6 +57,10 @@ public abstract class AbstractAgentManager<A extends IAgent, P extends IPlayerAg
     }
 
     public A deployAgent(String name, Location location) throws IllegalArgumentException {
+        return deployAgent(name, location, null);
+    }
+
+    public A deployAgent(String name, Location location, @Nullable Consumer<A> beforeDeployment) throws IllegalArgumentException {
         // Sanitizing the name
         name = name.replaceAll("\"", "");
 
@@ -68,9 +72,21 @@ public abstract class AbstractAgentManager<A extends IAgent, P extends IPlayerAg
                     "follow this regex: " + NAME_PATTERN);
         }
 
+        if (!location.getChunk().isLoaded()) {
+            // Loading the chunk before deploying the agent
+            location.getChunk().load();
+        }
+
         A agent = getNewAgentInstance(name, location);
 
+        if (beforeDeployment != null) {
+            beforeDeployment.accept(agent);
+        }
+
         agent.deploy();
+
+        System.out.println(agent.getName() + " is valid: " + agent.isValid());
+        System.out.println(agent.getName() + " is chunkloaded: " + agent.getLocation().getChunk().isLoaded());
 
         registerAgent(agent);
 

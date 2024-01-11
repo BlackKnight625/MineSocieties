@@ -19,3 +19,8 @@ maxChatRange: 5
 # Whether all chats between Social Agents should be broadcasted to the entire server as if it were normal players chatting, or if
 # the chats should be solely displayed on top of agent's heads
 chatBroadcast: Yes
+
+# Whether agents should be loaded after a server restart.
+# If set to 'No', then all agents disappear after a restart. They're still saved in the MineSocieties/social_agents directory, but
+# the plugin will not automatically load them once it starts again.
+loadSavedAgents: Yes

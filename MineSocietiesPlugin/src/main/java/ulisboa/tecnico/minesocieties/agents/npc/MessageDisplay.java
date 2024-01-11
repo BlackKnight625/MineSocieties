@@ -32,6 +32,12 @@ public class MessageDisplay {
         this.agent = agent;
     }
 
+    // Getters and setters
+
+    public void setTextDisplay(TextDisplay textDisplay) {
+        this.textDisplay = textDisplay;
+    }
+
     // Other methods
 
     public void initialize() {

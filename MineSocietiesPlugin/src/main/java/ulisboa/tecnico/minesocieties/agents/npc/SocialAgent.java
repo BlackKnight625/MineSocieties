@@ -119,6 +119,10 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
         act();
 
         messageDisplay.tick();
+
+        // Even thought the npc instance knows its location, it must be updated in the AgentState so that it can be stored
+        // in the agent files
+        state.updateCurrentLocation(npc);
     }
 
     /**

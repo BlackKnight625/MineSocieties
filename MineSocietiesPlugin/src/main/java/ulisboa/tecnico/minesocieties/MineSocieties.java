@@ -10,6 +10,8 @@ import ulisboa.tecnico.minesocieties.agents.SocialAgentManager;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.commands.CommandManager;
 
+import java.util.concurrent.ExecutorService;
+
 public class MineSocieties extends JavaPlugin {
 
     // Private attributes
@@ -22,6 +24,7 @@ public class MineSocieties extends JavaPlugin {
     private long elapsedTicks;
     private int maxChatRange;
     private boolean chatBroadcast;
+    private boolean loadSavedAgents;
 
     // Other methods
 
@@ -76,6 +79,17 @@ public class MineSocieties extends JavaPlugin {
 
         maxChatRange = getConfig().getInt("maxChatRange");
         chatBroadcast = getConfig().getBoolean("chatBroadcast");
+        loadSavedAgents = getConfig().getBoolean("loadSavedAgents");
+
+        if (loadSavedAgents) {
+            // Loading all agents in the next tick
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    socialAgentManager.loadSavedAgents();
+                }
+            }.runTask(this);
+        }
 
         // Ticking all agents
         new BukkitRunnable() {
@@ -125,6 +139,15 @@ public class MineSocieties extends JavaPlugin {
 
     public boolean isChatBroadcasted() {
         return chatBroadcast;
+    }
+
+    public boolean loadSavedAgents() {
+        return loadSavedAgents;
+    }
+
+    public ExecutorService getThreadPool() {
+        // Sharing the same thread pool as the llmManager's
+        return llmManager.getThreadPool();
     }
 
     public static MineSocieties getPlugin() {

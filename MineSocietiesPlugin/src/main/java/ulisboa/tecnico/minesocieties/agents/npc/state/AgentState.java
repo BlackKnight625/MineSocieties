@@ -2,9 +2,12 @@ package ulisboa.tecnico.minesocieties.agents.npc.state;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
+import org.entityutils.entity.npc.player.AnimatedPlayerNPC;
 import ulisboa.tecnico.llms.LLMMessage;
 import ulisboa.tecnico.llms.LLMRole;
 import ulisboa.tecnico.minesocieties.MineSocieties;
+import ulisboa.tecnico.minesocieties.agents.SocialAgentManager;
 import ulisboa.tecnico.minesocieties.agents.actions.exceptions.MalformedNewStateResponseException;
 import ulisboa.tecnico.minesocieties.utils.InstantTypeAdapter;
 import ulisboa.tecnico.minesocieties.visitors.IContextVisitor;
@@ -17,6 +20,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
@@ -38,9 +42,11 @@ public class AgentState implements IExplainableContext {
     private AgentPersonalities personalities = new AgentPersonalities();
     private AgentPersona persona;
     private UUID uuid;
-    private transient Lock stateLock = new ReentrantLock();
+    private AgentLocation currentLocation;
+    private final transient Lock stateLock = new ReentrantLock();
+    private final transient Semaphore asyncSaveInProgressLock = new Semaphore(1);
+    private transient long lastSaveMillis = 0;
 
-    private static final Path STATES_PATH =  Path.of("plugins", "MineSocieties", "social_agents");
     private static final Gson GSON;
 
     // Constructors
@@ -71,17 +77,51 @@ public class AgentState implements IExplainableContext {
         return persona;
     }
 
+    public AgentLocation getCurrentLocation() {
+        return currentLocation;
+    }
+
+    public UUID getUUID() {
+        return uuid;
+    }
+
     // Other methods
 
+    /**
+     *  Saves this state into a file if it's been too long since this was last saved
+     */
+    private void saveIfOld() {
+        long currentMillis = System.currentTimeMillis();
+
+        if (currentMillis > lastSaveMillis + 10000L) {
+            // It's been 10 seconds since this was last saved
+
+            if (asyncSaveInProgressLock.tryAcquire()) {
+                saveAsync(asyncSaveInProgressLock::release);
+            }
+            // else, an async save is currently in progress. Do nothing
+        }
+    }
+
+    public void updateCurrentLocation(AnimatedPlayerNPC npc) {
+        AgentLocation oldLocation = this.currentLocation;
+
+        this.currentLocation = new AgentLocation(npc.getData().getLocation());
+
+        if (!this.currentLocation.equals(oldLocation)) {
+            // Only attempting to save if the location has changed
+            saveIfOld();
+        }
+    }
+
+
     public void startStateModification() {
-        System.out.println("Locked State lock for " + persona.getName());
         stateLock.lock();
     }
 
     public void finishStateModification() {
         saveSync();
 
-        System.out.println("Unlocked State lock for " + persona.getName());
         stateLock.unlock();
     }
 
@@ -324,7 +364,11 @@ public class AgentState implements IExplainableContext {
     }
 
     public Path getStatePath() {
-        return Path.of(STATES_PATH.toString(), persona.getName() + "_" + uuid + ".json");
+        return getStatePath(uuid, persona.getName());
+    }
+
+    public Path getStatePath(UUID uuid, String name) {
+        return Path.of(SocialAgentManager.STATES_PATH.toString(), name + "_" + uuid + ".json");
     }
 
     /**
@@ -338,15 +382,49 @@ public class AgentState implements IExplainableContext {
             file.createNewFile();
 
             Files.write(getStatePath(), GSON.toJson(this).getBytes());
+
+            lastSaveMillis = System.currentTimeMillis();
         } catch (IOException e) {
             MineSocieties.getPlugin().getLogger().log(Level.WARNING,
                     "Unable to save the state of " + persona.getName() + " into a file.", e);
         }
     }
 
+    public void saveAsync() {
+        MineSocieties.getPlugin().getThreadPool().execute(this::saveSync);
+    }
+
+    public void saveAsync(Runnable andThen) {
+        MineSocieties.getPlugin().getThreadPool().execute(() -> {
+            saveSync();
+            andThen.run();
+        });
+    }
+
     @Override
     public String accept(IContextVisitor visitor) {
         return visitor.explainState(this);
+    }
+
+    // Static methods
+
+    /**
+     *  Loads an agent from a file
+     * @param pathname
+     *  The path name to the file containing the contents of the agent
+     * @return
+     *  A new AgentState instance corresponding to the saved agent
+     * @throws StateReadException
+     *  Thrown if something goes wrong while reading the file containing the agent's contents
+     */
+    public static AgentState load(String pathname) throws StateReadException {
+        try {
+            String contents = Files.readString(Path.of(pathname));
+
+            return GSON.fromJson(contents, AgentState.class);
+        } catch (IOException | JsonSyntaxException e) {
+            throw new StateReadException("Unable to load the agent stored under " + pathname, e);
+        }
     }
 
     // Static
@@ -359,5 +437,16 @@ public class AgentState implements IExplainableContext {
         gsonBuilder.registerTypeAdapter(Instant.class, new InstantTypeAdapter());
 
         GSON = gsonBuilder.create();
+    }
+
+    // Classes
+
+    public static class StateReadException extends Exception {
+
+        // Constructors
+
+        public StateReadException(String message, Exception cause) {
+            super(message, cause);
+        }
     }
 }
