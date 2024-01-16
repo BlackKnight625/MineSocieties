@@ -75,6 +75,7 @@ public class CommandManager {
 
         commandHandler.register(new ReactiveAgentCommand());
         commandHandler.register(new SocialAgentCommand());
+        commandHandler.register(new DebugCommand());
     }
 
     private List<String> withQuotationMarks(List<String> input) {

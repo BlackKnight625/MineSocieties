@@ -1,4 +1,4 @@
-package ulisboa.tecnico.minesocieties.guis.social;
+package ulisboa.tecnico.minesocieties.guis;
 
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -7,7 +7,12 @@ import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
+import ulisboa.tecnico.minesocieties.MineSocieties;
 import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Consumer;
 
 import static org.bukkit.event.inventory.ClickType.NUMBER_KEY;
 
@@ -82,5 +87,18 @@ public class GuiManager {
         }
 
         return false;
+    }
+
+    public void openSignGUI(SocialPlayer player, Consumer<List<String>> callback) {
+        player.setSignEditAction(callback);
+
+        MineSocieties.getPlugin().getPacketManager().openSignEditor(player);
+    }
+
+    public void signChanged(SocialPlayer player, String[] lines) {
+        if(player.hasSignEditAction()) {
+            player.getSignEditAction().accept(Arrays.asList(lines));
+            player.setSignEditAction(null);
+        }
     }
 }

@@ -9,7 +9,8 @@ import ulisboa.tecnico.llms.LLMManager;
 import ulisboa.tecnico.minesocieties.agents.SocialAgentManager;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.commands.CommandManager;
-import ulisboa.tecnico.minesocieties.guis.social.GuiManager;
+import ulisboa.tecnico.minesocieties.guis.GuiManager;
+import ulisboa.tecnico.minesocieties.packets.PacketManager;
 
 import java.util.concurrent.ExecutorService;
 
@@ -23,6 +24,7 @@ public class MineSocieties extends JavaPlugin {
     private SocialAgentManager socialAgentManager;
     private LLMManager llmManager;
     private GuiManager guiManager;
+    private PacketManager packetManager;
     private long elapsedTicks;
     private int maxChatRange;
     private boolean chatBroadcast;
@@ -100,6 +102,10 @@ public class MineSocieties extends JavaPlugin {
                 socialAgentManager.forEachValidAgent(SocialAgent::tick);
             }
         }.runTaskTimer(this, 1, 1);
+
+        // Initializing managers
+        guiManager = new GuiManager(this);
+        packetManager = new PacketManager(this);
     }
 
     @Override
@@ -154,6 +160,10 @@ public class MineSocieties extends JavaPlugin {
 
     public GuiManager getGuiManager() {
         return guiManager;
+    }
+
+    public PacketManager getPacketManager() {
+        return packetManager;
     }
 
     public static MineSocieties getPlugin() {

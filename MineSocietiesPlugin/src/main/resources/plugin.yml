@@ -2,5 +2,6 @@ name: MineSocieties
 version: '${version}'
 main: ulisboa.tecnico.minesocieties.MineSocieties
 api-version: 1.20
+depend: [ ProtocolLib ]
 authors: [ BlackKnight625 ]
 description: A plugin for my Master's thesis in Minecraft Social Agents

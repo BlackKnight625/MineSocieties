@@ -1,6 +1,7 @@
 package ulisboa.tecnico.minesocieties.agents.player;
 
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 import ulisboa.tecnico.agents.player.IPlayerAgent;
 import ulisboa.tecnico.minesocieties.MineSocieties;
 import ulisboa.tecnico.minesocieties.agents.SocialCharacter;
@@ -9,12 +10,17 @@ import ulisboa.tecnico.minesocieties.agents.observation.wrapped.SocialWeatherCha
 import ulisboa.tecnico.minesocieties.guis.common.GUIMenu;
 import ulisboa.tecnico.minesocieties.utils.ComponentUtils;
 
+import java.util.List;
+import java.util.function.Consumer;
+
 public class SocialPlayer extends SocialCharacter implements IPlayerAgent {
 
     // Private attributes
 
     private Player player;
     private GUIMenu currentOpenGUIMenu;
+    private Consumer<List<String>> signEditAction;
+    private boolean isEditingCustomSign = false;
 
     // Constructors
 
@@ -40,6 +46,26 @@ public class SocialPlayer extends SocialCharacter implements IPlayerAgent {
 
     public void setCurrentOpenGUIMenu(GUIMenu currentOpenGUIMenu) {
         this.currentOpenGUIMenu = currentOpenGUIMenu;
+    }
+
+    public boolean hasSignEditAction() {
+        return signEditAction != null;
+    }
+
+    public @Nullable Consumer<List<String>> getSignEditAction() {
+        return signEditAction;
+    }
+
+    public void setSignEditAction(@Nullable Consumer<List<String>> signEditAction) {
+        this.signEditAction = signEditAction;
+    }
+
+    public boolean isEditingCustomSign() {
+        return isEditingCustomSign;
+    }
+
+    public void setEditingCustomSign(boolean editingCustomSign) {
+        isEditingCustomSign = editingCustomSign;
     }
 
     // Observation methods

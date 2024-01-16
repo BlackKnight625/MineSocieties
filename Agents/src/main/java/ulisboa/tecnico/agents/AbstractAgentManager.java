@@ -85,9 +85,6 @@ public abstract class AbstractAgentManager<A extends IAgent, P extends IPlayerAg
 
         agent.deploy();
 
-        System.out.println(agent.getName() + " is valid: " + agent.isValid());
-        System.out.println(agent.getName() + " is chunkloaded: " + agent.getLocation().getChunk().isLoaded());
-
         registerAgent(agent);
 
         return agent;

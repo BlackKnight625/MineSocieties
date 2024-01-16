@@ -3,6 +3,7 @@ package ulisboa.tecnico.minesocieties.guis.common;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
+import ulisboa.tecnico.minesocieties.MineSocieties;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -37,6 +38,6 @@ public class SignOpener extends GUIItem {
 
     @Override
     public void clicked(ClickType click) {
-        //MineSocieties.getPlugin().getGuiManager().openSignGUI(getShopper(), callback);
+        MineSocieties.getPlugin().getGuiManager().openSignGUI(getShopper(), callback);
     }
 }
