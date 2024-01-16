@@ -11,6 +11,7 @@ import ulisboa.tecnico.minesocieties.MineSocieties;
 import ulisboa.tecnico.minesocieties.agents.SocialCharacter;
 import ulisboa.tecnico.minesocieties.agents.observation.wrapped.SocialReceivedChatFromObservation;
 import ulisboa.tecnico.minesocieties.agents.observation.wrapped.SocialWeatherChangeObservation;
+import ulisboa.tecnico.minesocieties.guis.GUIMenu;
 import ulisboa.tecnico.minesocieties.utils.ComponentUtils;
 
 public class SocialPlayer extends SocialCharacter implements IPlayerAgent {
@@ -18,6 +19,7 @@ public class SocialPlayer extends SocialCharacter implements IPlayerAgent {
     // Private attributes
 
     private Player player;
+    private GUIMenu currentOpenGUIMenu;
 
     // Constructors
 
@@ -35,6 +37,14 @@ public class SocialPlayer extends SocialCharacter implements IPlayerAgent {
     @Override
     public void setPlayer(Player player) {
         this.player = player;
+    }
+
+    public GUIMenu getCurrentOpenGUIMenu() {
+        return currentOpenGUIMenu;
+    }
+
+    public void setCurrentOpenGUIMenu(GUIMenu currentOpenGUIMenu) {
+        this.currentOpenGUIMenu = currentOpenGUIMenu;
     }
 
     // Observation methods

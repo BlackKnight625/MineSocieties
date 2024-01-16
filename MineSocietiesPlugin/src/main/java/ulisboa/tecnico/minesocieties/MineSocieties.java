@@ -129,10 +129,6 @@ public class MineSocieties extends JavaPlugin {
         this.llmManager = llmManager;
     }
 
-    public long getElapsedTicks() {
-        return elapsedTicks;
-    }
-
     public int getMaxChatRange() {
         return maxChatRange;
     }
@@ -148,6 +144,10 @@ public class MineSocieties extends JavaPlugin {
     public ExecutorService getThreadPool() {
         // Sharing the same thread pool as the llmManager's
         return llmManager.getThreadPool();
+    }
+
+    public long getElapsedTicks() {
+        return elapsedTicks;
     }
 
     public static MineSocieties getPlugin() {
