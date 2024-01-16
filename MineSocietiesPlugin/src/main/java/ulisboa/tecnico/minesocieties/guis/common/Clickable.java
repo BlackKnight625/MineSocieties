@@ -1,4 +1,4 @@
-package ulisboa.tecnico.minesocieties.guis;
+package ulisboa.tecnico.minesocieties.guis.common;
 
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;

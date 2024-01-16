@@ -1,8 +1,10 @@
 package ulisboa.tecnico.minesocieties.agents.observation;
 
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.world.EntitiesLoadEvent;
@@ -61,7 +63,7 @@ public class SocialEventListener extends EventListener {
         new BukkitRunnable() {
             @Override
             public void run() {
-                MineSocieties.getPlugin().getSocialAgentManager().addPlayerAsViewer(e.getPlayer());
+                getSocialAgentManager().addPlayerAsViewer(e.getPlayer());
             }
         }.runTask(MineSocieties.getPlugin());
     }
@@ -71,8 +73,27 @@ public class SocialEventListener extends EventListener {
         new BukkitRunnable() {
             @Override
             public void run() {
-                MineSocieties.getPlugin().getSocialAgentManager().removePlayerAsViewer(e.getPlayer());
+                getSocialAgentManager().removePlayerAsViewer(e.getPlayer());
             }
         }.runTask(MineSocieties.getPlugin());
+    }
+
+    @EventHandler
+    public void playerClicksInventory(InventoryClickEvent e) {
+        e.setCancelled(MineSocieties.getPlugin().getGuiManager()
+                .clickedInventory(
+                        getSocialAgentManager().getPlayerWrapper((Player) e.getWhoClicked()),
+                        e.getAction(),
+                        e.getCurrentItem(),
+                        e.getCursor(),
+                        e.getClick(),
+                        e.getHotbarButton()
+                ));
+    }
+
+    // Other methods
+
+    private SocialAgentManager getSocialAgentManager() {
+        return MineSocieties.getPlugin().getSocialAgentManager();
     }
 }

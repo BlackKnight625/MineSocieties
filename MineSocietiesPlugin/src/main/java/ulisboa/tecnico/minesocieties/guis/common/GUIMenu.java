@@ -1,8 +1,7 @@
-package ulisboa.tecnico.minesocieties.guis;
+package ulisboa.tecnico.minesocieties.guis.common;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -27,9 +26,6 @@ public abstract class GUIMenu {
 	private int _size;
 	private GUIMenu _previousMenu = null;
 	private Inventory _inventory;
-
-	public static final String GUI_ITEM_KEY = "gui_item";
-	public static final String LOBBY_ITEM_KEY = "lobby_item";
 	
 	/*Constructors*/
 	public GUIMenu(SocialPlayer player, String name, int size) {
@@ -93,7 +89,7 @@ public abstract class GUIMenu {
 			item = _clickables.get(i).getItemStack();
 
 			ItemMeta meta = item.getItemMeta();
-			meta.getPersistentDataContainer().set(new NamespacedKey(MineSocieties.getPlugin(), GUI_ITEM_KEY), PersistentDataType.INTEGER, i);
+			meta.getPersistentDataContainer().set(MineSocieties.getPlugin().getGuiManager().getGuiItemKey(), PersistentDataType.INTEGER, i);
 			item.setItemMeta(meta);
 
 			_inventory.setItem(i, item);

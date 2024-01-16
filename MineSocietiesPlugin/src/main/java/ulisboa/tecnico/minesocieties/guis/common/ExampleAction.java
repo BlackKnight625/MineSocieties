@@ -1,4 +1,4 @@
-package ulisboa.tecnico.minesocieties.guis;
+package ulisboa.tecnico.minesocieties.guis.common;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Instrument;
