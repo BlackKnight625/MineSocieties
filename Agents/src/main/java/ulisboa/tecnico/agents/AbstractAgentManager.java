@@ -1,5 +1,6 @@
 package ulisboa.tecnico.agents;
 
+import net.minecraft.network.protocol.game.PacketPlayInCloseWindow;
 import org.apache.commons.lang3.text.WordUtils;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;

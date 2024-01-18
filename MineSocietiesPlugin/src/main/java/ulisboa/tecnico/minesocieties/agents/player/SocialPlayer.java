@@ -1,6 +1,7 @@
 package ulisboa.tecnico.minesocieties.agents.player;
 
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import ulisboa.tecnico.agents.player.IPlayerAgent;
 import ulisboa.tecnico.minesocieties.MineSocieties;
@@ -60,12 +61,16 @@ public class SocialPlayer extends SocialCharacter implements IPlayerAgent {
         this.signEditAction = signEditAction;
     }
 
+    public void setEditingCustomSign(boolean editingCustomSign) {
+        isEditingCustomSign = editingCustomSign;
+    }
+
     public boolean isEditingCustomSign() {
         return isEditingCustomSign;
     }
 
-    public void setEditingCustomSign(boolean editingCustomSign) {
-        isEditingCustomSign = editingCustomSign;
+    public void noLongerEdittingCustomMenus() {
+        isEditingCustomSign = false;
     }
 
     // Observation methods

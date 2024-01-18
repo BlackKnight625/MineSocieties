@@ -26,4 +26,20 @@ public class DebugCommand {
             }
         }.runTask(plugin));
     }
+
+    @Subcommand("book")
+    @CommandPermission("minesocieties.debug")
+    public void openBookEditor(Player player) {
+        MineSocieties plugin = MineSocieties.getPlugin();
+        SocialPlayer socialPlayer = plugin.getSocialAgentManager().getPlayerWrapper(player);
+
+        plugin.getGuiManager().giveCustomEditingBook(socialPlayer, lines -> new BukkitRunnable() {
+            @Override
+            public void run() {
+                for(String line : lines) {
+                    socialPlayer.getPlayer().sendMessage(line);
+                }
+            }
+        }.runTask(plugin), "Test Book");
+    }
 }

@@ -6,14 +6,18 @@ import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.BlockPosition;
+import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BookMeta;
 import ulisboa.tecnico.minesocieties.MineSocieties;
 import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
-import ulisboa.tecnico.minesocieties.packets.packetwrappers.WrapperPlayClientUpdateSign;
-import ulisboa.tecnico.minesocieties.packets.packetwrappers.WrapperPlayServerBlockChange;
-import ulisboa.tecnico.minesocieties.packets.packetwrappers.WrapperPlayServerOpenSignEditor;
+import ulisboa.tecnico.minesocieties.packets.packetwrappers.*;
+
+import java.util.List;
 
 public class PacketManager {
 
@@ -29,7 +33,7 @@ public class PacketManager {
             public void onPacketReceiving(PacketEvent event) {
                 SocialPlayer player = MineSocieties.getPlugin().getSocialAgentManager().getPlayerWrapper(event.getPlayer());
 
-                if(player.isEditingCustomSign()) {
+                if (player.isEditingCustomSign()) {
                     // Player is editing a custom sign
                     MineSocieties.getPlugin().getGuiManager().signChanged(player, new WrapperPlayClientUpdateSign(event.getPacket()).getLines());
                     player.setEditingCustomSign(false);
@@ -44,6 +48,24 @@ public class PacketManager {
 
                     blockPacket.sendPacket(player.getPlayer());
                 }
+            }
+
+            @Override
+            public void onPacketSending(PacketEvent event) {
+
+            }
+        });
+
+        manager.addPacketListener(new PacketAdapter(plugin, PacketType.Play.Client.B_EDIT) {
+            @Override
+            public void onPacketReceiving(PacketEvent event) {
+                SocialPlayer player = MineSocieties.getPlugin().getSocialAgentManager().getPlayerWrapper(event.getPlayer());
+                WrapperPlayClientBookEdit bookPacket = new WrapperPlayClientBookEdit(event.getPacket());
+                int slot = bookPacket.getSlot();
+                ItemStack book = player.getPlayer().getInventory().getItem(slot);
+                List<String> pages = bookPacket.getPages();
+
+                MineSocieties.getPlugin().getGuiManager().bookChanged(player, book, pages);
             }
 
             @Override
@@ -71,6 +93,4 @@ public class PacketManager {
         blockPacket.sendPacket(player.getPlayer());
         signPacket.sendPacket(player.getPlayer());
     }
-
-
 }

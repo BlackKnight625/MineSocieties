@@ -6,6 +6,7 @@ import org.bukkit.entity.TextDisplay;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.world.EntitiesLoadEvent;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -13,6 +14,7 @@ import ulisboa.tecnico.agents.observation.EventListener;
 import ulisboa.tecnico.minesocieties.MineSocieties;
 import ulisboa.tecnico.minesocieties.agents.SocialAgentManager;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
+import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
 
 import java.util.UUID;
 
@@ -76,6 +78,18 @@ public class SocialEventListener extends EventListener {
                 getSocialAgentManager().removePlayerAsViewer(e.getPlayer());
             }
         }.runTask(MineSocieties.getPlugin());
+
+        SocialPlayer player = toSocialPlayer(e.getPlayer());
+
+        player.noLongerEdittingCustomMenus();
+    }
+
+    @EventHandler
+    public void playerMoves(PlayerMoveEvent e) {
+        SocialPlayer player = toSocialPlayer(e.getPlayer());
+
+        // Player moved. Cancelling the listening for this player's editing menus
+        player.noLongerEdittingCustomMenus();
     }
 
     @EventHandler
@@ -95,5 +109,9 @@ public class SocialEventListener extends EventListener {
 
     private SocialAgentManager getSocialAgentManager() {
         return MineSocieties.getPlugin().getSocialAgentManager();
+    }
+
+    private SocialPlayer toSocialPlayer(Player player) {
+        return MineSocieties.getPlugin().getSocialAgentManager().getPlayerWrapper(player);
     }
 }
