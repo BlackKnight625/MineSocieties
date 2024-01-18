@@ -43,19 +43,12 @@ public class LocationUtils {
     public static List<String> getNearbyAgentNames(Location location) {
         List<String> names = new ArrayList<>();
 
-        int maxChatRange = MineSocieties.getPlugin().getMaxChatRange();
-        SocialAgentManager socialAgentManager = MineSocieties.getPlugin().getSocialAgentManager();
-
-        for (Entity entity : location.getWorld().getNearbyEntities(location, maxChatRange, maxChatRange, maxChatRange)) {
-            if (entity instanceof Player other) {
-                SocialAgent otherAgent = socialAgentManager.getAgent(other.getUniqueId());
-
-                if (otherAgent != null) {
-                    // Found a nearby agent
-                    names.add(other.getName());
-                }
+        MineSocieties.getPlugin().getSocialAgentManager().forEachValidAgent(agent -> {
+            if (isCloseForChatting(location, agent.getLocation())) {
+                // Found a nearby agent
+                names.add(agent.getName());
             }
-        }
+        });
 
         return names;
     }

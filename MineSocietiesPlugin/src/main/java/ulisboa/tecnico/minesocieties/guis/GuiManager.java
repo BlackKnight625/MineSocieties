@@ -4,8 +4,10 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.BookMeta;
@@ -14,7 +16,10 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import ulisboa.tecnico.minesocieties.MineSocieties;
+import ulisboa.tecnico.minesocieties.agents.SocialAgentManager;
+import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
+import ulisboa.tecnico.minesocieties.guis.social.SocialAgentMainMenu;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -30,17 +35,20 @@ public class GuiManager {
 
     private final NamespacedKey guiItemKey;
     private final NamespacedKey customBookKey;
+    private final NamespacedKey npcEditStickKey;
     private final Map<Integer, Consumer<List<String>>> customBookActions = new HashMap<>();
     private int lastCustomBookId = 0;
 
     private static final String GUI_ITEM_KEY = "gui_item";
     private static final String CUSTOM_BOOK_KEY = "custom_book";
+    private static final String NPC_EDIT_STICK_KEY = "npc_edit";
 
     // Constructors
 
     public GuiManager(Plugin plugin) {
         guiItemKey = new NamespacedKey(plugin, GUI_ITEM_KEY);
         customBookKey = new NamespacedKey(plugin, CUSTOM_BOOK_KEY);
+        npcEditStickKey = new NamespacedKey(plugin, NPC_EDIT_STICK_KEY);
     }
 
     // Getters and setters
@@ -150,6 +158,48 @@ public class GuiManager {
         player.getPlayer().getInventory().addItem(book);
     }
 
+    public void giveNPCStick(SocialPlayer player) {
+        ItemStack npcEditStick = new ItemStack(Material.STICK);
+        var itemMeta = npcEditStick.getItemMeta();
+
+        itemMeta.displayName(Component.text("NPC Edit Stick").color(TextColor.color(255, 219, 49)));
+        itemMeta.getPersistentDataContainer().set(npcEditStickKey, PersistentDataType.BOOLEAN, true);
+        itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        itemMeta.addEnchant(Enchantment.DURABILITY, 1, true);
+
+        npcEditStick.setItemMeta(itemMeta);
+
+        player.getPlayer().getInventory().addItem(npcEditStick);
+    }
+
+    public boolean isNPCStick(ItemStack item) {
+        if (item != null && item.getItemMeta() != null) {
+            PersistentDataContainer container = item.getItemMeta().getPersistentDataContainer();
+
+            return container.has(npcEditStickKey, PersistentDataType.BOOLEAN);
+        }
+
+        return false;
+    }
+
+    public void giveNPCStickIfNotPresent(SocialPlayer player) {
+        PlayerInventory playerInventory = player.getPlayer().getInventory();
+
+        for (int i = 0; i < playerInventory.getSize(); i++) {
+            ItemStack itemStack = playerInventory.getItem(i);
+
+            if (isNPCStick(itemStack)) {
+                return;
+            }
+        }
+
+        giveNPCStick(player);
+    }
+
+    public void openAgentMenu(SocialPlayer player, SocialAgent agent) {
+        new SocialAgentMainMenu(player, agent).open();
+    }
+
     public void bookChanged(SocialPlayer player, ItemStack book, List<String> pages) {
         // Checking if the book is a custom one
         BookMeta bookMeta = (BookMeta) book.getItemMeta();
@@ -191,5 +241,9 @@ public class GuiManager {
                 }
             }
         }
+    }
+
+    public void closedInventory(SocialPlayer player) {
+        player.setCurrentOpenGUIMenu(null);
     }
 }

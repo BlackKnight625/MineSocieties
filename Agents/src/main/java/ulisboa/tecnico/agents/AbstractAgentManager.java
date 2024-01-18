@@ -14,6 +14,7 @@ import ulisboa.tecnico.agents.utils.ReadWriteLock;
 
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 /**
@@ -225,6 +226,26 @@ public abstract class AbstractAgentManager<A extends IAgent, P extends IPlayerAg
         for (ICharacter character : characters) {
             if (character instanceof IAgent && character.isValid()) {
                 apply.accept((A) character);
+            }
+        }
+    }
+
+    /**
+     *  Applies the predicate to every valid agent. If the predicate returns true, the next agent gets affected.
+     *  If the predicate returns false, no more agents will be affected by the predicate
+     * @param apply
+     *  The predicate to apply to valid agents
+     */
+    public void forEachValidAgentUntil(Predicate<A> apply) {
+        characterMapLock.readLock();
+        var characters = new ArrayList<>(characterMap.values());
+        characterMapLock.readUnlock();
+
+        for (ICharacter character : characters) {
+            if (character instanceof IAgent && character.isValid()) {
+                if (!apply.test((A) character)) {
+                    break;
+                }
             }
         }
     }

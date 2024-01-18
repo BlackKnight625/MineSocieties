@@ -42,11 +42,6 @@ public abstract class GUIItem implements Clickable {
 		_menu = menu;
 		_item = item;
 	}
-
-	// Constructor used for items in the hotbar
-	public GUIItem() {
-		_menu = null;
-	}
 	
 	/*Getters and setters*/
 	public GUIMenu getMenu() {
