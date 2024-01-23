@@ -3,11 +3,6 @@ package ulisboa.tecnico.minesocieties.visitors;
 import ulisboa.tecnico.minesocieties.agents.npc.state.*;
 import ulisboa.tecnico.minesocieties.utils.StringUtils;
 
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
-
 public class CurrentContextExplainer implements IContextVisitor {
     @Override
     public String explainState(AgentState state) {

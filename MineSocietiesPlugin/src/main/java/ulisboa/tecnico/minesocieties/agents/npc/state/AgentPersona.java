@@ -37,6 +37,10 @@ public class AgentPersona implements IExplainableContext {
         return birthday;
     }
 
+    public void setBirthday(Instant birthday) {
+        this.birthday = birthday;
+    }
+
     // Other methods
 
 

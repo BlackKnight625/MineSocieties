@@ -5,14 +5,15 @@ import org.bukkit.Material;
 import org.bukkit.event.inventory.ClickType;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.guis.common.GUIItem;
+import ulisboa.tecnico.minesocieties.guis.common.GUIMenuOpener;
 import ulisboa.tecnico.minesocieties.utils.StringUtils;
 
-public class AgeItem extends GUIItem {
+public class AgeItem extends GUIMenuOpener {
 
     // Constructors
 
     public AgeItem(AgentInformationMenu menu, SocialAgent agent) {
-        super(menu, Material.CAKE,
+        super(menu, Material.CAKE, new AgeMenu(menu.getPlayer(), agent),
                 ChatColor.GRAY + "Age: " + ChatColor.AQUA + agent.getState().getPersona().getAge());
 
         addDescription(
@@ -20,10 +21,5 @@ public class AgeItem extends GUIItem {
                 "",
                 ChatColor.GOLD + "Click to change the birth date"
         );
-    }
-
-    @Override
-    public void clicked(ClickType click) {
-        // TODO Open a menu to change the birth date
     }
 }

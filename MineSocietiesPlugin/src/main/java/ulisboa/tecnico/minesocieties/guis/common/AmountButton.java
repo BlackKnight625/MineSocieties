@@ -66,16 +66,17 @@ public class AmountButton<T extends Number> extends GUIItem {
         String increment = (incrementing ? "increment" : "decrement");
 
         if(clickSpeeds.length == 0) {
-            addDescription(ChatColor.BLUE, "Click to " + increment + " the amount by " + baseDifference);
+            addDescription(ChatColor.BLUE, "Click to " + increment + " the amount by " + ChatColor.AQUA + baseDifference);
         }
         else {
             addDescription(ChatColor.BLUE,
-                    "Click slowly to " + increment + " by " + getBaseMultiplied(0));
+                    "Click slowly to " + increment + " by " + ChatColor.AQUA + getBaseMultiplied(0));
 
             for(int i = 0; i < clickSpeeds.length; i++) {
                 addDescription(ChatColor.BLUE,
-                        "Click " + getTimesPerSecond(clickSpeeds[i]) + " times per second to ",
-                        increment + " the amount by " + getBaseMultiplied(i + 1));
+                        "Click " + ChatColor.GREEN + getTimesPerSecond(clickSpeeds[i]) +
+                                ChatColor.BLUE + " times per second to ",
+                        increment + " the amount by " + ChatColor.AQUA + getBaseMultiplied(i + 1));
             }
         }
     }

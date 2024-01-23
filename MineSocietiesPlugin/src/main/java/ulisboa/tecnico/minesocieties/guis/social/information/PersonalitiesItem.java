@@ -2,11 +2,7 @@ package ulisboa.tecnico.minesocieties.guis.social.information;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.block.DecoratedPot;
 import org.bukkit.event.inventory.ClickType;
-import org.bukkit.inventory.meta.BlockDataMeta;
-import org.bukkit.inventory.meta.BlockStateMeta;
-import org.bukkit.inventory.meta.ItemMeta;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.guis.common.GUIItem;
 
