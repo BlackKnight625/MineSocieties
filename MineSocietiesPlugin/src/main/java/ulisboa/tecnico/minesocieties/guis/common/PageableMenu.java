@@ -34,7 +34,7 @@ public abstract class PageableMenu extends GUIMenu {
     public void addBottomLayer() {
         int slot;
 
-        if(getClickable((slot = getSize() - 9)) == null) addClickable(slot, new GoBack(this));
+        if(getClickable((slot = getSize() - 1)) == null) addClickable(slot, new GoBack(this));
         if(getClickable((slot = getSize() - 6)) == null) addClickable(slot, new PreviousPage(this));
         if(getClickable((slot = getSize() - 5)) == null) addClickable(slot, new EmptyPaneDecoration(this));
         if(getClickable((slot = getSize() - 4)) == null) addClickable(slot, new NextPage(this));

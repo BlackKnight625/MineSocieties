@@ -22,6 +22,12 @@ public class PastAction extends InstantMemory {
         this.pastAction = action.accept(PAST_ACTION_EXPLAINER);
     }
 
+    public PastAction(Instant instant, String pastAction) {
+        super(instant);
+
+        this.pastAction = pastAction;
+    }
+
     // Getters and setters
 
     public String getPastAction() {

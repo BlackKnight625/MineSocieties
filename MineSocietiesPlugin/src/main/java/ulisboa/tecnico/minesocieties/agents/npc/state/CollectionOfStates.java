@@ -2,16 +2,13 @@ package ulisboa.tecnico.minesocieties.agents.npc.state;
 
 import ulisboa.tecnico.agents.utils.ReadWriteLock;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class CollectionOfStates<T extends ISimpleExplanation> {
 
     // Private attributes
 
-    private Set<String> states = new HashSet<>();
+    private Set<String> states = new LinkedHashSet<>(); // To keep the order of insertion due to possible user editing
     private transient ReadWriteLock statesLock = new ReadWriteLock();
 
     // Other methods

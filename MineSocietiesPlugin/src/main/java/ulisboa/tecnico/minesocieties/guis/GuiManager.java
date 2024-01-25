@@ -20,6 +20,7 @@ import ulisboa.tecnico.minesocieties.agents.SocialAgentManager;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
 import ulisboa.tecnico.minesocieties.guis.social.SocialAgentMainMenu;
+import ulisboa.tecnico.minesocieties.utils.ComponentUtils;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -156,6 +157,12 @@ public class GuiManager {
         book.setItemMeta(bookMeta);
 
         player.getPlayer().getInventory().addItem(book);
+
+        // Sending a message to the player informing about the special book
+        player.getPlayer().sendMessage(
+                ComponentUtils.withPrefix(Component.text("You received the book '" + title + "'. Open it, make your changes, and then save it.")
+                        .color(TextColor.color(123, 255, 86)))
+        );
     }
 
     public void giveNPCStick(SocialPlayer player) {
@@ -214,7 +221,15 @@ public class GuiManager {
                 // The book has an associated action
                 List<String> lines = pages.stream().map(page -> page.split("\n")).flatMap(Arrays::stream).toList();
 
-                customBookActions.get(customBookId).accept(lines);
+                try {
+                    customBookActions.get(customBookId).accept(lines);
+                } catch (Exception e) {
+                    player.getPlayer().sendMessage(
+                            Component.text("An error occurred while saving the book. Please check the console for more details. " + e.getMessage())
+                                    .color(TextColor.color(255, 0, 0)));
+
+                    e.printStackTrace();
+                }
                 customBookActions.remove(customBookId);
             } else {
                 // The book doesn't have an associated action

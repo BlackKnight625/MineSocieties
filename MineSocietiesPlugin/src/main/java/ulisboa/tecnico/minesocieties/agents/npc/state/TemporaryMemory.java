@@ -5,13 +5,13 @@ import ulisboa.tecnico.agents.utils.ReadWriteLock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 public class TemporaryMemory<T extends InstantMemory> {
 
     // Private attributes
 
-    private Collection<T> memory = new HashSet<>();
+    private Collection<T> memory = new LinkedHashSet<>(); // To keep the order of insertion due to possible user editing
     private transient ReadWriteLock memoryLock = new ReadWriteLock();
 
     // Other methods
@@ -38,6 +38,10 @@ public class TemporaryMemory<T extends InstantMemory> {
         memoryLock.readUnlock();
 
         return result;
+    }
+
+    public void remove(T memorySection) {
+        memoryLock.write(() -> memory.remove(memorySection));
     }
 
     public int entrySizes() {

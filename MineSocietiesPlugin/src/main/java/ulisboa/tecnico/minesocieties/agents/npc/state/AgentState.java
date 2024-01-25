@@ -427,6 +427,10 @@ public class AgentState implements IExplainableContext {
         }
     }
 
+    public static Gson getGson() {
+        return GSON;
+    }
+
     // Static
     static {
         // Creating the builder for the Gson that will serialize and deserialize an AgentState
