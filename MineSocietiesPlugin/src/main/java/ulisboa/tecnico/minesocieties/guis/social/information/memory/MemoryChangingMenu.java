@@ -51,6 +51,9 @@ public abstract class MemoryChangingMenu<T extends InstantMemory> extends Pageab
         addClickable(45, new SectionAdder());
         addClickable(53, new GoBack(this));
 
+        // Information regarding the menu
+        addClickable(49, new InformativeItem(this));
+
         if(memory.entrySizes() > PAGE_SIZE) {
             addBottomLayer();
         }
@@ -128,7 +131,7 @@ public abstract class MemoryChangingMenu<T extends InstantMemory> extends Pageab
 
                 getPlayer().getPlayer().playSound(getPlayer().getPlayer().getLocation(), Sound.BLOCK_LAVA_EXTINGUISH, 1, 1);
 
-                reset();
+                hardReset();
             }
         }
     }
@@ -145,40 +148,39 @@ public abstract class MemoryChangingMenu<T extends InstantMemory> extends Pageab
 
             @Override
             public void clicked(ClickType click) {
-                if (click.isLeftClick()) {
-                    // Closing this menu so the player may type in the book
-                    getPlayer().getPlayer().getOpenInventory().close();
+                // Closing this menu so the player may type in the book
+                getPlayer().getPlayer().getOpenInventory().close();
 
-                    // Giving the player a writable book so they may add a new section
-                    MineSocieties.getPlugin().getGuiManager().giveCustomEditingBook(getPlayer(), lines -> {
-                        new BukkitRunnable() {
-                            @Override
-                            public void run() {
-                                if (lines.isEmpty()) {
-                                    getPlayer().getPlayer().sendMessage(
-                                            Component.text("You didn't write anything!").color(TextColor.color(255, 0, 0))
-                                    );
-                                } else if (lines.size() > 1) {
-                                    getPlayer().getPlayer().sendMessage(
-                                            Component.text("You wrote more than one line! Only the 1st shall be considered.").color(TextColor.color(255, 0, 0))
-                                    );
+                // Giving the player a writable book so they may add a new section
+                MineSocieties.getPlugin().getGuiManager().giveCustomEditingBook(getPlayer(), lines -> {
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            if (lines.isEmpty()) {
+                                getPlayer().getPlayer().sendMessage(
+                                        Component.text("You didn't write anything!").color(TextColor.color(255, 0, 0))
+                                );
+                            } else if (lines.size() > 1) {
+                                getPlayer().getPlayer().sendMessage(
+                                        Component.text("You wrote more than one line! Only the 1st shall be considered.").color(TextColor.color(255, 0, 0))
+                                );
 
-                                    getPlayer().getPlayer().playSound(getPlayer().getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
-                                } else {
-                                    T newSection = newSectionFromLine(lines.get(0));
+                                getPlayer().getPlayer().playSound(getPlayer().getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
+                            } else {
+                                T newSection = newSectionFromLine(lines.get(0));
 
-                                    memory.addMemorySection(newSection);
-                                    agent.getState().saveAsync();
+                                memory.addMemorySection(newSection);
+                                agent.getState().saveAsync();
 
-                                    getPlayer().getPlayer().playSound(getPlayer().getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
-                                }
-
-                                // Re-opening the menu since the book forces the player to close it
-                                MemoryChangingMenu.this.open();
+                                getPlayer().getPlayer().playSound(getPlayer().getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
                             }
-                        }.runTask(MineSocieties.getPlugin());
-                    }, "Write a single line to add to the memory");
-                }
+
+                            // Re-opening the menu since the book forces the player to close it
+                            MemoryChangingMenu.this.open();
+                        }
+                    }.runTask(MineSocieties.getPlugin());
+                }, "Write a single line to add to the memory");
+
             }
     }
 }

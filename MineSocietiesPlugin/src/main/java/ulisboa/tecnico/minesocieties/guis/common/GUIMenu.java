@@ -100,7 +100,7 @@ public abstract class GUIMenu {
 	 * Opens a new Inventory Menu containing all this shop's clickables in the player's view
 	 */
 	public void open() {
-		_clickables = new HashMap<>();
+		_clickables.clear();
 		
 		_inventory = Bukkit.createInventory(_player.getPlayer(), _size, _name);
 		
@@ -127,7 +127,7 @@ public abstract class GUIMenu {
 
 	/**
 	 *  Resets the menu, by removing all items from the inventory and filling it up with all
-	 * existing clickable.
+	 * the cached clickables.
 	 */
 	public void reset() {
 		new BukkitRunnable() {
@@ -136,6 +136,24 @@ public abstract class GUIMenu {
 			public void run() {
 				_inventory.clear();
 
+				placeClickables();
+			}
+		}.runTaskLater(MineSocieties.getPlugin(), 0);
+	}
+
+	/**
+	 *  Clears everything and calls fillShopWithClickables(). This should get called
+	 * when clickables change positions or are removed/added.
+	 */
+	public void hardReset() {
+		new BukkitRunnable() {
+
+			@Override
+			public void run() {
+				_inventory.clear();
+				_clickables.clear();
+
+				fillShopWithClickables();
 				placeClickables();
 			}
 		}.runTaskLater(MineSocieties.getPlugin(), 0);

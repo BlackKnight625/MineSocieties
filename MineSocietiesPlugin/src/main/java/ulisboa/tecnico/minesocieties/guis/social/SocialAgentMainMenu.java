@@ -22,7 +22,7 @@ public class SocialAgentMainMenu extends GUIMenu {
     // Constructors
 
     public SocialAgentMainMenu(SocialPlayer player, SocialAgent agent) {
-        super(player, agent.getName() + "'s Editor", 54);
+        super(player, agent.getName() + "'s Editor", 27);
 
         this.agent = agent;
     }
@@ -44,7 +44,9 @@ public class SocialAgentMainMenu extends GUIMenu {
 
         public AgentInformationMenuOpener() {
             super(SocialAgentMainMenu.this, Material.PAPER, new AgentInformationMenu(getPlayer(), agent),
-                    agent.getName() + "'s information (Click for more details)");
+                    ChatColor.GOLD + agent.getName() + ChatColor.GRAY + "'s information");
+
+            addDescription("");
 
             AgentState state = agent.getState();
 
@@ -53,6 +55,9 @@ public class SocialAgentMainMenu extends GUIMenu {
                     "Age: " + ChatColor.AQUA + state.getPersona().getAge(),
                     "Birthday: " + ChatColor.AQUA + StringUtils.toBirthdayString(state.getPersona().getBirthday())
             );
+
+            addDescription("");
+            addDescription(ChatColor.AQUA + "Click for more details");
         }
 
     }

@@ -40,4 +40,12 @@ public class CollectionOfStates<T extends ISimpleExplanation> {
     public void reset() {
         statesLock.write(() -> states.clear());
     }
+
+    public int entrySizes() {
+        statesLock.readLock();
+        int size = states.size();
+        statesLock.readUnlock();
+
+        return size;
+    }
 }
