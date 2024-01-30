@@ -20,6 +20,6 @@ public class ShortTermMemoryItem extends MemoryItem<ShortTermMemorySection, Agen
 
     @Override
     public MemoryChangingMenu<ShortTermMemorySection> getNewMenu(SocialPlayer player, SocialAgent agent) {
-        return new ShortTermMemoryChangingMenu(player, agent);
+        return new ShortTermMemoryMenu(player, agent);
     }
 }

@@ -125,7 +125,7 @@ public abstract class MemoryChangingMenu<T extends InstantMemory> extends Pageab
 
         @Override
         public void clicked(ClickType click) {
-            if (!click.isLeftClick()) {
+            if (click.isRightClick()) {
                 memory.remove(section);
                 agent.getState().saveAsync();
 

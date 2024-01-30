@@ -19,6 +19,6 @@ public class PersonalitiesItem extends StateItem<AgentPersonalities> {
 
     @Override
     public StateChangingMenu<AgentPersonalities> getNewMenu(SocialPlayer player, SocialAgent agent) {
-        return new PersonalitiesChangingMenu(player, agent);
+        return new PersonalitiesMenu(player, agent);
     }
 }

@@ -94,7 +94,7 @@ public abstract class StateChangingMenu<T extends CollectionOfStates<?>> extends
 
         @Override
         public void clicked(ClickType click) {
-            if (!click.isLeftClick()) {
+            if (click.isRightClick()) {
                 states.removeState(state);
                 agent.getState().saveAsync();
 

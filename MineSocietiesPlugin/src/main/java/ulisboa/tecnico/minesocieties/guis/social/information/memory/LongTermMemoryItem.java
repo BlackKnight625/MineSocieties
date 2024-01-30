@@ -19,6 +19,6 @@ public class LongTermMemoryItem extends MemoryItem<LongTermMemorySection, AgentL
 
     @Override
     public MemoryChangingMenu<LongTermMemorySection> getNewMenu(SocialPlayer player, SocialAgent agent) {
-        return new LongTermMemoryChangingMenu(player, agent);
+        return new LongTermMemoryMenu(player, agent);
     }
 }

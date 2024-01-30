@@ -11,6 +11,7 @@ public class AgentMemory implements IExplainableContext {
     private AgentLongTermMemory longTermMemory = new AgentLongTermMemory();
     private AgentPastActions pastActions = new AgentPastActions();
     private AgentLocation home;
+    private AgentKnownLocations knownLocations = new AgentKnownLocations();
 
     // Constructors
 
@@ -40,6 +41,10 @@ public class AgentMemory implements IExplainableContext {
 
     public AgentLocation getHome() {
         return home;
+    }
+
+    public AgentKnownLocations getKnownLocations() {
+        return knownLocations;
     }
 
     // Other methods

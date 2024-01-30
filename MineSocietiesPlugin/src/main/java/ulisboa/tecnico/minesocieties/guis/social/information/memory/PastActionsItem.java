@@ -20,6 +20,6 @@ public class PastActionsItem extends MemoryItem<PastAction, AgentPastActions> {
 
     @Override
     public MemoryChangingMenu<PastAction> getNewMenu(SocialPlayer player, SocialAgent agent) {
-        return new PastActionsChangingMenu(player, agent);
+        return new PastActionsMenu(player, agent);
     }
 }

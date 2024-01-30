@@ -8,7 +8,7 @@ import ulisboa.tecnico.minesocieties.visitors.IContextVisitor;
 
 import java.util.Objects;
 
-public class AgentLocation implements IExplainableContext {
+public class AgentLocation implements IExplainableContext, ISimpleExplanation {
 
     // Private attributes
 
@@ -83,5 +83,10 @@ public class AgentLocation implements IExplainableContext {
     @Override
     public int hashCode() {
         return Objects.hash(position, worldName);
+    }
+
+    @Override
+    public String getExplanation() {
+        return description;
     }
 }

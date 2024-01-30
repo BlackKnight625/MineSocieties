@@ -6,11 +6,11 @@ import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
 
 import java.time.Instant;
 
-public class ShortTermMemoryChangingMenu extends MemoryChangingMenu<ShortTermMemorySection> {
+public class ShortTermMemoryMenu extends MemoryChangingMenu<ShortTermMemorySection> {
 
     // Constructors
 
-    public ShortTermMemoryChangingMenu(SocialPlayer player, SocialAgent agent) {
+    public ShortTermMemoryMenu(SocialPlayer player, SocialAgent agent) {
         super(player, agent, agent.getState().getMemory().getShortTermMemory(), "Short term memory");
     }
 
