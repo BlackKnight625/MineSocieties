@@ -1,11 +1,11 @@
-package ulisboa.tecnico.minesocieties.guis.social.information;
+package ulisboa.tecnico.minesocieties.guis.social.information.memory;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.agents.npc.state.*;
 import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
-import ulisboa.tecnico.minesocieties.guis.common.GUIDecoration;
+import ulisboa.tecnico.minesocieties.guis.social.information.AgentInformationMenu;
 
 public class LongTermMemoryItem extends MemoryItem<LongTermMemorySection, AgentLongTermMemory> {
 

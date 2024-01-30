@@ -1,4 +1,4 @@
-package ulisboa.tecnico.minesocieties.guis.social.information;
+package ulisboa.tecnico.minesocieties.guis.social.information.memory;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -7,6 +7,7 @@ import ulisboa.tecnico.minesocieties.agents.npc.state.InstantMemory;
 import ulisboa.tecnico.minesocieties.agents.npc.state.TemporaryMemory;
 import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
 import ulisboa.tecnico.minesocieties.guis.common.GUIMenuOpener;
+import ulisboa.tecnico.minesocieties.guis.social.information.AgentInformationMenu;
 
 import java.util.function.Function;
 

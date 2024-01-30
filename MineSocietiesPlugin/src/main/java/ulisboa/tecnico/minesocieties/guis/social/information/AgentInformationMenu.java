@@ -5,6 +5,11 @@ import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
 import ulisboa.tecnico.minesocieties.guis.common.GUIMenu;
 import ulisboa.tecnico.minesocieties.guis.common.GoBack;
+import ulisboa.tecnico.minesocieties.guis.social.information.memory.LongTermMemoryItem;
+import ulisboa.tecnico.minesocieties.guis.social.information.memory.PastActionsItem;
+import ulisboa.tecnico.minesocieties.guis.social.information.memory.ShortTermMemoryItem;
+import ulisboa.tecnico.minesocieties.guis.social.information.states.EmotionsItem;
+import ulisboa.tecnico.minesocieties.guis.social.information.states.PersonalitiesItem;
 
 public class AgentInformationMenu extends GUIMenu {
 

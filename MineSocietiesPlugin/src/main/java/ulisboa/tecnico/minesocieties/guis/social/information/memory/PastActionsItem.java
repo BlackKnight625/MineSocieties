@@ -1,15 +1,12 @@
-package ulisboa.tecnico.minesocieties.guis.social.information;
+package ulisboa.tecnico.minesocieties.guis.social.information.memory;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
-import ulisboa.tecnico.minesocieties.agents.npc.state.AgentLongTermMemory;
 import ulisboa.tecnico.minesocieties.agents.npc.state.AgentPastActions;
-import ulisboa.tecnico.minesocieties.agents.npc.state.LongTermMemorySection;
 import ulisboa.tecnico.minesocieties.agents.npc.state.PastAction;
 import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
-import ulisboa.tecnico.minesocieties.guis.common.GUIDecoration;
-import ulisboa.tecnico.minesocieties.guis.common.GUIMenuOpener;
+import ulisboa.tecnico.minesocieties.guis.social.information.AgentInformationMenu;
 
 public class PastActionsItem extends MemoryItem<PastAction, AgentPastActions> {
 

@@ -1,4 +1,4 @@
-package ulisboa.tecnico.minesocieties.guis.social.information;
+package ulisboa.tecnico.minesocieties.guis.social.information.memory;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;

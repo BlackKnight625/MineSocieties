@@ -1,16 +1,12 @@
-package ulisboa.tecnico.minesocieties.guis.social.information;
+package ulisboa.tecnico.minesocieties.guis.social.information.memory;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.agents.npc.state.AgentShortTermMemory;
-import ulisboa.tecnico.minesocieties.agents.npc.state.LongTermMemorySection;
 import ulisboa.tecnico.minesocieties.agents.npc.state.ShortTermMemorySection;
 import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
-import ulisboa.tecnico.minesocieties.guis.common.GUIDecoration;
-import ulisboa.tecnico.minesocieties.guis.common.GUIMenuOpener;
-
-import java.util.function.Function;
+import ulisboa.tecnico.minesocieties.guis.social.information.AgentInformationMenu;
 
 public class ShortTermMemoryItem extends MemoryItem<ShortTermMemorySection, AgentShortTermMemory> {
 

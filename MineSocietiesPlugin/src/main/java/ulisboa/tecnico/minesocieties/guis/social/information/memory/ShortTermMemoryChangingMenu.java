@@ -1,9 +1,6 @@
-package ulisboa.tecnico.minesocieties.guis.social.information;
+package ulisboa.tecnico.minesocieties.guis.social.information.memory;
 
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
-import ulisboa.tecnico.minesocieties.agents.npc.state.AgentLongTermMemory;
-import ulisboa.tecnico.minesocieties.agents.npc.state.AgentShortTermMemory;
-import ulisboa.tecnico.minesocieties.agents.npc.state.LongTermMemorySection;
 import ulisboa.tecnico.minesocieties.agents.npc.state.ShortTermMemorySection;
 import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
 
