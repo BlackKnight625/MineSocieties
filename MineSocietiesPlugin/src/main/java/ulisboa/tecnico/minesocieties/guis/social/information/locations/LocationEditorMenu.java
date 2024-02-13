@@ -7,8 +7,6 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Consumer;
-import org.bukkit.util.Vector;
 import ulisboa.tecnico.minesocieties.MineSocieties;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.agents.npc.state.AgentLocation;
@@ -17,8 +15,7 @@ import ulisboa.tecnico.minesocieties.guis.common.ErrorMenu;
 import ulisboa.tecnico.minesocieties.guis.common.GUIItem;
 import ulisboa.tecnico.minesocieties.guis.common.GUIMenu;
 import ulisboa.tecnico.minesocieties.guis.common.GoBack;
-
-import java.util.function.Predicate;
+import ulisboa.tecnico.minesocieties.utils.StringUtils;
 
 public class LocationEditorMenu extends GUIMenu {
 
@@ -26,29 +23,27 @@ public class LocationEditorMenu extends GUIMenu {
 
     private final SocialAgent agent;
     private final AgentLocation location;
+    private final boolean editingIsLimited;
 
     // Constructors
 
-    public LocationEditorMenu(SocialPlayer player, SocialAgent agent, AgentLocation location) {
+    /**
+     *  This constructor should be used when editing an existing location
+     * @param player
+     *  The player that's editing the location
+     * @param agent
+     *  The agent who has this location
+     * @param location
+     *  The location being edited
+     * @param editingIsLimited
+     *  If true, the location cannot be deleted and its description cannot be edited
+     */
+    public LocationEditorMenu(SocialPlayer player, SocialAgent agent, AgentLocation location, boolean editingIsLimited) {
         super(player, "Location editor", 27);
 
         this.agent = agent;
         this.location = location;
-    }
-
-    /**
-     *  This constructor should be used when a new location is being created
-     * @param player
-     *  The player that's creating the location
-     * @param agent
-     *  The agent who will have this location
-     */
-    public LocationEditorMenu(SocialPlayer player, SocialAgent agent) {
-        this(player, agent, new AgentLocation(player.getLocation().toVector(), player.getLocation().getWorld().getName(), "New location"));
-
-        // Saving the new unedited location
-        agent.getState().getMemory().getKnownLocations().addMemorySection(location);
-        agent.getState().saveAsync();
+        this.editingIsLimited = editingIsLimited;
     }
 
     @Override
@@ -58,11 +53,17 @@ public class LocationEditorMenu extends GUIMenu {
         addClickable(11, new YEditor());
         addClickable(12, new ZEditor());
 
+        // Description and world editor
 
+        if (!editingIsLimited) {
+            addClickable(14, new DescriptionEditor());
+        }
 
-        fillRestWithPanes(Material.PURPLE_STAINED_GLASS_PANE);
+        addClickable(16, new WorldNameEditor());
 
         addClickable(26, new GoBack(this));
+
+        fillRestWithPanes(Material.PURPLE_STAINED_GLASS_PANE);
     }
 
     // Private classes
@@ -93,7 +94,7 @@ public class LocationEditorMenu extends GUIMenu {
                                 return;
                             }
 
-                            int coordinate = Integer.parseInt(lines.get(0));
+                            double coordinate = Double.parseDouble(lines.get(0));
                             Player player = getPlayer().getPlayer();
 
                             if (isValidCoordinate(coordinate)) {
@@ -114,9 +115,9 @@ public class LocationEditorMenu extends GUIMenu {
             });
         }
 
-        public abstract void setCoordinate(int coordinate);
+        public abstract void setCoordinate(double coordinate);
 
-        public boolean isValidCoordinate(int coordinate) {
+        public boolean isValidCoordinate(double coordinate) {
             return true;
         }
     }
@@ -126,13 +127,13 @@ public class LocationEditorMenu extends GUIMenu {
         // Constructors
 
         public XEditor() {
-            super(Material.RED_WOOL, ChatColor.RED + "X: " + ChatColor.GRAY + location.getPosition().getBlockX());
+            super(Material.RED_WOOL, ChatColor.DARK_RED + "X: " + ChatColor.GRAY + location.getPosition().getBlockX());
         }
 
         // Other methods
 
         @Override
-        public void setCoordinate(int coordinate) {
+        public void setCoordinate(double coordinate) {
             location.getPosition().setX(coordinate);
         }
     }
@@ -148,12 +149,12 @@ public class LocationEditorMenu extends GUIMenu {
         // Other methods
 
         @Override
-        public void setCoordinate(int coordinate) {
+        public void setCoordinate(double coordinate) {
             location.getPosition().setY(coordinate);
         }
 
         @Override
-        public boolean isValidCoordinate(int coordinate) {
+        public boolean isValidCoordinate(double coordinate) {
             World world = getPlayer().getLocation().getWorld();
 
             return world.getMinHeight() >= -64 && coordinate < world.getMaxHeight();
@@ -171,7 +172,7 @@ public class LocationEditorMenu extends GUIMenu {
         // Other methods
 
         @Override
-        public void setCoordinate(int coordinate) {
+        public void setCoordinate(double coordinate) {
             location.getPosition().setZ(coordinate);
         }
     }
@@ -180,15 +181,89 @@ public class LocationEditorMenu extends GUIMenu {
 
         // Constructors
 
-        public DescriptionEditor(GUIMenu menu, Material material, String name) {
-            super(LocationEditorMenu.this, material, name);
+        public DescriptionEditor() {
+            super(LocationEditorMenu.this, Material.WRITABLE_BOOK, ChatColor.YELLOW + "Location's description");
+
+            addDescription(ChatColor.AQUA, "Current description:");
+            addDescription(ChatColor.GRAY, StringUtils.splitIntoLines(location.getDescription(), 30));
+            addDescription(""); // Empty line
+            addDescription(ChatColor.GREEN, "Click to edit");
         }
 
         // Other methods
 
         @Override
         public void clicked(ClickType click) {
+            // Closing this menu so the player may type in the book
+            getPlayer().getPlayer().getOpenInventory().close();
 
+            // Giving the player a book to type the location's description
+            MineSocieties.getPlugin().getGuiManager().giveCustomEditingBook(getPlayer(), newDescriptionPages -> {
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        String newDescription = newDescriptionPages.stream().reduce("", (a, b) -> a + b);
+
+                        if (newDescription.length() > 256) {
+                            new ErrorMenu(getPlayer(), "The description is too long. Max is 256 characters.", LocationEditorMenu.this).open();
+
+                            return;
+                        }
+
+                        location.setDescription(newDescription);
+                        agent.getState().saveAsync();
+
+                        open();
+                    }
+                }.runTask(MineSocieties.getPlugin());
+            }, "Insert the new description for the location");
+        }
+    }
+
+    private class WorldNameEditor extends GUIItem {
+
+        // Constructors
+
+        public WorldNameEditor() {
+            super(LocationEditorMenu.this, Material.GRASS_BLOCK, ChatColor.DARK_AQUA + "World name");
+
+            addDescription(ChatColor.AQUA, "Current world:");
+            addDescription(ChatColor.GRAY, location.getWorldName());
+            addDescription(""); // Empty line
+            addDescription(ChatColor.GREEN, "Click to edit");
+        }
+
+        // Other methods
+
+        @Override
+        public void clicked(ClickType click) {
+            MineSocieties.getPlugin().getGuiManager().openSignGUI(getPlayer(), lines -> {
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        if (lines.isEmpty()) {
+                            new ErrorMenu(getPlayer(), "You must insert a world name", LocationEditorMenu.this).open();
+
+                            return;
+                        }
+
+                        String worldName = lines.stream().reduce("", (a, b) -> a + b);
+
+                        // Checking if the world exists
+
+                        if (MineSocieties.getPlugin().getServer().getWorld(worldName) == null) {
+                            new ErrorMenu(getPlayer(), "The world (" + worldName + ") doesn't exist", LocationEditorMenu.this).open();
+
+                            return;
+                        }
+
+                        location.setWorldName(worldName);
+                        agent.getState().saveAsync();
+
+                        open();
+                    }
+                }.runTask(MineSocieties.getPlugin());
+            });
         }
     }
 }

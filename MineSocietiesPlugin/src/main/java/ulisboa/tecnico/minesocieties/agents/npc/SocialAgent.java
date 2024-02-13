@@ -157,7 +157,7 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
                     new AgentPersona(getName(), Instant.ofEpochSecond(
                             LocalDateTime.of(2000, Month.DECEMBER, 5, 12, 0).toEpochSecond(ZoneOffset.UTC)
                     )), // They all have my birthday by default, toot toot!
-                    new AgentLocation(getLocation())
+                    new AgentLocation(getLocation(), getName() + "'s home")
             );
         }
 

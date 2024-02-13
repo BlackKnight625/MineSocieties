@@ -106,7 +106,7 @@ public class AgentState implements IExplainableContext {
     public void updateCurrentLocation(AnimatedPlayerNPC npc) {
         AgentLocation oldLocation = this.currentLocation;
 
-        this.currentLocation = new AgentLocation(npc.getData().getLocation());
+        this.currentLocation = new AgentLocation(npc.getData().getLocation(), "Current location");
 
         if (!this.currentLocation.equals(oldLocation)) {
             // Only attempting to save if the location has changed

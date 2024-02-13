@@ -26,7 +26,7 @@ public abstract class StateItem<T extends CollectionOfStates<?>> extends GUIMenu
 
             if (counter > 10) {
                 // There are too many states
-                addDescription(ChatColor.DARK_BLUE + "Etc...");
+                addDescription(ChatColor.YELLOW + "Etc...");
 
                 break;
             }

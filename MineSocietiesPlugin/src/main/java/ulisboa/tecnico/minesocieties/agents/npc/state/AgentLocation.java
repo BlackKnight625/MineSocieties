@@ -14,7 +14,7 @@ public class AgentLocation implements IExplainableContext, ISimpleExplanation {
 
     private Vector position;
     private String worldName;
-    private String description;
+    private String description = "";
 
     // Constructors
 
@@ -26,9 +26,10 @@ public class AgentLocation implements IExplainableContext, ISimpleExplanation {
         this.description = description;
     }
 
-    public AgentLocation(Location location) {
+    public AgentLocation(Location location, String description) {
         this.position = location.toVector();
         this.worldName = location.getWorld().getName();
+        this.description = description;
     }
 
     // Getters and setters
@@ -43,6 +44,14 @@ public class AgentLocation implements IExplainableContext, ISimpleExplanation {
 
     public String getDescription() {
         return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setWorldName(String worldName) {
+        this.worldName = worldName;
     }
 
     // Other methods
