@@ -135,11 +135,9 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
      * their current one
      */
     public void act() {
-        ActionStatus status = currentAction.act(this);
+        currentActionStatus = currentAction.act(this);
 
-        currentActionStatus = status;
-
-        if (status.isFinished()) {
+        if (currentActionStatus.isFinished()) {
             if (currentAction instanceof Thinking) {
                 // Choosing a new action
                 chooseNewAction(null);
@@ -323,9 +321,7 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
         actionChoosingLock.lock();
 
         try {
-            currentAction.cancel();
-
-            if (currentAction.shouldBeRemembered()) {
+            if (currentActionStatus.isFinished() && currentAction.shouldBeRemembered()) {
                 AgentPastActions pastActions = getState().getMemory().getPastActions();
 
                 pastActions.addMemorySection(new PastAction(currentAction, Instant.now()));
@@ -333,6 +329,8 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
                 // Forgetting old actions
                 pastActions.forgetMemorySectionOlderThan(Instant.now().minus(1, ChronoUnit.HOURS));
             }
+
+            currentAction.cancel();
 
             currentAction = newAction;
             currentActionStatus = ActionStatus.IN_PROGRESS;
@@ -343,19 +341,17 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
 
     public void reflectOnConversationsSync() {
         if (state.getMemory().getConversations().entrySizes() != 0) {
+            Instant now = Instant.now();
+
             // There's some reflecting to do
             state.requestStateChangeSync(getPromptForConversationReflectingSync());
+            // Forgetting the exact conversations
+            state.getMemory().getConversations().forgetMemorySectionOlderThan(now);
         }
     }
 
     public void reflectOnConversationsAsync() {
-        System.out.println("Checking if the agent needs to have its conversations reflected upon. Size: " +
-                state.getMemory().getConversations().entrySizes());
-
-        if (state.getMemory().getConversations().entrySizes() != 0) {
-            // There's some reflecting to do
-            state.requestStateChangeAsync(this::getPromptForConversationReflectingSync);
-        }
+        MineSocieties.getPlugin().getThreadPool().execute(this::reflectOnConversationsSync);
     }
 
     public List<LLMMessage> getPromptForConversationReflectingSync() {

@@ -46,7 +46,7 @@ public class LocationsMenu extends GUIMenu {
         fillRestWithPanes(Material.ORANGE_STAINED_GLASS_PANE);
     }
 
-    protected static String toLocationString(AgentLocation agentLocation) {
+    public static String toLocationString(AgentLocation agentLocation) {
         Vector position = agentLocation.getPosition();
 
         return ChatColor.AQUA + " (" + ChatColor.RED + position.getBlockX() + ChatColor.AQUA + ", " +
@@ -55,7 +55,7 @@ public class LocationsMenu extends GUIMenu {
                 ChatColor.GRAY + agentLocation.getDescription();
     }
 
-    protected static void addLocationToDescription(GUIItem item, AgentLocation location) {
+    public static void addLocationToDescription(GUIItem item, AgentLocation location) {
         String descriptionLine = LocationsMenu.toLocationString(location);
 
         if (descriptionLine.length() > 46) {
@@ -66,7 +66,7 @@ public class LocationsMenu extends GUIMenu {
         item.addDescription(descriptionLine);
     }
 
-    protected static void addLocationsToDescription(GUIItem item, Collection<AgentLocation> locations, int max) {
+    public static void addLocationsToDescription(GUIItem item, Collection<AgentLocation> locations, int max) {
         int counter = 0;
 
         for (AgentLocation location : locations) {
