@@ -25,6 +25,7 @@ public class SendChatTo implements IActionWithArguments, ISocialAction {
 
     private String message;
     private AgentReference receiver;
+    private boolean talkingWithHuman = false;
 
     // Getters and setters
 
@@ -42,6 +43,9 @@ public class SendChatTo implements IActionWithArguments, ISocialAction {
 
     public void setReceiver(AgentReference receiver) {
         this.receiver = receiver;
+
+        // The sender is talking with a human if the receiver is a player
+        talkingWithHuman = Bukkit.getPlayer(receiver.getUuid()) != null;
     }
 
     // Other methods
@@ -99,7 +103,7 @@ public class SendChatTo implements IActionWithArguments, ISocialAction {
 
     @Override
     public int getThinkingTicks() {
-        return 60;
+        return talkingWithHuman ? 10 * 20 : 3 * 20; // 10 seconds for humans, 3 seconds for NPCs, since humans can take a while to type
     }
 
     @Override

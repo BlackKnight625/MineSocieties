@@ -1,11 +1,9 @@
 package ulisboa.tecnico.minesocieties.agents.npc.state;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.time.Duration;
 import java.time.Instant;
 
-public class InstantMemory implements Comparable<InstantMemory> {
+public class InstantMemory {
 
     // Private attributes
 
@@ -24,11 +22,6 @@ public class InstantMemory implements Comparable<InstantMemory> {
     }
 
     // Other methods
-
-    @Override
-    public int compareTo(@NotNull InstantMemory o) {
-        return instant.compareTo(o.instant);
-    }
 
     public long getSecondsHowLongAgo() {
         return Duration.between(this.instant, Instant.now()).getSeconds();

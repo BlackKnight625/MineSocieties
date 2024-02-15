@@ -24,7 +24,7 @@ public class MessageDisplay {
     private Vector lastAgentLocation = new Vector();
 
     private static final int MAX_WIDTH = 150;
-    private static final Vector OFFSET = new Vector(0, 2, 0);
+    private static final Vector OFFSET = new Vector(0, 2.35, 0);
 
     // Constructors
 

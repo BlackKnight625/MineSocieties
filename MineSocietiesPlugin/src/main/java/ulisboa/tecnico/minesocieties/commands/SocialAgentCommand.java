@@ -1,5 +1,7 @@
 package ulisboa.tecnico.minesocieties.commands;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.entity.Player;
 import revxrsal.commands.annotation.*;
 import revxrsal.commands.bukkit.annotation.CommandPermission;
@@ -7,6 +9,7 @@ import revxrsal.commands.exception.CommandErrorException;
 import ulisboa.tecnico.minesocieties.MineSocieties;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
+import ulisboa.tecnico.minesocieties.utils.ComponentUtils;
 
 @Command("agent")
 public class SocialAgentCommand {
@@ -46,6 +49,18 @@ public class SocialAgentCommand {
     @CommandPermission("minesocieties.edit")
     public void editStick(Player player) {
         MineSocieties.getPlugin().getGuiManager().giveNPCStick(getSocialPlayer(player));
+    }
+
+    @Subcommand("allow_action_choice")
+    @CommandPermission("minesocieties.admin")
+    public void allowActionChoice(Player player, boolean allow) {
+        MineSocieties.getPlugin().setAgentsCanChooseActions(allow);
+
+        if (allow) {
+            player.sendMessage(ComponentUtils.withPrefix(Component.text("Social agents can now choose their actions.").color(TextColor.color(53, 229, 54))));
+        } else {
+            player.sendMessage(ComponentUtils.withPrefix(Component.text("Social agents can no longer choose their actions.").color(TextColor.color(229, 68, 29))));
+        }
     }
 
     private SocialPlayer getSocialPlayer(Player player) {

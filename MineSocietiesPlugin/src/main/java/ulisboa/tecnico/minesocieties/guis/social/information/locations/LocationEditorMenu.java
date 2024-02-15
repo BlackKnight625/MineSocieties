@@ -127,7 +127,7 @@ public class LocationEditorMenu extends GUIMenu {
         // Constructors
 
         public XEditor() {
-            super(Material.RED_WOOL, ChatColor.DARK_RED + "X: " + ChatColor.GRAY + location.getPosition().getBlockX());
+            super(Material.RED_WOOL, ChatColor.DARK_RED + "X: " + ChatColor.GRAY + location.getPosition().getX());
         }
 
         // Other methods
@@ -143,7 +143,7 @@ public class LocationEditorMenu extends GUIMenu {
         // Constructors
 
         public YEditor() {
-            super(Material.GREEN_WOOL, ChatColor.DARK_GREEN + "Y: " + ChatColor.GRAY + location.getPosition().getBlockY());
+            super(Material.GREEN_WOOL, ChatColor.DARK_GREEN + "Y: " + ChatColor.GRAY + location.getPosition().getY());
         }
 
         // Other methods
@@ -166,7 +166,7 @@ public class LocationEditorMenu extends GUIMenu {
         // Constructors
 
         public ZEditor() {
-            super(Material.BLUE_WOOL, ChatColor.BLUE + "Z: " + ChatColor.GRAY + location.getPosition().getBlockZ());
+            super(Material.BLUE_WOOL, ChatColor.BLUE + "Z: " + ChatColor.GRAY + location.getPosition().getZ());
         }
 
         // Other methods

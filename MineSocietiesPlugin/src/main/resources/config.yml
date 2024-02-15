@@ -24,3 +24,11 @@ chatBroadcast: Yes
 # If set to 'No', then all agents disappear after a restart. They're still saved in the MineSocieties/social_agents directory, but
 # the plugin will not automatically load them once it starts again.
 loadSavedAgents: Yes
+
+# Whether agents can start querying the LLM to choose actions after a server restart. This should be
+# off by default as to not immediately start spending LLM credits after the server starts.
+# If this is off, running '/agent allow_action_choice true' will allow agents to start choosing actions, which must be done
+agentsCanStartChoosingActionsByDefault: No
+
+# Whether a message should display above agent's heads explaining what they are doing right now
+showWhatAgentsAreDoing: Yes

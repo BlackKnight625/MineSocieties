@@ -1,6 +1,7 @@
 package ulisboa.tecnico.minesocieties.agents.npc.state;
 
 import java.time.Instant;
+import java.util.Objects;
 
 public class NotionOfEvent extends InstantMemory {
 
@@ -20,5 +21,20 @@ public class NotionOfEvent extends InstantMemory {
 
     public String getEventDescription() {
         return eventDescription;
+    }
+
+    // Other methods
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        NotionOfEvent that = (NotionOfEvent) o;
+        return eventDescription.equals(that.eventDescription);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(eventDescription);
     }
 }

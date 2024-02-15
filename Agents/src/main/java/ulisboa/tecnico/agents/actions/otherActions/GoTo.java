@@ -10,7 +10,7 @@ public class GoTo<T extends IAgent> extends TemporalAction<T> {
 
     // Private attributes
 
-    private MovementStatus status;
+    private MovementStatus status = MovementStatus.MOVING;
     private final Location destination;
 
     // Constructors

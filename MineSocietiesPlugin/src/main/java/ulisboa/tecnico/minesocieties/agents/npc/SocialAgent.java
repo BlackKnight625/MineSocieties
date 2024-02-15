@@ -18,6 +18,7 @@ import ulisboa.tecnico.minesocieties.agents.actions.exceptions.MalformedActionAr
 import ulisboa.tecnico.minesocieties.agents.actions.exceptions.MalformedActionChoiceException;
 import ulisboa.tecnico.minesocieties.agents.actions.otherActions.ContinueCurrentAction;
 import ulisboa.tecnico.minesocieties.agents.actions.otherActions.Idle;
+import ulisboa.tecnico.minesocieties.agents.actions.otherActions.InformativeGoTo;
 import ulisboa.tecnico.minesocieties.agents.actions.otherActions.Thinking;
 import ulisboa.tecnico.minesocieties.agents.actions.socialActions.SendChatTo;
 import ulisboa.tecnico.minesocieties.agents.npc.state.*;
@@ -74,6 +75,10 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
 
     public MessageDisplay getMessageDisplay() {
         return messageDisplay;
+    }
+
+    public ISocialAction getCurrentAction() {
+        return currentAction;
     }
 
     // Observation methods
@@ -165,22 +170,29 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
     }
 
     public void chooseNewAction(@Nullable IObservation<ISocialObserver> newlyObtainedObservation) {
-        var possibleActions = getPossibleActions();
+        if (MineSocieties.getPlugin().agentsCanChooseActions()) {
+            var possibleActions = getPossibleActions();
 
-        if (possibleActions.isEmpty()) {
-            // No actions may be taken by this agent
-            MineSocieties.getPlugin().getLogger().warning("Agent " + getName() + " doesn't have any possible actions to choose from.");
+            if (possibleActions.isEmpty()) {
+                // No actions may be taken by this agent
+                MineSocieties.getPlugin().getLogger().warning("Agent " + getName() + " doesn't have any possible actions to choose from.");
+            } else {
+                MineSocieties.getPlugin().getLLMManager().promptAsyncSupplyMessageAsync(
+                        () -> getPromptForNewAction(possibleActions, newlyObtainedObservation),
+                        response -> {
+                            try {
+                                interpretNewActionSync(response, possibleActions);
+                            } catch (MalformedActionChoiceException | MalformedActionArgumentsException e) {
+                                MineSocieties.getPlugin().getLogger().severe("Something went wrong while interpreting the LLM's reply to " +
+                                        "an Action Choice request. " + e.getMessage());
+                            }
+                        });
+            }
         } else {
-            MineSocieties.getPlugin().getLLMManager().promptAsyncSupplyMessageAsync(
-                    () -> getPromptForNewAction(possibleActions, newlyObtainedObservation),
-                    response -> {
-                try {
-                    interpretNewActionSync(response, possibleActions);
-                } catch (MalformedActionChoiceException | MalformedActionArgumentsException e) {
-                    MineSocieties.getPlugin().getLogger().severe("Something went wrong while interpreting the LLM's reply to " +
-                            "an Action Choice request. " + e.getMessage());
-                }
-            });
+            // Agents are currently now allowed to query the LLM for new actions.
+            // Making the agent idle for 5 seconds. After those 5 seconds, if the agent still can't choose a new action, it will
+            // continue being idle
+            selectedNewActionSync(new Thinking("what to do next", 100));
         }
     }
 
@@ -457,6 +469,15 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
         // Adding all actions that this agent can take
         possibleActions.add(new SendChatTo());
         possibleActions.add(new Idle()); // Temporary. An agent that chooses to be idle won't do anything until they receive an observation
+
+        // Adding locations that the agent can go to
+        AgentMemory memory = state.getMemory();
+
+        possibleActions.add(new InformativeGoTo(memory.getHome()));
+
+        for (AgentLocation otherLocation : memory.getKnownLocations().getMemorySections()) {
+            possibleActions.add(new InformativeGoTo(otherLocation));
+        }
 
         if (!currentActionStatus.isFinished()) {
             // Agent can decide to continue its current action

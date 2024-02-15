@@ -17,7 +17,11 @@ public class NormalMemory<T> {
     // Other methods
 
     public void addMemorySection(T memory) {
-        memoryLock.write(() -> this.memory.add(memory));
+        memoryLock.write(() -> {
+            if (!this.memory.contains(memory)) {
+                this.memory.add(memory);
+            }
+        });
     }
 
     public Collection<T> getMemorySections() {

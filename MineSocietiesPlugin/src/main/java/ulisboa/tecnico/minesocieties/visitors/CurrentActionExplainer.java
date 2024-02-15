@@ -19,7 +19,7 @@ public class CurrentActionExplainer implements IActionVisitor {
 
     @Override
     public String visitIdle(Idle idle) {
-        return "idle";
+        return "doing nothing";
     }
 
     @Override

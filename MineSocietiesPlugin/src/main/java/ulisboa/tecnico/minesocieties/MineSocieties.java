@@ -1,5 +1,7 @@
 package ulisboa.tecnico.minesocieties;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.entityutils.entity.event.EventManager;
@@ -7,10 +9,13 @@ import ulisboa.tecnico.agents.ExampleReactiveAgentManager;
 import ulisboa.tecnico.llms.ChatGPTManager;
 import ulisboa.tecnico.llms.LLMManager;
 import ulisboa.tecnico.minesocieties.agents.SocialAgentManager;
+import ulisboa.tecnico.minesocieties.agents.npc.Message;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.commands.CommandManager;
 import ulisboa.tecnico.minesocieties.guis.GuiManager;
 import ulisboa.tecnico.minesocieties.packets.PacketManager;
+import ulisboa.tecnico.minesocieties.visitors.CurrentActionExplainer;
+import ulisboa.tecnico.minesocieties.visitors.IActionVisitor;
 
 import java.util.concurrent.ExecutorService;
 
@@ -29,6 +34,8 @@ public class MineSocieties extends JavaPlugin {
     private int maxChatRange;
     private boolean chatBroadcast;
     private boolean loadSavedAgents;
+    private boolean agentsCanChooseActions;
+    private boolean showWhatAgentsAreDoing;
 
     // Other methods
 
@@ -84,6 +91,8 @@ public class MineSocieties extends JavaPlugin {
         maxChatRange = getConfig().getInt("maxChatRange");
         chatBroadcast = getConfig().getBoolean("chatBroadcast");
         loadSavedAgents = getConfig().getBoolean("loadSavedAgents");
+        agentsCanChooseActions = getConfig().getBoolean("agentsCanStartChoosingActionsByDefault");
+        showWhatAgentsAreDoing = getConfig().getBoolean("showWhatAgentsAreDoing");
 
         if (loadSavedAgents) {
             // Loading all agents in the next tick
@@ -102,6 +111,24 @@ public class MineSocieties extends JavaPlugin {
                 socialAgentManager.forEachValidAgent(SocialAgent::tick);
             }
         }.runTaskTimer(this, 1, 1);
+
+        if (showWhatAgentsAreDoing) {
+            // Showing a message on top of agent's heads indicating what they are doing
+            new BukkitRunnable() {
+                IActionVisitor currentActionExplainer = new CurrentActionExplainer();
+
+                @Override
+                public void run() {
+                    socialAgentManager.forEachValidAgent(agent -> {
+                        Component text = Component.text("\u26F3 ") // ⛳
+                                .color(TextColor.color(98, 210, 89))
+                                .append(Component.text(agent.getCurrentAction().accept(currentActionExplainer)).color(TextColor.color(180, 180, 180)));
+
+                        agent.getMessageDisplay().displayMessage(new Message(20, text));
+                    });
+                }
+            }.runTaskTimer(this, 0, 20);
+        }
 
         // Initializing managers
         guiManager = new GuiManager(this);
@@ -164,6 +191,18 @@ public class MineSocieties extends JavaPlugin {
 
     public PacketManager getPacketManager() {
         return packetManager;
+    }
+
+    public boolean agentsCanChooseActions() {
+        return agentsCanChooseActions;
+    }
+
+    public void setAgentsCanChooseActions(boolean agentsCanChooseActions) {
+        this.agentsCanChooseActions = agentsCanChooseActions;
+    }
+
+    public boolean showWhatAgentsAreDoing() {
+        return showWhatAgentsAreDoing;
     }
 
     public static MineSocieties getPlugin() {

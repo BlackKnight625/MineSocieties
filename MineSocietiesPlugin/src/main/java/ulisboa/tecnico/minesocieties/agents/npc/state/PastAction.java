@@ -4,6 +4,7 @@ import ulisboa.tecnico.minesocieties.agents.actions.ISocialAction;
 import ulisboa.tecnico.minesocieties.visitors.PastActionExplainer;
 
 import java.time.Instant;
+import java.util.Objects;
 
 public class PastAction extends InstantMemory {
 
@@ -32,5 +33,20 @@ public class PastAction extends InstantMemory {
 
     public String getPastAction() {
         return pastAction;
+    }
+
+    // Other methods
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PastAction action = (PastAction) o;
+        return pastAction.equals(action.pastAction);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pastAction);
     }
 }
