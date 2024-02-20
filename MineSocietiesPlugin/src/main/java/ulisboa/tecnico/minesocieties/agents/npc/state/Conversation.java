@@ -1,5 +1,6 @@
 package ulisboa.tecnico.minesocieties.agents.npc.state;
 
+import ulisboa.tecnico.agents.observation.ReceivedChatObservation;
 import ulisboa.tecnico.minesocieties.agents.SocialCharacter;
 import ulisboa.tecnico.minesocieties.agents.observation.wrapped.SocialReceivedChatFromObservation;
 
@@ -22,13 +23,17 @@ public class Conversation extends InstantMemory {
         this.listener = listener;
     }
 
-    public Conversation(SocialReceivedChatFromObservation observation, SocialCharacter receiver) {
+    public Conversation(ReceivedChatObservation observation, SocialCharacter receiver) {
         this(
                 Instant.now(),
-                observation.getObservation().getChat(),
-                new AgentReference(observation.getObservation().getFrom()),
+                observation.getChat(),
+                new AgentReference(observation.getFrom()),
                 new AgentReference(receiver)
         );
+    }
+
+    public Conversation(SocialReceivedChatFromObservation observation, SocialCharacter receiver) {
+        this(observation.getObservation(), receiver);
     }
     // Getters and setters
 

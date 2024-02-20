@@ -102,11 +102,6 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
         // Adding this conversation to the agent's memory
         state.getMemory().getConversations().addMemorySection(conversation);
 
-        // Also adding this to the sender in case it's also an agent
-        if (observation.getObservation().getFrom() instanceof SocialAgent sender) {
-            sender.getState().getMemory().getConversations().addMemorySection(conversation);
-        }
-
         // Making the agent look at the speaker, in case the current action allows so
         if (currentAction.canDoMicroActions()) {
             npc.lookAt(observation.getObservation().getFrom().getLocation());
@@ -143,7 +138,7 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
                 chooseNewAction(null);
             } else {
                 // Start thinking about what to do next
-                selectedNewActionSync(new Thinking("what to do next", currentAction.getThinkingTicks()));
+                selectedNewActionSync(new Thinking(currentAction.getThinkingText(), currentAction.getThinkingTicks()));
             }
         }
     }
@@ -212,18 +207,20 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
                 "{Rafael is 22 years old. Their personality consists: ai-enthusiast, intelligent. Their current emotions are: " +
                         "relaxed, focused. Francisco likes Rafael's thesis. Rui Prada is helping Rafael writing his thesis. " +
                         "Rui Prada just said 'Hi Rafael! Do you need more help with Chapter 4?'} " +
-                        "{Actions:\n1) Engage in conversation. If you choose this, write the name of the person who should receive the message " +
-                        "and then the message in this format: name|message. The possible people to chat with are {Francisco, Rui Prada}.\n" +
+                        "{Actions:\n1) Engage in conversation. If you choose this, write the name of the person who should receive the message, then the message and then " +
+                        "whether it makes sense for Rafael to wait for a reply (a 'yes' or 'no') in this format: name|message|wait_for_reply. The " +
+                        "possible people to chat with are {Francisco, Rui Prada}\n" +
                         "2) Go home.\n}"
                 )
         );
 
         // Giving an example of output to the model
         messageList.add(new LLMMessage(LLMRole.ASSISTANT,
-                "{1}{Rui Prada|Thanks for offering, but for now I'm all good. I'll let you know if I need help!}" +
+                "{1}{Rui Prada|Thanks for offering, but for now I'm all good. I'll let you know if I need help!|yes}" +
                         "{Since Rafael is focused, going home now will break said focus. Rui Prada just started a conversation with Rafael, " +
                         "so it's logical that Rafael would reply to Rui Prada, addressing Rui Prada's offer for help. There's no indication that " +
-                        "Rafael is struggling or needs help, as such, Rafael politely refuses Rui Prada's help.}"
+                        "Rafael is struggling or needs help, as such, Rafael politely refuses Rui Prada's help. Since Rafael is replying to Rui Prada's question, " +
+                        "it makes sense for Rafael to wait for a reply as Rui Prada may want to say goodbye.}"
                 )
         );
 
@@ -347,6 +344,7 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
             state.requestStateChangeSync(getPromptForConversationReflectingSync());
             // Forgetting the exact conversations
             state.getMemory().getConversations().forgetMemorySectionOlderThan(now);
+            state.saveAsync();
         }
     }
 

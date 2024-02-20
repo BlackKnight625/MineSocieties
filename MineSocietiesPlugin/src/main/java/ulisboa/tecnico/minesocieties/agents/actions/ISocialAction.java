@@ -33,4 +33,21 @@ public interface ISocialAction extends IAction<SocialAgent> {
     default boolean shouldBeRemembered() {
         return true;
     }
+
+    /**
+     * @return
+     *  Returns the text that an agent should display as what they're thinking about after executing this action
+     */
+    default String getThinkingText() {
+        return "what to do next";
+    }
+
+    /**
+     * @return
+     *  Returns whether this action can be continued when the LLM is prompted for a new action. If true, then the LLM
+     * will receive the option of continuing this action instead of choosing a new one.
+     */
+    default boolean canBeContinued() {
+        return true;
+    }
 }

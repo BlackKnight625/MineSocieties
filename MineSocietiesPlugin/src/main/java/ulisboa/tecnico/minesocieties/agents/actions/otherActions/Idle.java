@@ -20,4 +20,9 @@ public class Idle implements ISocialAction {
     public boolean canDoMicroActions() {
         return true;
     }
+
+    @Override
+    public boolean canBeContinued() {
+        return false; // False since an Idle action is always provided to the list of possible actions
+    }
 }

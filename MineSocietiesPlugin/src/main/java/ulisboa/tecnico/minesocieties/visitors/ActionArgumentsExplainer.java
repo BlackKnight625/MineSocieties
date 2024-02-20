@@ -20,7 +20,8 @@ public class ActionArgumentsExplainer implements IActionArgumentsExplainerVisito
     public String explainSendChatToArguments(SendChatTo sendChatTo, SocialAgent actioner) {
         StringBuilder builder = new StringBuilder();
 
-        builder.append("write the name of the person who should receive the message and then the message in this format: name|message. The " +
+        builder.append("write the name of the person who should receive the message, then the message and then " +
+                "whether it makes sense for " + actioner.getName() + " to wait for a reply (a 'yes' or 'no') in this format: name|message|wait_for_reply. The " +
                 "possible people to chat with are {");
 
         List<String> nearbyPeople;
@@ -59,15 +60,25 @@ public class ActionArgumentsExplainer implements IActionArgumentsExplainerVisito
 
     @Override
     public void setArgumentsOfSendChatTo(SendChatTo sendChatTo, String arguments) throws MalformedActionArgumentsException {
-        int barIndex = arguments.indexOf('|');
+        String[] split = arguments.split("\\|");
 
-        if (barIndex == -1) {
+        if (split.length == 1) {
             throw new MalformedActionArgumentsException(arguments, "There's no bar '|' separating the name of the message " +
-                    "receiver and the message itself");
+                    "receiver, the message itself and the boolean");
         }
 
-        String receiverName = arguments.substring(0, barIndex);
-        String message = arguments.substring(barIndex + 1);
+        if (split.length == 2) {
+            throw new MalformedActionArgumentsException(arguments, "There's no bar '|' separating the message and the boolean");
+        }
+
+        String receiverName = split[0];
+        String message = split[1];
+        String waitForReply = split[2];
+
+        if (!waitForReply.equals("yes") && !waitForReply.equals("no")) {
+            throw new MalformedActionArgumentsException(arguments, "The 'wait_for_reply' argument should be either 'yes' or 'no'. The LLM " +
+                    "wrote " + waitForReply);
+        }
 
         SocialCharacter receiver = MineSocieties.getPlugin().getSocialAgentManager().getCharacter(receiverName);
 
@@ -78,5 +89,6 @@ public class ActionArgumentsExplainer implements IActionArgumentsExplainerVisito
 
         sendChatTo.setReceiver(new AgentReference(receiver));
         sendChatTo.setMessage(message);
+        sendChatTo.setWaitForReply(waitForReply.equals("yes"));
     }
 }

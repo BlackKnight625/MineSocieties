@@ -39,7 +39,16 @@ public class InformativeGoTo extends GoTo<SocialAgent> implements ISocialAction 
     @Override
     public boolean canBeExecuted(SocialAgent actioner) {
         // For now, prevent NPCs from traveling to locations in different worlds
-        return actioner.getLocation().getWorld().equals(getDestination().getWorld());
+        return actioner.getLocation().getWorld().equals(getDestination().getWorld()) &&
+                !destinationIsCloseTo(actioner.getLocation(), 2); // Preventing agents from constantly choosing to go to the location they're already at
+    }
+
+    public boolean destinationIsCloseTo(Location location, double distanceThreshold) {
+        if (getDestination().getWorld().equals(location.getWorld())) {
+            return getDestination().distanceSquared(location) <= distanceThreshold * distanceThreshold;
+        } else {
+            return false;
+        }
     }
 
     @Override

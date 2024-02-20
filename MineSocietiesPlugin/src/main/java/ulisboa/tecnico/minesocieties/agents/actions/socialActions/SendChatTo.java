@@ -11,6 +11,7 @@ import ulisboa.tecnico.minesocieties.agents.actions.exceptions.MalformedActionAr
 import ulisboa.tecnico.minesocieties.agents.npc.Message;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.agents.npc.state.AgentReference;
+import ulisboa.tecnico.minesocieties.agents.npc.state.Conversation;
 import ulisboa.tecnico.minesocieties.utils.ComponentUtils;
 import ulisboa.tecnico.minesocieties.utils.LocationUtils;
 import ulisboa.tecnico.minesocieties.visitors.IActionArgumentsExplainerVisitor;
@@ -26,6 +27,7 @@ public class SendChatTo implements IActionWithArguments, ISocialAction {
     private String message;
     private AgentReference receiver;
     private boolean talkingWithHuman = false;
+    private boolean waitForReply = true;
 
     // Getters and setters
 
@@ -46,6 +48,14 @@ public class SendChatTo implements IActionWithArguments, ISocialAction {
 
         // The sender is talking with a human if the receiver is a player
         talkingWithHuman = Bukkit.getPlayer(receiver.getUuid()) != null;
+    }
+
+    public boolean getWaitForReply() {
+        return waitForReply;
+    }
+
+    public void setWaitForReply(boolean waitForReply) {
+        this.waitForReply = waitForReply;
     }
 
     // Other methods
@@ -76,9 +86,15 @@ public class SendChatTo implements IActionWithArguments, ISocialAction {
 
         characterReceiver.receivedChatFrom(observation);
 
+        // Saving the conversation in the agent's memory
+        Conversation conversation = new Conversation(observation, characterReceiver);
+
+        actioner.getState().getMemory().getConversations().addMemorySection(conversation);
+
+        // Making the agent look at the receiver
         actioner.getAgent().lookAt(characterReceiver.getLocation());
 
-        int messageDurationTicks = Math.max(20, message.length() * 2); // More or less 0.5 seconds per word. At least 1 second total
+        int messageDurationTicks = Math.max(20, message.length() * 3); // More or less 0.5 seconds per word. At least 1 second total
 
         actioner.getMessageDisplay().displayMessage(new Message(messageDurationTicks,
                 ComponentUtils.speechBubbleTo(receiver.getName(), message)));
@@ -103,11 +119,32 @@ public class SendChatTo implements IActionWithArguments, ISocialAction {
 
     @Override
     public int getThinkingTicks() {
-        return talkingWithHuman ? 10 * 20 : 3 * 20; // 10 seconds for humans, 3 seconds for NPCs, since humans can take a while to type
+        if (waitForReply) {
+            // Making the wait time depend on the length of the message
+            int messageLength = message.length();
+            int messageDurationTicks = Math.max(20, messageLength * 3); // More or less 0.5 seconds per word. At least 1 second total
+
+            if (talkingWithHuman) {
+                return 40 + 2 * messageDurationTicks; // Wait more or less 1 second per word for humans to read and write back
+            } else {
+                return 60 + messageDurationTicks; // Waiting less for NPCs as they do not spedn a lot of time writing
+            }
+        } else {
+            return 2 * 20; // Wait 2 seconds to catch their breath
+        }
     }
 
     @Override
     public boolean shouldBeRemembered() {
         return false; // Conversations have their own section in an agent's memory
+    }
+
+    @Override
+    public String getThinkingText() {
+        if (waitForReply) {
+            return "waiting for " + receiver.getName() + " to reply...";
+        } else {
+            return ISocialAction.super.getThinkingText();
+        }
     }
 }
