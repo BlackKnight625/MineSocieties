@@ -64,6 +64,7 @@ public class BaseLLMTest {
         Mockito.when(plugin.getSocialAgentManager()).thenReturn(socialAgentManager);
         Mockito.when(plugin.isChatBroadcasted()).thenReturn(false);
         Mockito.when(plugin.getLogger()).thenReturn(Logger.getGlobal());
+        Mockito.when(plugin.showThoughts()).thenReturn(true);
 
         MineSocieties.setPlugin(plugin);
 

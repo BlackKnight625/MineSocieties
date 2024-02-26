@@ -1,5 +1,7 @@
 package ulisboa.tecnico.minesocieties.agents.npc;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -192,13 +194,16 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
     public List<LLMMessage> getPromptForNewAction(List<ISocialAction> possibleActions, @Nullable IObservation<ISocialObserver> newlyObtainedObservation) {
         List<LLMMessage> messageList = new ArrayList<>(4);
 
+        boolean showThoughts = MineSocieties.getPlugin().showThoughts();
+
         // Telling the model exactly what to do
         messageList.add(new LLMMessage(LLMRole.SYSTEM,
                 "You are a decision making AI. " +
-                        "You will receive their description and a list of possible actions. " +
-                        "You must choose the action that is the most appropriate for " + getName() +
-                        " given the sittuation they find themselves in. Write down your choice as " +
-                        "{<number of action>}{<optional arguments, if none leave empty}{<the reasoning for your choice>}"
+                        "You will receive the description of an NPC and a list of possible actions. " +
+                        "You must choose the action that is the most appropriate for them " +
+                        "given the situation they find themselves in. Write down your choice as " +
+                        "{<number of action>}{<optional arguments, if none leave empty}{<the reasoning for your choice>}" +
+                        (showThoughts ? "{<the NPC's thought process, short, 1st person>}" : "")
                 )
         );
 
@@ -220,7 +225,9 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
                         "{Since Rafael is focused, going home now will break said focus. Rui Prada just started a conversation with Rafael, " +
                         "so it's logical that Rafael would reply to Rui Prada, addressing Rui Prada's offer for help. There's no indication that " +
                         "Rafael is struggling or needs help, as such, Rafael politely refuses Rui Prada's help. Since Rafael is replying to Rui Prada's question, " +
-                        "it makes sense for Rafael to wait for a reply as Rui Prada may want to say goodbye.}"
+                        "it makes sense for Rafael to wait for a reply as Rui Prada may want to say goodbye.}" +
+                        (showThoughts ? "{I'm going to reply to Rui Prada thanking him for the offer and denying his help since I'm currently not " +
+                                "struggling. I should wait for a reply in case Rui Prada wants to say goodbye.}" : "")
                 )
         );
 
@@ -248,14 +255,23 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
 
     private void interpretNewActionSync(String actionReply, List<ISocialAction> possibleActions) throws MalformedActionChoiceException, MalformedActionArgumentsException {
         String[] replySections = actionReply.split("\\{");
+        boolean showThoughts = MineSocieties.getPlugin().showThoughts();
+        String thoughtProcess = null;
 
         if (replySections.length == 0) {
             throw new MalformedActionChoiceException(actionReply, "Action choice is malformed: There's no curly brackets '{'.");
         }
 
-        if (replySections.length != 4 /*It's 4 due to the 1st empty section that the split method generates*/) {
+        if (replySections.length < 4 /*It's 4 due to the 1st empty section that the split method generates*/) {
             throw new MalformedActionChoiceException(actionReply, "Action choice does not contain 3 sections of curly brackets. " +
                     "It only contains " + replySections.length + ".");
+        }
+
+        if (showThoughts && replySections.length < 5) {
+            MineSocieties.getPlugin().getLogger().warning("The LLM's reply to an Action Choice request does not contain the NPC's thought process. " +
+                    "The reply was: " + actionReply);
+        } else {
+            thoughtProcess = replySections[4];
         }
 
         // Extracting the action number
@@ -303,6 +319,14 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
             ActionArgumentsExplainer actionArgumentsExplainer = new ActionArgumentsExplainer();
 
             actionWithArguments.acceptArgumentsInterpreter(actionArgumentsExplainer, arguments);
+        }
+
+        if (showThoughts) {
+            // Displaying the agent's though process on their head
+            messageDisplay.displayMessage(new Message(MineSocieties.getPlugin().getShowThoughtsTicks(),
+                    Component.text("\uD83E\uDD14").color(TextColor.color(225, 217, 64)) // 🤔
+                            .append(Component.text(" " + thoughtProcess).color(TextColor.color(123, 124, 73)))
+            ));
         }
 
         selectedNewActionSync(action);

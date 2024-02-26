@@ -23,7 +23,7 @@ public class MessageDisplay {
     private TextDisplay textDisplay;
     private Vector lastAgentLocation = new Vector();
 
-    private static final int MAX_WIDTH = 150;
+    private static final int MAX_WIDTH = 200;
     private static final Vector OFFSET = new Vector(0, 2.35, 0);
 
     // Constructors
@@ -50,6 +50,7 @@ public class MessageDisplay {
         textDisplay.setLineWidth(MAX_WIDTH);
         textDisplay.setAlignment(TextDisplay.TextAlignment.CENTER);
         textDisplay.setBillboard(Display.Billboard.VERTICAL);
+        textDisplay.setTextOpacity();
 
         // Associating text display with the agent
         agent.addUuidToContainer(textDisplay.getPersistentDataContainer());

@@ -6,6 +6,7 @@ import ulisboa.tecnico.agents.actions.ActionStatus;
 import ulisboa.tecnico.agents.actions.TemporalAction;
 import ulisboa.tecnico.agents.npc.IAgent;
 
+// TODO: Cancel the movement if this action gets cancelled
 public class GoTo<T extends IAgent> extends TemporalAction<T> {
 
     // Private attributes
