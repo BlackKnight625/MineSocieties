@@ -89,7 +89,7 @@ public class OtherLocationsMenu extends PageableMenu {
 
             // Saving the new unedited location
             agent.getState().getMemory().getKnownLocations().addMemorySection(newLocation);
-            agent.getState().saveAsync();
+            agent.getState().markDirty();
 
             // Opening the menu to edit the new location
             setMenuToOpen(new LocationEditorMenu(getPlayer(), agent, newLocation, false));

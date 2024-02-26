@@ -116,6 +116,20 @@ public class MineSocieties extends JavaPlugin {
             }
         }.runTaskTimer(this, 1, 1);
 
+        // Saving agents periodically
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                getThreadPool().execute(() -> {
+                    socialAgentManager.forEachAgent(agent -> {
+                        if (agent.getState().isDirty()) {
+                            agent.getState().saveAsync();
+                        }
+                    });
+                });
+            }
+        }.runTaskTimer(this, 20, 10 * 20);
+
         if (showWhatAgentsAreDoing) {
             // Showing a message on top of agent's heads indicating what they are doing
             new BukkitRunnable() {

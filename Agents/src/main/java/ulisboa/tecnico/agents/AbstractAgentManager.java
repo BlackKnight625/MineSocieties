@@ -1,6 +1,5 @@
 package ulisboa.tecnico.agents;
 
-import net.minecraft.network.protocol.game.PacketPlayInCloseWindow;
 import org.apache.commons.lang3.text.WordUtils;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -12,7 +11,10 @@ import ulisboa.tecnico.agents.observation.EventListener;
 import ulisboa.tecnico.agents.player.IPlayerAgent;
 import ulisboa.tecnico.agents.utils.ReadWriteLock;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -225,6 +227,18 @@ public abstract class AbstractAgentManager<A extends IAgent, P extends IPlayerAg
 
         for (ICharacter character : characters) {
             if (character instanceof IAgent && character.isValid()) {
+                apply.accept((A) character);
+            }
+        }
+    }
+
+    public void forEachAgent(Consumer<A> apply) {
+        characterMapLock.readLock();
+        var characters = new ArrayList<>(characterMap.values());
+        characterMapLock.readUnlock();
+
+        for (ICharacter character : characters) {
+            if (character instanceof IAgent) {
                 apply.accept((A) character);
             }
         }

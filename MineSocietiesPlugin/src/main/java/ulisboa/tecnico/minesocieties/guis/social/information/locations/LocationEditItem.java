@@ -50,7 +50,7 @@ public class LocationEditItem extends GUIMenuOpener {
         } else if (click.isRightClick() && !editingIsLimited) {
             // Deleting this location
             agent.getState().getMemory().getKnownLocations().remove(location);
-            agent.getState().saveAsync();
+            agent.getState().markDirty();
 
             Player player = getMenu().getPlayer().getPlayer();
 

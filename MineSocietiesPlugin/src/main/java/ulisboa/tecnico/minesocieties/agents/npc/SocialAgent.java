@@ -271,7 +271,7 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
             MineSocieties.getPlugin().getLogger().warning("The LLM's reply to an Action Choice request does not contain the NPC's thought process. " +
                     "The reply was: " + actionReply);
         } else {
-            thoughtProcess = replySections[4];
+            thoughtProcess = replySections[4].substring(0, replySections[4].length() - 1); // Removing the last '}'
         }
 
         // Extracting the action number
@@ -368,7 +368,7 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
             state.requestStateChangeSync(getPromptForConversationReflectingSync());
             // Forgetting the exact conversations
             state.getMemory().getConversations().forgetMemorySectionOlderThan(now);
-            state.saveAsync();
+            state.markDirty();
         }
     }
 

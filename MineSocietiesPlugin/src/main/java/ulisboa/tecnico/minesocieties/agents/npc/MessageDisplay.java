@@ -1,6 +1,7 @@
 package ulisboa.tecnico.minesocieties.agents.npc;
 
 import net.kyori.adventure.text.Component;
+import org.bukkit.Color;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.TextDisplay;
@@ -50,7 +51,10 @@ public class MessageDisplay {
         textDisplay.setLineWidth(MAX_WIDTH);
         textDisplay.setAlignment(TextDisplay.TextAlignment.CENTER);
         textDisplay.setBillboard(Display.Billboard.VERTICAL);
-        textDisplay.setTextOpacity();
+        textDisplay.setShadowed(true);
+        textDisplay.setInterpolationDuration(1);
+        textDisplay.setInterpolationDelay(0);
+        textDisplay.setBackgroundColor(Color.fromARGB(180, 125, 125, 125));
 
         // Associating text display with the agent
         agent.addUuidToContainer(textDisplay.getPersistentDataContainer());

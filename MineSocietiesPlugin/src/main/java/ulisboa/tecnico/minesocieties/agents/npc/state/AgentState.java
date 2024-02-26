@@ -43,9 +43,9 @@ public class AgentState implements IExplainableContext {
     private AgentPersona persona;
     private UUID uuid;
     private AgentLocation currentLocation;
+    private transient boolean dirty = false;
     private final transient Lock stateLock = new ReentrantLock();
-    private final transient Semaphore asyncSaveInProgressLock = new Semaphore(1);
-    private transient long lastSaveMillis = 0;
+    private final transient Lock saveInProgress = new ReentrantLock();
 
     private static final Gson GSON;
 
@@ -85,23 +85,11 @@ public class AgentState implements IExplainableContext {
         return uuid;
     }
 
-    // Other methods
-
-    /**
-     *  Saves this state into a file if it's been too long since this was last saved
-     */
-    private void saveIfOld() {
-        long currentMillis = System.currentTimeMillis();
-
-        if (currentMillis > lastSaveMillis + 10000L) {
-            // It's been 10 seconds since this was last saved
-
-            if (asyncSaveInProgressLock.tryAcquire()) {
-                saveAsync(asyncSaveInProgressLock::release);
-            }
-            // else, an async save is currently in progress. Do nothing
-        }
+    public boolean isDirty() {
+        return this.dirty;
     }
+
+    // Other methods
 
     public void updateCurrentLocation(AnimatedPlayerNPC npc) {
         AgentLocation oldLocation = this.currentLocation;
@@ -109,8 +97,8 @@ public class AgentState implements IExplainableContext {
         this.currentLocation = new AgentLocation(npc.getData().getLocation(), "Current location");
 
         if (!this.currentLocation.equals(oldLocation)) {
-            // Only attempting to save if the location has changed
-            saveIfOld();
+            // Agent's location has changed
+            markDirty();
         }
     }
 
@@ -120,7 +108,7 @@ public class AgentState implements IExplainableContext {
     }
 
     public void finishStateModification() {
-        saveSync();
+        markDirty();
 
         stateLock.unlock();
     }
@@ -376,6 +364,8 @@ public class AgentState implements IExplainableContext {
      */
     public void saveSync() {
         try {
+            saveInProgress.lock();
+
             File file = getStatePath().toFile();
 
             file.getParentFile().mkdirs();
@@ -383,22 +373,17 @@ public class AgentState implements IExplainableContext {
 
             Files.write(getStatePath(), GSON.toJson(this).getBytes());
 
-            lastSaveMillis = System.currentTimeMillis();
+            dirty = false;
         } catch (IOException e) {
             MineSocieties.getPlugin().getLogger().log(Level.WARNING,
                     "Unable to save the state of " + persona.getName() + " into a file.", e);
+        } finally {
+            saveInProgress.unlock();
         }
     }
 
     public void saveAsync() {
         MineSocieties.getPlugin().getThreadPool().execute(this::saveSync);
-    }
-
-    public void saveAsync(Runnable andThen) {
-        MineSocieties.getPlugin().getThreadPool().execute(() -> {
-            saveSync();
-            andThen.run();
-        });
     }
 
     @Override
@@ -454,6 +439,10 @@ public class AgentState implements IExplainableContext {
         locations.addAll(memory.getKnownLocations().getMemorySections());
 
         return locations;
+    }
+
+    public void markDirty() {
+        dirty = true;
     }
 
     // Classes

@@ -401,7 +401,7 @@ public class GuiManager {
 
                     location.setWorldName(newLocation.getWorld().getName());
 
-                    agent.getState().saveAsync();
+                    agent.getState().markDirty();
 
                     player.getPlayer().sendMessage(ComponentUtils.withPrefix(
                             Component.text("The location of the agent ").color(TextColor.color(71, 255, 138))

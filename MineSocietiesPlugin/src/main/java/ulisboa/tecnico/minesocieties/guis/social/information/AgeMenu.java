@@ -184,7 +184,7 @@ public class AgeMenu extends GUIMenu {
             @Override
             public void clicked(ClickType click) {
                 agent.getState().getPersona().setBirthday(birthday.toInstant());
-                agent.getState().saveAsync();
+                agent.getState().markDirty();
 
                 getPlayer().getPlayer().playSound(getPlayer().getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 1f);
 

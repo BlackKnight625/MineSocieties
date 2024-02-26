@@ -101,7 +101,7 @@ public class LocationEditorMenu extends GUIMenu {
 
                             if (isValidCoordinate(coordinate)) {
                                 setCoordinate(coordinate);
-                                agent.getState().saveAsync();
+                                agent.getState().markDirty();
 
                                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
 
@@ -213,7 +213,7 @@ public class LocationEditorMenu extends GUIMenu {
                         }
 
                         location.setDescription(newDescription);
-                        agent.getState().saveAsync();
+                        agent.getState().markDirty();
 
                         open();
                     }
@@ -260,7 +260,7 @@ public class LocationEditorMenu extends GUIMenu {
                         }
 
                         location.setWorldName(worldName);
-                        agent.getState().saveAsync();
+                        agent.getState().markDirty();
 
                         open();
                     }

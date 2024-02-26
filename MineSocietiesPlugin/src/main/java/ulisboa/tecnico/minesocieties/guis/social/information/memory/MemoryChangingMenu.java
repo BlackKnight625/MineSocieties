@@ -127,7 +127,7 @@ public abstract class MemoryChangingMenu<T extends InstantMemory> extends Pageab
         public void clicked(ClickType click) {
             if (click.isRightClick()) {
                 memory.remove(section);
-                agent.getState().saveAsync();
+                agent.getState().markDirty();
 
                 getPlayer().getPlayer().playSound(getPlayer().getPlayer().getLocation(), Sound.BLOCK_LAVA_EXTINGUISH, 1, 1);
 
@@ -170,7 +170,7 @@ public abstract class MemoryChangingMenu<T extends InstantMemory> extends Pageab
                                 T newSection = newSectionFromLine(lines.get(0));
 
                                 memory.addMemorySection(newSection);
-                                agent.getState().saveAsync();
+                                agent.getState().markDirty();
 
                                 getPlayer().getPlayer().playSound(getPlayer().getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
                             }

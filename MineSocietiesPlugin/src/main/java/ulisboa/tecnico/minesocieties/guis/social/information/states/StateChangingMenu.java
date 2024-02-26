@@ -96,7 +96,7 @@ public abstract class StateChangingMenu<T extends CollectionOfStates<?>> extends
         public void clicked(ClickType click) {
             if (click.isRightClick()) {
                 states.removeState(state);
-                agent.getState().saveAsync();
+                agent.getState().markDirty();
 
                 getPlayer().getPlayer().playSound(getPlayer().getPlayer().getLocation(), Sound.BLOCK_LAVA_EXTINGUISH, 1, 1);
 
@@ -131,7 +131,7 @@ public abstract class StateChangingMenu<T extends CollectionOfStates<?>> extends
                         } else {
                             // All is well. Adding the new state
                             states.addState(newState);
-                            agent.getState().saveAsync();
+                            agent.getState().markDirty();
 
                             getPlayer().getPlayer().playSound(getPlayer().getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
 
