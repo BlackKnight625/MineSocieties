@@ -2,30 +2,39 @@ package ulisboa.tecnico.minesocieties.guis;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.BookMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.BoundingBox;
+import org.bukkit.util.RayTraceResult;
+import org.bukkit.util.Vector;
 import ulisboa.tecnico.minesocieties.MineSocieties;
-import ulisboa.tecnico.minesocieties.agents.SocialAgentManager;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
+import ulisboa.tecnico.minesocieties.agents.npc.state.AgentLocation;
 import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
 import ulisboa.tecnico.minesocieties.guis.social.SocialAgentMainMenu;
 import ulisboa.tecnico.minesocieties.utils.ComponentUtils;
 
+import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import static org.bukkit.event.inventory.ClickType.NUMBER_KEY;
@@ -37,12 +46,16 @@ public class GuiManager {
     private final NamespacedKey guiItemKey;
     private final NamespacedKey customBookKey;
     private final NamespacedKey npcEditStickKey;
+    private final NamespacedKey coordinatesEditorAgentUuidKey;
+    private final NamespacedKey coordinatesEditorLocationNameKey;
     private final Map<Integer, Consumer<List<String>>> customBookActions = new HashMap<>();
     private int lastCustomBookId = 0;
 
     private static final String GUI_ITEM_KEY = "gui_item";
     private static final String CUSTOM_BOOK_KEY = "custom_book";
     private static final String NPC_EDIT_STICK_KEY = "npc_edit";
+    private static final String COORDINATES_EDITOR_AGENT_UUID_KEY = "coordinates_agent_uuid";
+    private static final String COORDINATES_EDITOR_LOCATION_NAME_KEY = "coordinates_location_name";
 
     // Constructors
 
@@ -50,6 +63,8 @@ public class GuiManager {
         guiItemKey = new NamespacedKey(plugin, GUI_ITEM_KEY);
         customBookKey = new NamespacedKey(plugin, CUSTOM_BOOK_KEY);
         npcEditStickKey = new NamespacedKey(plugin, NPC_EDIT_STICK_KEY);
+        coordinatesEditorAgentUuidKey = new NamespacedKey(plugin, COORDINATES_EDITOR_AGENT_UUID_KEY);
+        coordinatesEditorLocationNameKey = new NamespacedKey(plugin, COORDINATES_EDITOR_LOCATION_NAME_KEY);
     }
 
     // Getters and setters
@@ -179,7 +194,7 @@ public class GuiManager {
         player.getPlayer().getInventory().addItem(npcEditStick);
     }
 
-    public boolean isNPCStick(ItemStack item) {
+    public boolean isNPCStick(@Nullable ItemStack item) {
         if (item != null && item.getItemMeta() != null) {
             PersistentDataContainer container = item.getItemMeta().getPersistentDataContainer();
 
@@ -187,6 +202,70 @@ public class GuiManager {
         }
 
         return false;
+    }
+
+    public void giveCoordinatesSelector(SocialPlayer player, SocialAgent agent, AgentLocation location) {
+        ItemStack coordinatesSelector = new ItemStack(Material.RECOVERY_COMPASS);
+        ItemMeta itemMeta = coordinatesSelector.getItemMeta();
+
+        itemMeta.displayName(Component.text("Coordinates Selector").color(TextColor.color(0, 168, 168)));
+        // Telling the player what happens when they right-click the item
+        itemMeta.lore(Arrays.asList(
+                Component.text("Right-click ").color(TextColor.color(71, 255, 138))
+                        .append(Component.text("on a block to set").color(TextColor.color(155, 155, 155))),
+                Component.text("the location \"").color(TextColor.color(155, 155, 155))
+                        .append(Component.text(location.getDescription()).color(TextColor.color(255, 219, 49)))
+                        .append(Component.text("\"").color(TextColor.color(155, 155, 155))),
+                Component.text("of the agent \"").color(TextColor.color(155, 155, 155))
+                        .append(Component.text(agent.getName()).color(TextColor.color(213, 118, 39)))
+                        .append(Component.text("\"").color(TextColor.color(155, 155, 155)))
+        ));
+        itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        itemMeta.addEnchant(Enchantment.DURABILITY, 1, true);
+        itemMeta.getPersistentDataContainer().set(coordinatesEditorAgentUuidKey, PersistentDataType.STRING, agent.getUUID().toString());
+        itemMeta.getPersistentDataContainer().set(coordinatesEditorLocationNameKey, PersistentDataType.STRING, location.getDescription());
+
+        coordinatesSelector.setItemMeta(itemMeta);
+
+        player.getPlayer().getInventory().addItem(coordinatesSelector);
+    }
+
+    public boolean isCoordinatesSelector(@Nullable ItemStack item) {
+        if (item != null && item.getItemMeta() != null) {
+            PersistentDataContainer container = item.getItemMeta().getPersistentDataContainer();
+
+            return container.has(coordinatesEditorAgentUuidKey, PersistentDataType.STRING) &&
+                    container.has(coordinatesEditorLocationNameKey, PersistentDataType.STRING);
+        }
+
+        return false;
+    }
+
+    public @Nullable SocialAgent getAgentFromCoordinatesSelector(ItemStack coordinatesSelector) {
+        String agentUuid = coordinatesSelector.getItemMeta().getPersistentDataContainer().get(coordinatesEditorAgentUuidKey, PersistentDataType.STRING);
+
+        if (agentUuid == null) {
+            // The agent referenced by the coordinates selector doesn't exist anymore
+            return null;
+        }
+
+        UUID uuid = UUID.fromString(agentUuid);
+
+        return MineSocieties.getPlugin().getSocialAgentManager().getAgent(uuid);
+    }
+
+    public @Nullable AgentLocation getAgentLocationFromCoordinatesSelector(ItemStack coordinatesSelector, SocialAgent agent) {
+        String locationName = coordinatesSelector.getItemMeta().getPersistentDataContainer().get(coordinatesEditorLocationNameKey, PersistentDataType.STRING);
+
+        if (locationName == null) {
+            // The location referenced by the coordinates selector doesn't exist anymore
+            return null;
+        }
+
+        return agent.getState().getAllLocations().stream()
+                .filter(agentLocation -> agentLocation.getDescription().equals(locationName))
+                .findFirst()
+                .orElse(null);
     }
 
     public void giveNPCStickIfNotPresent(SocialPlayer player) {
@@ -260,5 +339,92 @@ public class GuiManager {
 
     public void closedInventory(SocialPlayer player) {
         player.setCurrentOpenGUIMenu(null);
+    }
+
+    public void playerInteracted(PlayerInteractEvent e) {
+        ItemStack itemInHand = e.getItem();
+        SocialPlayer player = MineSocieties.getPlugin().getSocialAgentManager().getPlayerWrapper(e.getPlayer());
+
+        if (isNPCStick(itemInHand)) {
+            List<SocialAgent> aimedAgents = new ArrayList<>();
+
+            // Checking if the player is aiming at an agent
+            MineSocieties.getPlugin().getSocialAgentManager().forEachValidAgent(agent -> {
+                // Creating a box that mimics a player's BB at the agent's location
+                BoundingBox box = BoundingBox.of(
+                        agent.getLocation().toVector().add(new Vector(-0.3, 0, -0.3)),
+                        agent.getLocation().toVector().add(new Vector(0.3, 1.8, 0.3))
+                );
+
+                // Checking if the player is aiming at the agent
+                RayTraceResult result = box.rayTrace(e.getPlayer().getEyeLocation().toVector(), e.getPlayer().getEyeLocation().getDirection(), 10);
+
+                if (result != null) {
+                    // Player is aiming at the agent
+                    aimedAgents.add(agent);
+                }
+            });
+
+            if (!aimedAgents.isEmpty()) {
+                // Player aimed at least 1 agent
+
+                // Finding the closes agent to the player
+                SocialAgent closestAgent = aimedAgents.get(0);
+                double closestDistance = closestAgent.getLocation().distanceSquared(e.getPlayer().getLocation());
+
+                for (int i = 1; i < aimedAgents.size(); i++) {
+                    SocialAgent candidate = aimedAgents.get(i);
+                    double distance = candidate.getLocation().distanceSquared(e.getPlayer().getLocation());
+
+                    if (distance < closestDistance) {
+                        closestAgent = candidate;
+                        closestDistance = distance;
+                    }
+                }
+
+                openAgentMenu(player, closestAgent);
+            }
+        } else if (isCoordinatesSelector(itemInHand)) {
+            SocialAgent agent = getAgentFromCoordinatesSelector(itemInHand);
+
+            if (agent != null) {
+                AgentLocation location = getAgentLocationFromCoordinatesSelector(itemInHand, agent);
+
+                if (location != null) {
+                    // The player right-clicked on a block with a coordinates selector
+                    Location newLocation = e.getClickedBlock().getLocation();
+                    Vector oldPosition = location.getPosition();
+
+                    oldPosition.setX(newLocation.getX() + 0.5); // Pointing to the center of the block
+                    oldPosition.setY(newLocation.getY() + 1); // Pointing above the block
+                    oldPosition.setZ(newLocation.getZ() + 0.5); // Pointing to the center of the block
+
+                    location.setWorldName(newLocation.getWorld().getName());
+
+                    agent.getState().saveAsync();
+
+                    player.getPlayer().sendMessage(ComponentUtils.withPrefix(
+                            Component.text("The location of the agent ").color(TextColor.color(71, 255, 138))
+                                    .append(Component.text(agent.getName()).color(TextColor.color(213, 118, 39)))
+                                    .append(Component.text(" with the description ").color(TextColor.color(71, 255, 138)))
+                                    .append(Component.text(location.getDescription()).color(TextColor.color(255, 219, 49)))
+                                    .append(Component.text(" has been updated.").color(TextColor.color(71, 255, 138)))
+                    ));
+                } else {
+                    player.getPlayer().sendMessage(ComponentUtils.withPrefix(
+                            Component.text("The location referenced by the coordinates selector doesn't exist anymore.")
+                                    .color(TextColor.color(255, 0, 0))
+                    ));
+                }
+            } else {
+                player.getPlayer().sendMessage(ComponentUtils.withPrefix(
+                        Component.text("The agent referenced by the coordinates selector doesn't exist anymore.")
+                                .color(TextColor.color(255, 0, 0))
+                ));
+            }
+
+            // Removing the item from the player's hand
+            player.getPlayer().getEquipment().setItem(e.getHand(), null);
+        }
     }
 }

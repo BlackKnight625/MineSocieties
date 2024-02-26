@@ -61,6 +61,8 @@ public class LocationEditorMenu extends GUIMenu {
 
         addClickable(16, new WorldNameEditor());
 
+        addClickable(20, new CoordinateSelectorItem(this, agent, location));
+
         addClickable(26, new GoBack(this));
 
         fillRestWithPanes(Material.PURPLE_STAINED_GLASS_PANE);

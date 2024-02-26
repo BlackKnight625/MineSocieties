@@ -8,6 +8,7 @@ import ulisboa.tecnico.minesocieties.visitors.IContextVisitor;
 
 import java.util.Objects;
 
+// TODO: Make locations known to certain agents
 public class AgentLocation implements IExplainableContext, ISimpleExplanation {
 
     // Private attributes

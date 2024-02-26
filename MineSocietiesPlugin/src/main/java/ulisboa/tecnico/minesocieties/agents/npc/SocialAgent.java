@@ -465,11 +465,7 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
         possibleActions.add(new Idle()); // Temporary. An agent that chooses to be idle won't do anything until they receive an observation
 
         // Adding locations that the agent can go to
-        AgentMemory memory = state.getMemory();
-
-        possibleActions.add(new InformativeGoTo(memory.getHome()));
-
-        for (AgentLocation otherLocation : memory.getKnownLocations().getMemorySections()) {
+        for (AgentLocation otherLocation : state.getAllLocations()) {
             possibleActions.add(new InformativeGoTo(otherLocation));
         }
 

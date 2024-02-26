@@ -443,6 +443,19 @@ public class AgentState implements IExplainableContext {
         GSON = gsonBuilder.create();
     }
 
+    /**
+     * @return
+     *  Returns all the locations that this agent knows about
+     */
+    public List<AgentLocation> getAllLocations() {
+        List<AgentLocation> locations = new ArrayList<>();
+
+        locations.add(memory.getHome());
+        locations.addAll(memory.getKnownLocations().getMemorySections());
+
+        return locations;
+    }
+
     // Classes
 
     public static class StateReadException extends Exception {

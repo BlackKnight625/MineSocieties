@@ -56,9 +56,9 @@ public class MineSocieties extends JavaPlugin {
         // Plugin startup logic
 
 
-        reactiveAgentManager = new ExampleReactiveAgentManager(this);
+        // reactiveAgentManager = new ExampleReactiveAgentManager(this);
 
-        reactiveAgentManager.initialize();
+        // reactiveAgentManager.initialize();
 
         socialAgentManager = new SocialAgentManager(this);
 

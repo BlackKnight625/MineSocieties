@@ -19,6 +19,7 @@ import ulisboa.tecnico.minesocieties.agents.SocialAgentManager;
 import ulisboa.tecnico.minesocieties.agents.npc.MessageDisplay;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
+import ulisboa.tecnico.minesocieties.guis.GuiManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -145,48 +146,7 @@ public class SocialEventListener extends EventListener {
 
     @EventHandler
     public void playerInteracts(PlayerInteractEvent e) {
-        ItemStack itemInHand = e.getItem();
-
-        if (MineSocieties.getPlugin().getGuiManager().isNPCStick(itemInHand)) {
-            List<SocialAgent> aimedAgents = new ArrayList<>();
-
-            // Checking if the player is aiming at an agent
-            MineSocieties.getPlugin().getSocialAgentManager().forEachValidAgent(agent -> {
-                // Creating a box that mimics a player's BB at the agent's location
-                BoundingBox box = BoundingBox.of(
-                        agent.getLocation().toVector().add(new Vector(-0.3, 0, -0.3)),
-                        agent.getLocation().toVector().add(new Vector(0.3, 1.8, 0.3))
-                );
-
-                // Checking if the player is aiming at the agent
-                RayTraceResult result = box.rayTrace(e.getPlayer().getEyeLocation().toVector(), e.getPlayer().getEyeLocation().getDirection(), 10);
-
-                if (result != null) {
-                    // Player is aiming at the agent
-                    aimedAgents.add(agent);
-                }
-            });
-
-            if (!aimedAgents.isEmpty()) {
-                // Player aimed at least 1 agent
-
-                // Finding the closes agent to the player
-                SocialAgent closestAgent = aimedAgents.get(0);
-                double closestDistance = closestAgent.getLocation().distanceSquared(e.getPlayer().getLocation());
-
-                for (int i = 1; i < aimedAgents.size(); i++) {
-                    SocialAgent candidate = aimedAgents.get(i);
-                    double distance = candidate.getLocation().distanceSquared(e.getPlayer().getLocation());
-
-                    if (distance < closestDistance) {
-                        closestAgent = candidate;
-                        closestDistance = distance;
-                    }
-                }
-
-                MineSocieties.getPlugin().getGuiManager().openAgentMenu(toSocialPlayer(e.getPlayer()), closestAgent);
-            }
-        }
+        MineSocieties.getPlugin().getGuiManager().playerInteracted(e);
     }
 
     // Other methods
@@ -195,7 +155,7 @@ public class SocialEventListener extends EventListener {
         return MineSocieties.getPlugin().getSocialAgentManager();
     }
 
-    private SocialPlayer toSocialPlayer(Player player) {
-        return MineSocieties.getPlugin().getSocialAgentManager().getPlayerWrapper(player);
+    public SocialPlayer toSocialPlayer(Player player) {
+        return getSocialAgentManager().getPlayerWrapper(player);
     }
 }
