@@ -32,3 +32,6 @@ agentsCanStartChoosingActionsByDefault: No
 
 # Whether a message should display above agent's heads explaining what they are doing right now
 showWhatAgentsAreDoing: Yes
+
+# Whether a message should display above agent's heads explaining their thought process for their most recent action
+showThoughts: Yes

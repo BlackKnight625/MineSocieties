@@ -16,6 +16,7 @@ import org.bukkit.util.Vector;
 import ulisboa.tecnico.agents.observation.EventListener;
 import ulisboa.tecnico.minesocieties.MineSocieties;
 import ulisboa.tecnico.minesocieties.agents.SocialAgentManager;
+import ulisboa.tecnico.minesocieties.agents.npc.MessageDisplay;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
 
@@ -58,7 +59,16 @@ public class SocialEventListener extends EventListener {
                 } else {
                     if (entity instanceof TextDisplay textDisplay) {
                         // This is an agent's Message Display
-                        socialAgent.getMessageDisplay().setTextDisplay(textDisplay);
+                        MessageDisplay currentDisplay = socialAgent.getMessageDisplay();
+
+                        if (currentDisplay.getTextDisplay().isValid()) {
+                            // The agent's current display is still valid. Therefore, this display is outdated and should
+                            // be removed
+                            entity.remove();
+                        } else {
+                            // The agent does not have a valid display, so this display should be set as the agent's
+                            socialAgent.getMessageDisplay().setTextDisplay(textDisplay);
+                        }
                     }
                 }
             }

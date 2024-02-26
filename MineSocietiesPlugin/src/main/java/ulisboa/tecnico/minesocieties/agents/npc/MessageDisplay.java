@@ -34,6 +34,10 @@ public class MessageDisplay {
 
     // Getters and setters
 
+    public TextDisplay getTextDisplay() {
+        return textDisplay;
+    }
+
     public void setTextDisplay(TextDisplay textDisplay) {
         this.textDisplay = textDisplay;
     }

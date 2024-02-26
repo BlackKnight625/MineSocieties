@@ -36,6 +36,7 @@ public class MineSocieties extends JavaPlugin {
     private boolean loadSavedAgents;
     private boolean agentsCanChooseActions;
     private boolean showWhatAgentsAreDoing;
+    private boolean showThoughts;
 
     // Other methods
 
@@ -93,6 +94,7 @@ public class MineSocieties extends JavaPlugin {
         loadSavedAgents = getConfig().getBoolean("loadSavedAgents");
         agentsCanChooseActions = getConfig().getBoolean("agentsCanStartChoosingActionsByDefault");
         showWhatAgentsAreDoing = getConfig().getBoolean("showWhatAgentsAreDoing");
+        showThoughts = getConfig().getBoolean("showThoughts");
 
         if (loadSavedAgents) {
             // Loading all agents in the next tick
