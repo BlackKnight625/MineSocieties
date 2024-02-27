@@ -36,5 +36,5 @@ showWhatAgentsAreDoing: Yes
 # Whether a message should display above agent's heads explaining their thought process for their most recent action
 showThoughts: Yes
 
-# The number of ticks that the thought message should be displayed for, if showThoughts is enabled
-showThoughtsTicks: 200
+# The number of ticks that the thought message should be displayed for, if showThoughts is enabled. Default is 15 seconds (300 ticks)
+showThoughtsTicks: 300

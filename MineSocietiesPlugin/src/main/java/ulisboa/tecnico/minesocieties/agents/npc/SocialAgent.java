@@ -302,6 +302,14 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
                     possibleActions.size() + ": " + possibleActions.stream().map(a -> a.accept(nextActionExplainer)).toList() + ".");
         }
 
+        if (showThoughts) {
+            // Displaying the agent's though process on their head
+            messageDisplay.displayMessage(new Message(MineSocieties.getPlugin().getShowThoughtsTicks(),
+                    Component.text("\uD83E\uDD14").color(TextColor.color(225, 217, 64)) // 🤔
+                            .append(Component.text(" " + thoughtProcess).color(TextColor.color(123, 124, 73)))
+            ));
+        }
+
         if (action instanceof ContinueCurrentAction) {
             // This is a special action choice that means that the current action should not be modified.
             return;
@@ -319,14 +327,6 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
             ActionArgumentsExplainer actionArgumentsExplainer = new ActionArgumentsExplainer();
 
             actionWithArguments.acceptArgumentsInterpreter(actionArgumentsExplainer, arguments);
-        }
-
-        if (showThoughts) {
-            // Displaying the agent's though process on their head
-            messageDisplay.displayMessage(new Message(MineSocieties.getPlugin().getShowThoughtsTicks(),
-                    Component.text("\uD83E\uDD14").color(TextColor.color(225, 217, 64)) // 🤔
-                            .append(Component.text(" " + thoughtProcess).color(TextColor.color(123, 124, 73)))
-            ));
         }
 
         selectedNewActionSync(action);
