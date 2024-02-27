@@ -1,5 +1,6 @@
 package ulisboa.tecnico.minesocieties.visitors;
 
+import ulisboa.tecnico.minesocieties.agents.location.SocialLocation;
 import ulisboa.tecnico.minesocieties.agents.npc.state.*;
 import ulisboa.tecnico.minesocieties.utils.StringUtils;
 
@@ -66,6 +67,11 @@ public class CurrentContextExplainer implements IContextVisitor {
 
     @Override
     public String explainLocation(AgentLocation location) {
+        return location.getDescription();
+    }
+
+    @Override
+    public String explainLocation(SocialLocation location) {
         return location.getDescription();
     }
 

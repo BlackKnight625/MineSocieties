@@ -16,8 +16,8 @@ public class ContextVisitorTest {
     @Test
     public void visitConversations() {
         AgentConversations alexConversations = new AgentConversations();
-        AgentReference alex = new AgentReference(UUID.randomUUID(), "Alex Jones");
-        AgentReference steve = new AgentReference(UUID.randomUUID(), "Steve Johnson");
+        CharacterReference alex = new CharacterReference(UUID.randomUUID(), "Alex Jones");
+        CharacterReference steve = new CharacterReference(UUID.randomUUID(), "Steve Johnson");
         Instant aWhileAgo = Instant.now().minus(5, ChronoUnit.MINUTES);
 
         alexConversations.addMemorySection(new Conversation(aWhileAgo, "Hey Steve! How are you?", alex, steve));
@@ -35,8 +35,8 @@ public class ContextVisitorTest {
 
     @Test
     public void visitState() {
-        AgentReference alex = new AgentReference(UUID.randomUUID(), "Alex Jones");
-        AgentReference steve = new AgentReference(UUID.randomUUID(), "Steve Johnson");
+        CharacterReference alex = new CharacterReference(UUID.randomUUID(), "Alex Jones");
+        CharacterReference steve = new CharacterReference(UUID.randomUUID(), "Steve Johnson");
         Instant aWhileAgo = Instant.now().minus(5, ChronoUnit.MINUTES);
         AgentState alexState = new AgentState(new UUID(625, 625),
                 new AgentPersona(alex.getName(), Instant.ofEpochSecond(
@@ -79,7 +79,7 @@ public class ContextVisitorTest {
 
     @Test
     public void visitEmptyState() {
-        AgentReference alex = new AgentReference(UUID.randomUUID(), "Alex Jones");
+        CharacterReference alex = new CharacterReference(UUID.randomUUID(), "Alex Jones");
 
         AgentState alexState = new AgentState(new UUID(625, 625),
                 new AgentPersona(alex.getName(), Instant.ofEpochSecond(

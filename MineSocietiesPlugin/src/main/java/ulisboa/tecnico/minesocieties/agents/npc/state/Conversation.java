@@ -11,12 +11,12 @@ public class Conversation extends InstantMemory {
     // Private attributes
 
     private final String conversation;
-    private final AgentReference speaker;
-    private final AgentReference listener;
+    private final CharacterReference speaker;
+    private final CharacterReference listener;
 
     // Constructors
 
-    public Conversation(Instant instant, String conversation, AgentReference speaker, AgentReference listener) {
+    public Conversation(Instant instant, String conversation, CharacterReference speaker, CharacterReference listener) {
         super(instant);
         this.conversation = conversation;
         this.speaker = speaker;
@@ -27,8 +27,8 @@ public class Conversation extends InstantMemory {
         this(
                 Instant.now(),
                 observation.getChat(),
-                new AgentReference(observation.getFrom()),
-                new AgentReference(receiver)
+                new CharacterReference(observation.getFrom()),
+                new CharacterReference(receiver)
         );
     }
 
@@ -41,11 +41,11 @@ public class Conversation extends InstantMemory {
         return conversation;
     }
 
-    public AgentReference getSpeaker() {
+    public CharacterReference getSpeaker() {
         return speaker;
     }
 
-    public AgentReference getListener() {
+    public CharacterReference getListener() {
         return listener;
     }
 }

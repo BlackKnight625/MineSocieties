@@ -6,7 +6,7 @@ import ulisboa.tecnico.minesocieties.agents.SocialCharacter;
 import ulisboa.tecnico.minesocieties.agents.actions.exceptions.MalformedActionArgumentsException;
 import ulisboa.tecnico.minesocieties.agents.actions.socialActions.SendChatTo;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
-import ulisboa.tecnico.minesocieties.agents.npc.state.AgentReference;
+import ulisboa.tecnico.minesocieties.agents.npc.state.CharacterReference;
 
 import java.util.List;
 
@@ -87,7 +87,7 @@ public class ActionArgumentsExplainer implements IActionArgumentsExplainerVisito
                     "does not exist");
         }
 
-        sendChatTo.setReceiver(new AgentReference(receiver));
+        sendChatTo.setReceiver(new CharacterReference(receiver));
         sendChatTo.setMessage(message);
         sendChatTo.setWaitForReply(waitForReply.equals("yes"));
     }

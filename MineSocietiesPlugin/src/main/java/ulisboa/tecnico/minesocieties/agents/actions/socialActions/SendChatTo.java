@@ -10,14 +10,13 @@ import ulisboa.tecnico.minesocieties.agents.actions.ISocialAction;
 import ulisboa.tecnico.minesocieties.agents.actions.exceptions.MalformedActionArgumentsException;
 import ulisboa.tecnico.minesocieties.agents.npc.Message;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
-import ulisboa.tecnico.minesocieties.agents.npc.state.AgentReference;
+import ulisboa.tecnico.minesocieties.agents.npc.state.CharacterReference;
 import ulisboa.tecnico.minesocieties.agents.npc.state.Conversation;
 import ulisboa.tecnico.minesocieties.utils.ComponentUtils;
 import ulisboa.tecnico.minesocieties.utils.LocationUtils;
 import ulisboa.tecnico.minesocieties.visitors.IActionArgumentsExplainerVisitor;
 import ulisboa.tecnico.minesocieties.visitors.IActionVisitor;
 
-import java.util.LinkedList;
 import java.util.List;
 
 public class SendChatTo implements IActionWithArguments, ISocialAction {
@@ -25,7 +24,7 @@ public class SendChatTo implements IActionWithArguments, ISocialAction {
     // Private attributes
 
     private String message;
-    private AgentReference receiver;
+    private CharacterReference receiver;
     private boolean talkingWithHuman = false;
     private boolean waitForReply = true;
 
@@ -39,11 +38,11 @@ public class SendChatTo implements IActionWithArguments, ISocialAction {
         this.message = message;
     }
 
-    public AgentReference getReceiver() {
+    public CharacterReference getReceiver() {
         return receiver;
     }
 
-    public void setReceiver(AgentReference receiver) {
+    public void setReceiver(CharacterReference receiver) {
         this.receiver = receiver;
 
         // The sender is talking with a human if the receiver is a player

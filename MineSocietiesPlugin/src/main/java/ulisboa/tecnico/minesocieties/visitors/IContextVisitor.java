@@ -1,5 +1,6 @@
 package ulisboa.tecnico.minesocieties.visitors;
 
+import ulisboa.tecnico.minesocieties.agents.location.SocialLocation;
 import ulisboa.tecnico.minesocieties.agents.npc.state.*;
 
 public interface IContextVisitor {
@@ -13,6 +14,8 @@ public interface IContextVisitor {
     String explainConversations(AgentConversations conversations);
 
     String explainLocation(AgentLocation location);
+
+    String explainLocation(SocialLocation location);
 
     String explainMoods(AgentMoods moods);
 

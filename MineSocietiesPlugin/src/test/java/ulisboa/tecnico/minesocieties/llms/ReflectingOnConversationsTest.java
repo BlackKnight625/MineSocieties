@@ -28,10 +28,10 @@ public class ReflectingOnConversationsTest extends BaseLLMTest {
     private String steve = "Steve Johnson";
     private String jennifer = "Jennifer Lopes";
     private String nathan = "Nathan Daniels";
-    private AgentReference steveReference = new AgentReference(UUID.randomUUID(), steve);
-    private AgentReference jenniferReference = new AgentReference(UUID.randomUUID(), jennifer);
-    private AgentReference nathanReference = new AgentReference(UUID.randomUUID(), nathan);
-    private AgentReference alexReference;
+    private CharacterReference steveReference = new CharacterReference(UUID.randomUUID(), steve);
+    private CharacterReference jenniferReference = new CharacterReference(UUID.randomUUID(), jennifer);
+    private CharacterReference nathanReference = new CharacterReference(UUID.randomUUID(), nathan);
+    private CharacterReference alexReference;
     private AgentState alexState;
 
     // Test methods
@@ -44,7 +44,7 @@ public class ReflectingOnConversationsTest extends BaseLLMTest {
         UUID uuid = new UUID(625, 625);
         String name = "Alex Holmes";
 
-        alexReference = new AgentReference(uuid, name);
+        alexReference = new CharacterReference(uuid, name);
 
         agent = new SocialAgent(npc);
 
