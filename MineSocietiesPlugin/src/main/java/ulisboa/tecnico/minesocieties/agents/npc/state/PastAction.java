@@ -40,13 +40,16 @@ public class PastAction extends InstantMemory {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        PastAction action = (PastAction) o;
-        return pastAction.equals(action.pastAction);
+        if (!(o instanceof PastAction that)) return false;
+        if (!super.equals(o)) return false;
+
+        return pastAction.equals(that.pastAction);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(pastAction);
+        int result = super.hashCode();
+        result = 31 * result + pastAction.hashCode();
+        return result;
     }
 }

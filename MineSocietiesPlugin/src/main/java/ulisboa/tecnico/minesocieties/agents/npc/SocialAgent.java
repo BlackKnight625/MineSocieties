@@ -348,7 +348,7 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
                 pastActions.addMemorySection(new PastAction(currentAction, Instant.now()));
 
                 // Forgetting old actions
-                pastActions.forgetMemorySectionOlderThan(Instant.now().minus(1, ChronoUnit.HOURS));
+                pastActions.forgetMemorySectionOlderThan(Instant.now().minus(10, ChronoUnit.MINUTES));
             }
 
             currentAction.cancel();

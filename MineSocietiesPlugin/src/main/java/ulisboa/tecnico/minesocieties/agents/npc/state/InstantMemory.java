@@ -2,6 +2,7 @@ package ulisboa.tecnico.minesocieties.agents.npc.state;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Objects;
 
 public class InstantMemory {
 
@@ -85,5 +86,18 @@ public class InstantMemory {
         }
 
         return builder.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof InstantMemory that)) return false;
+
+        return instant.equals(that.instant);
+    }
+
+    @Override
+    public int hashCode() {
+        return instant.hashCode();
     }
 }
