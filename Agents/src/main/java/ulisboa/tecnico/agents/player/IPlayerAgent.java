@@ -31,4 +31,9 @@ public interface IPlayerAgent extends ICharacter {
     default Location getLocation() {
         return getPlayer().getLocation();
     }
+
+    @Override
+    default Location getEyeLocation() {
+        return getPlayer().getEyeLocation();
+    }
 }

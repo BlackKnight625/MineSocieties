@@ -15,4 +15,6 @@ public interface ICharacter extends IObserver {
     boolean isValid();
 
     Location getLocation();
+
+    Location getEyeLocation();
 }

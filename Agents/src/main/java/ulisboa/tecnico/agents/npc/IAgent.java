@@ -49,4 +49,11 @@ public interface IAgent extends ICharacter {
     default Location getLocation() {
         return getAgent().getData().getLocation().clone();
     }
+
+    @Override
+    default Location getEyeLocation() {
+        Location location = getLocation();
+        location.setY(location.getY() + getNPCData().getEyeHeight());
+        return location;
+    }
 }

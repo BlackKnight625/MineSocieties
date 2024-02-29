@@ -30,12 +30,12 @@ public class GoTo<T extends IAgent> extends TemporalAction<T> {
     // Other methods
 
     @Override
-    public void start(IAgent actioner) {
+    public void start(T actioner) {
         actioner.getAgent().goTo(destination, 100, s -> status = s);
     }
 
     @Override
-    public ActionStatus tick(IAgent actioner, int elapsedTicks) {
+    public ActionStatus tick(T actioner, int elapsedTicks) {
         return switch (status) {
             case MOVING -> ActionStatus.IN_PROGRESS;
             case SUCCESS -> ActionStatus.SUCCESS;
