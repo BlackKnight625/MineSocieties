@@ -1,5 +1,6 @@
 package ulisboa.tecnico.minesocieties.visitors;
 
+import ulisboa.tecnico.minesocieties.agents.actions.jobActions.InformativeGoFishing;
 import ulisboa.tecnico.minesocieties.agents.actions.otherActions.*;
 import ulisboa.tecnico.minesocieties.agents.actions.socialActions.SendChatTo;
 
@@ -16,4 +17,6 @@ public interface IActionVisitor {
     String visitContinueCurrentAction(ContinueCurrentAction continueCurrentAction);
 
     String visitThinking(Thinking thinking);
+
+    String visitGoFishing(InformativeGoFishing informativeGoFishing);
 }

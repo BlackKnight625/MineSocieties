@@ -351,7 +351,7 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
                 pastActions.forgetMemorySectionOlderThan(Instant.now().minus(10, ChronoUnit.MINUTES));
             }
 
-            currentAction.cancel();
+            currentAction.cancel(this);
 
             currentAction = newAction;
             currentActionStatus = ActionStatus.IN_PROGRESS;

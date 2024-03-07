@@ -2,6 +2,7 @@ package ulisboa.tecnico.minesocieties.guis.social.actions;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import ulisboa.tecnico.minesocieties.agents.actions.jobActions.InformativeGoFishing;
 import ulisboa.tecnico.minesocieties.agents.actions.otherActions.Idle;
 import ulisboa.tecnico.minesocieties.agents.actions.otherActions.InformativeGoTo;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
@@ -32,6 +33,7 @@ public class ActionMenu extends GUIMenu {
         // Go home
         addClickable(10, new ActionExecutorItem(this, Material.RED_BED, agent, new InformativeGoTo(agent.getState().getMemory().getHome())));
         addClickable(11, new KnowLocationsOpener());
+        addClickable(13, new ActionExecutorItem(this, Material.FISHING_ROD, agent, new InformativeGoFishing(1, 200, 200)));
         addClickable(16, new ActionExecutorItem(this, Material.BARRIER, agent, new Idle()));
 
         addClickable(26, new GoBack(this));

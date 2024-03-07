@@ -12,7 +12,7 @@ public interface IAction<T extends IAgent> {
      * is complete.
      *  An action can be cancelled without ever being started.
      */
-    default void cancel() {
+    default void cancel(T actioner) {
 
     }
 

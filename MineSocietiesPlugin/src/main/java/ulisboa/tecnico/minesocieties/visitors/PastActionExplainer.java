@@ -1,5 +1,6 @@
 package ulisboa.tecnico.minesocieties.visitors;
 
+import ulisboa.tecnico.minesocieties.agents.actions.jobActions.InformativeGoFishing;
 import ulisboa.tecnico.minesocieties.agents.actions.otherActions.*;
 import ulisboa.tecnico.minesocieties.agents.actions.socialActions.SendChatTo;
 
@@ -39,5 +40,10 @@ public class PastActionExplainer implements IActionVisitor {
     @Override
     public String visitThinking(Thinking thinking) {
         return "thought about " + thinking.getWhat() + " for " + (thinking.getThinkingTicks() / 20) + " seconds";
+    }
+
+    @Override
+    public String visitGoFishing(InformativeGoFishing informativeGoFishing) {
+        return "went fishing";
     }
 }
