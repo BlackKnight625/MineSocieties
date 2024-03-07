@@ -190,7 +190,7 @@ public class GoFishing<T extends IAgent> extends TemporalAction<T> {
 
             ActionStatus fishStatus = fishAction.tick(actioner, elapsedTicks);
 
-            if (fishStatus.isFinished()) {
+            if (fishStatus.isSuccessful()) {
                 currentAmountFished++;
 
                 if (currentAmountFished >= amountToFish) {
