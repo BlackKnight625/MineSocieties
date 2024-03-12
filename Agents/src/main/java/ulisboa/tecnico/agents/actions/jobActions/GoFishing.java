@@ -5,6 +5,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.util.BlockIterator;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
@@ -32,16 +33,18 @@ public class GoFishing<T extends IAgent> extends TemporalAction<T> {
     private final int maxTicksPerFish;
     private final Logger logger;
     private Block waterBlock;
+    private final Plugin plugin;
 
     private static final int MAX_FISHING_DISTANCE = 5;
 
     // Constructors
 
-    public GoFishing(int amountToFish, int maxFishingTicks, int maxTicksPerFish, Logger logger) {
+    public GoFishing(int amountToFish, int maxFishingTicks, int maxTicksPerFish, Logger logger, Plugin plugin) {
         this.amountToFish = amountToFish;
         this.maxFishingTicks = maxFishingTicks;
         this.maxTicksPerFish = maxTicksPerFish;
         this.logger = logger;
+        this.plugin = plugin;
     }
 
     // Other methods
@@ -62,7 +65,7 @@ public class GoFishing<T extends IAgent> extends TemporalAction<T> {
         double closestDistance = Double.MAX_VALUE;
 
         for (Block block : accessibleWaterBlocks) {
-            double distance = block.getLocation().distanceSquared(actioner.getLocation());
+            double distance = block.getLocation().add(0.5, 1, 0.5).distanceSquared(actioner.getLocation());
 
             if (distance < closestDistance) {
                 waterBlock = block;
@@ -71,96 +74,57 @@ public class GoFishing<T extends IAgent> extends TemporalAction<T> {
         }
 
         // Finding a solid block nearest to the water block
-        Location closestWaterLocation = waterBlock.getLocation().add(0.5, 1, 0.5);
-        Vector direction = actioner.getLocation().toVector().subtract(closestWaterLocation.toVector()).normalize();
+        Vector halfWay = actioner.getLocation().toVector().add(waterBlock.getLocation().add(0.5, 1, 0.5).toVector()).multiply(0.5);
 
-        BlockIterator blockIterator = new BlockIterator(
-                waterBlock.getWorld(),
-                closestWaterLocation.toVector(), // Water block location
-                direction,
-                0,
-                MAX_FISHING_DISTANCE
-        );
+        Location middleLocation = new Location(waterBlock.getWorld(), halfWay.getX(), halfWay.getY(), halfWay.getZ());
+        int searchRadius = (int) Math.ceil(halfWay.distance(middleLocation.toVector()) + 2); // Searching a bit further than the middle
+        Location waterBlockLocation = waterBlock.getLocation().add(0.5, 1, 0.5);
+        Block bestBlockNearWater = null;
+        double bestDistanceToWater = Double.MAX_VALUE;
 
-        Block solidNearWater = null;
-        boolean foundBlock = false;
+        for (Block candidate : BlockUtils.getNearbyBlocks(middleLocation, searchRadius)) {
+            if (!candidate.isSolid()) {
+                continue;
+            }
 
-        while (blockIterator.hasNext()) {
-            solidNearWater = blockIterator.next();
+            Block upOne = candidate.getRelative(BlockFace.UP);
 
-            // Checking if the block is solid
-            if (solidNearWater.isSolid()) {
-                foundBlock = true;
+            if (!upOne.getType().isAir()) {
+                continue;
+            }
 
-                break;
+            Block upTwo = upOne.getRelative(BlockFace.UP);
+
+            if (!upTwo.getType().isAir()) {
+                continue;
+            }
+
+            // Found a block that the NPC can go to. Comparing it with the current best one
+            if (bestBlockNearWater == null) {
+                bestBlockNearWater = candidate;
+                bestDistanceToWater = candidate.getLocation().add(0.5, 1, 0.5).distanceSquared(waterBlockLocation);
+            } else {
+                double distanceToWater = candidate.getLocation().add(0.5, 1, 0.5).distanceSquared(waterBlockLocation);
+
+                if (distanceToWater < bestDistanceToWater) {
+                    bestBlockNearWater = candidate;
+                    bestDistanceToWater = distanceToWater;
+                }
             }
         }
 
-        if (solidNearWater == null || !foundBlock) {
+        if (bestBlockNearWater == null) {
             // The NPC is inside the water or something
-            logger.warning("Could not find a solid block near the water so that " + actioner.getName() + " can fish. " +
-                    "Searched for a solid block within " + MAX_FISHING_DISTANCE + " blocks of the water at " + waterBlock.getLocation());
-
-            return;
-        }
-
-        // Making sure the block is accessible
-        solidNearWater = findNearestAccessibleBlock(solidNearWater, 3);
-
-        if (solidNearWater == null) {
-            // Could not find an accessible block near the water
-            logger.warning("Could not find an accessible block near the water so that " + actioner.getName() + " can fish. " +
-                    "Searched for an accessible block within " + MAX_FISHING_DISTANCE + " blocks of the water at " + waterBlock.getLocation());
+            logger.warning("Could not find a solid block with air above it near the water so that " + actioner.getName() + " can fish. " +
+                    "Searched for a solid block within " + searchRadius + " blocks of the water at " + waterBlock.getLocation());
 
             return;
         }
 
         // Sending the NPC to the block near the water
-        goToWater = new GoTo<>(solidNearWater.getLocation().add(0.5, 1, 0.5));
+        goToWater = new GoTo<>(bestBlockNearWater.getLocation().add(0.5, 1, 0.5));
 
         goToWater.start(actioner);
-    }
-
-    public @Nullable Block findNearestAccessibleBlock(Block block, int depthLeft) {
-        if (depthLeft < 0) {
-            return null;
-        }
-
-        if (block.isSolid()) {
-            Block upOne = block.getRelative(BlockFace.UP);
-
-            if (upOne.getType().isAir()) {
-                Block upTwo = upOne.getRelative(BlockFace.UP);
-
-                if (upTwo.getType().isAir()) {
-                    // Found a block with 2 air blocks above it, making it accessible
-                    return block;
-                }
-            }
-        }
-
-        // The block is not accessible. Returning a recursive depth-first search
-        Block[] adjacentBlocks = new Block[]{
-                block.getRelative(BlockFace.UP),
-                block.getRelative(BlockFace.NORTH),
-                block.getRelative(BlockFace.SOUTH),
-                block.getRelative(BlockFace.EAST),
-                block.getRelative(BlockFace.WEST),
-                block.getRelative(BlockFace.DOWN)
-        };
-
-        int depthMinusOne = depthLeft - 1;
-
-        for (Block adjacentBlock : adjacentBlocks) {
-            Block foundBlock = findNearestAccessibleBlock(adjacentBlock, depthMinusOne);
-
-            if (foundBlock != null) {
-                return foundBlock;
-            }
-        }
-
-        // Did not find an accessible block
-        return null;
     }
 
     @Override
@@ -183,29 +147,37 @@ public class GoFishing<T extends IAgent> extends TemporalAction<T> {
         if (reachedWater) {
             // Agent is near the water. Continue fishing
             if (fishAction == null) {
-                fishAction = new Fish<>(maxTicksPerFish, waterBlock);
+                System.out.println("Fishing for the 1st time");
+                fishAction = new Fish<>(maxTicksPerFish, waterBlock, plugin);
 
                 fishAction.start(actioner);
-            }
+            } else {
+                ActionStatus fishStatus = fishAction.act(actioner);
 
-            ActionStatus fishStatus = fishAction.tick(actioner, elapsedTicks);
+                if (fishStatus.isSuccessful()) {
+                    currentAmountFished++;
 
-            if (fishStatus.isSuccessful()) {
-                currentAmountFished++;
+                    if (currentAmountFished >= amountToFish) {
+                        // Agent has fished enough
+                        return ActionStatus.SUCCESS;
+                    }
 
-                if (currentAmountFished >= amountToFish) {
-                    // Agent has fished enough
-                    return ActionStatus.SUCCESS;
+                    System.out.println("Going to fish again");
+                    fishAction = new Fish<>(maxTicksPerFish, waterBlock, plugin);
+
+                    fishAction.start(actioner);
+                } else if (fishStatus.isFinished() && elapsedTicks % 20 == 0) {
+                    // Trying again
+                    System.out.println("Trying again");
+                    fishAction = new Fish<>(maxTicksPerFish, waterBlock, plugin);
+
+                    fishAction.start(actioner);
                 }
-
-                fishAction = new Fish<>(maxTicksPerFish, waterBlock);
-
-                fishAction.start(actioner);
             }
 
             return ActionStatus.IN_PROGRESS;
         } else {
-            ActionStatus goToStatus = goToWater.tick(actioner, elapsedTicks);
+            ActionStatus goToStatus = goToWater.act(actioner);
 
             if (goToStatus.isFinished()) {
                 reachedWater = true;

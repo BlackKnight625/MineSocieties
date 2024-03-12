@@ -33,7 +33,7 @@ public class ActionMenu extends GUIMenu {
         // Go home
         addClickable(10, new ActionExecutorItem(this, Material.RED_BED, agent, new InformativeGoTo(agent.getState().getMemory().getHome())));
         addClickable(11, new KnowLocationsOpener());
-        addClickable(13, new ActionExecutorItem(this, Material.FISHING_ROD, agent, new InformativeGoFishing(1, 200, 200)));
+        addClickable(13, new ActionExecutorItem(this, Material.FISHING_ROD, agent, new InformativeGoFishing(3, 40 * 20, 15 * 20)));
         addClickable(16, new ActionExecutorItem(this, Material.BARRIER, agent, new Idle()));
 
         addClickable(26, new GoBack(this));

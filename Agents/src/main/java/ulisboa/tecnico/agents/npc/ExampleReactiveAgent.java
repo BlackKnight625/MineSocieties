@@ -1,11 +1,14 @@
 package ulisboa.tecnico.agents.npc;
 
+import org.bukkit.inventory.ItemStack;
 import org.entityutils.entity.npc.player.AnimatedPlayerNPC;
 import ulisboa.tecnico.agents.ICharacter;
 import ulisboa.tecnico.agents.observation.IObservation;
 import ulisboa.tecnico.agents.observation.IObserver;
 import ulisboa.tecnico.agents.observation.ReceivedChatObservation;
 import ulisboa.tecnico.agents.observation.WeatherChangeObservation;
+
+import java.util.Collection;
 
 public class ExampleReactiveAgent implements IAgent {
 
@@ -55,6 +58,11 @@ public class ExampleReactiveAgent implements IAgent {
 
     @Override
     public void deleted() {
+        // Do nothing
+    }
+
+    @Override
+    public void acquiredFishLoot(Collection<ItemStack> fishLoot) {
         // Do nothing
     }
 }

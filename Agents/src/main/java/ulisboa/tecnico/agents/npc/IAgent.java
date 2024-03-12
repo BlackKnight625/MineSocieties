@@ -1,11 +1,13 @@
 package ulisboa.tecnico.agents.npc;
 
 import org.bukkit.Location;
+import org.bukkit.inventory.ItemStack;
 import org.entityutils.entity.npc.player.AnimatedPlayerNPC;
 import org.entityutils.utils.data.PlayerNPCData;
 import ulisboa.tecnico.agents.ICharacter;
 import ulisboa.tecnico.agents.observation.IObserver;
 
+import java.util.Collection;
 import java.util.UUID;
 
 public interface IAgent extends ICharacter {
@@ -56,4 +58,6 @@ public interface IAgent extends ICharacter {
         location.setY(location.getY() + getNPCData().getEyeHeight());
         return location;
     }
+
+    void acquiredFishLoot(Collection<ItemStack> fishLoot);
 }

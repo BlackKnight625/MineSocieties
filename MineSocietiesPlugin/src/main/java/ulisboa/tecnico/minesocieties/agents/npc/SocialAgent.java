@@ -3,6 +3,7 @@ package ulisboa.tecnico.minesocieties.agents.npc;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.NamespacedKey;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.entityutils.entity.npc.player.AnimatedPlayerNPC;
@@ -34,10 +35,7 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -512,6 +510,13 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
     public void addUuidToContainer(PersistentDataContainer container) {
         addToDataContainer(container, "npc", PersistentDataType.STRING, getUUID().toString());
     }
+
+    @Override
+    public void acquiredFishLoot(Collection<ItemStack> fishLoot) {
+        // TODO Implement a serializable inventory for NPCs and add the loot to it
+    }
+
+    // Static methods
 
     private static NamespacedKey getNamespacedKey(String key) {
         return new NamespacedKey(MineSocieties.getPlugin(), key);

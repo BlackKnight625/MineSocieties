@@ -11,7 +11,7 @@ public class InformativeGoFishing extends GoFishing<SocialAgent> implements ISoc
     // Constructors
 
     public InformativeGoFishing(int amountToFish, int maxFishingTicks, int maxTicksPerFish) {
-        super(amountToFish, maxFishingTicks, maxTicksPerFish, MineSocieties.getPlugin().getLogger());
+        super(amountToFish, maxFishingTicks, maxTicksPerFish, MineSocieties.getPlugin().getLogger(), MineSocieties.getPlugin());
     }
 
     @Override
