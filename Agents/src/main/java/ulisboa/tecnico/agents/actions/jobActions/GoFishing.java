@@ -1,15 +1,12 @@
 package ulisboa.tecnico.agents.actions.jobActions;
 
-import jline.internal.Log;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.util.BlockIterator;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
-import org.jetbrains.annotations.Nullable;
 import ulisboa.tecnico.agents.actions.ActionStatus;
 import ulisboa.tecnico.agents.actions.TemporalAction;
 import ulisboa.tecnico.agents.actions.jobActions.subactions.Fish;
@@ -61,65 +58,76 @@ public class GoFishing<T extends IAgent> extends TemporalAction<T> {
             return;
         }
 
-        waterBlock = accessibleWaterBlocks.get(0);
-        double closestDistance = Double.MAX_VALUE;
+        // Sorting the accessible blocks by distance to the player
+        accessibleWaterBlocks.sort((block1, block2) -> {
+            double distance1 = block1.getLocation().add(0.5, 1, 0.5).distanceSquared(actioner.getLocation());
+            double distance2 = block2.getLocation().add(0.5, 1, 0.5).distanceSquared(actioner.getLocation());
 
-        for (Block block : accessibleWaterBlocks) {
-            double distance = block.getLocation().add(0.5, 1, 0.5).distanceSquared(actioner.getLocation());
+            return Double.compare(distance1, distance2);
+        });
 
-            if (distance < closestDistance) {
-                waterBlock = block;
-                closestDistance = distance;
-            }
-        }
-
-        // Finding a solid block nearest to the water block
-        Vector halfWay = actioner.getLocation().toVector().add(waterBlock.getLocation().add(0.5, 1, 0.5).toVector()).multiply(0.5);
-
-        Location middleLocation = new Location(waterBlock.getWorld(), halfWay.getX(), halfWay.getY(), halfWay.getZ());
-        int searchRadius = (int) Math.ceil(halfWay.distance(middleLocation.toVector()) + 2); // Searching a bit further than the middle
-        Location waterBlockLocation = waterBlock.getLocation().add(0.5, 1, 0.5);
         Block bestBlockNearWater = null;
-        double bestDistanceToWater = Double.MAX_VALUE;
 
-        for (Block candidate : BlockUtils.getNearbyBlocks(middleLocation, searchRadius)) {
-            if (!candidate.isSolid()) {
-                continue;
-            }
+        for (Block candidateWaterBlock : accessibleWaterBlocks) {
+            // Finding a solid block nearest to the water block
+            Location waterBlockLocation = candidateWaterBlock.getLocation().add(0.5, 1, 0.5);
+            Vector halfWay = actioner.getLocation().toVector().add(waterBlockLocation.toVector()).multiply(0.5);
 
-            Block upOne = candidate.getRelative(BlockFace.UP);
+            Location middleLocation = new Location(candidateWaterBlock.getWorld(), halfWay.getX(), halfWay.getY(), halfWay.getZ());
+            int searchRadius = (int) Math.ceil(halfWay.distance(middleLocation.toVector()) + 1); // Searching a bit further than the middle
 
-            if (!upOne.getType().isAir()) {
-                continue;
-            }
+            bestBlockNearWater = null;
+            double bestDistanceToWater = Double.MAX_VALUE;
 
-            Block upTwo = upOne.getRelative(BlockFace.UP);
+            // Looking for the best block that the NPC can stand on to fish
+            for (Block candidate : BlockUtils.getNearbyBlocks(middleLocation, searchRadius)) {
+                if (!candidate.isSolid()) {
+                    continue;
+                }
 
-            if (!upTwo.getType().isAir()) {
-                continue;
-            }
+                Block upOne = candidate.getRelative(BlockFace.UP);
 
-            // Found a block that the NPC can go to. Comparing it with the current best one
-            if (bestBlockNearWater == null) {
-                bestBlockNearWater = candidate;
-                bestDistanceToWater = candidate.getLocation().add(0.5, 1, 0.5).distanceSquared(waterBlockLocation);
-            } else {
-                double distanceToWater = candidate.getLocation().add(0.5, 1, 0.5).distanceSquared(waterBlockLocation);
+                if (!upOne.getType().isAir()) {
+                    continue;
+                }
 
-                if (distanceToWater < bestDistanceToWater) {
+                Block upTwo = upOne.getRelative(BlockFace.UP);
+
+                if (!upTwo.getType().isAir()) {
+                    continue;
+                }
+
+                Location candidateLocation = candidate.getLocation().add(0.5, 1, 0.5);
+
+                // Found a block that the NPC can go to. Comparing it with the current best one
+                if (bestBlockNearWater == null && hasLineOfSight(actioner, candidateLocation, waterBlockLocation)) {
                     bestBlockNearWater = candidate;
-                    bestDistanceToWater = distanceToWater;
+                    bestDistanceToWater = candidateLocation.distanceSquared(waterBlockLocation);
+                } else {
+                    double distanceToWater = candidateLocation.distanceSquared(waterBlockLocation);
+
+                    if (distanceToWater < bestDistanceToWater && hasLineOfSight(actioner, candidateLocation, waterBlockLocation)) {
+                        bestBlockNearWater = candidate;
+                        bestDistanceToWater = distanceToWater;
+                    }
                 }
             }
+
+            if (bestBlockNearWater != null) {
+                // Found a water block that is accessible
+                waterBlock = candidateWaterBlock;
+                break;
+            }
         }
 
-        if (bestBlockNearWater == null) {
-            // The NPC is inside the water or something
-            logger.warning("Could not find a solid block with air above it near the water so that " + actioner.getName() + " can fish. " +
-                    "Searched for a solid block within " + searchRadius + " blocks of the water at " + waterBlock.getLocation());
+        if (waterBlock == null) {
+            logger.warning("Could not find any accessible water blocks near " + actioner.getName() + " so that it can fish. " +
+                    "Searched for water blocks within " + MAX_FISHING_DISTANCE + " blocks of the agent's location: " + actioner.getLocation());
 
             return;
         }
+
+        System.out.println("Best block near water: " + bestBlockNearWater.getLocation());
 
         // Sending the NPC to the block near the water
         goToWater = new GoTo<>(bestBlockNearWater.getLocation().add(0.5, 1, 0.5));
@@ -147,10 +155,7 @@ public class GoFishing<T extends IAgent> extends TemporalAction<T> {
         if (reachedWater) {
             // Agent is near the water. Continue fishing
             if (fishAction == null) {
-                System.out.println("Fishing for the 1st time");
                 fishAction = new Fish<>(maxTicksPerFish, waterBlock, plugin);
-
-                fishAction.act(actioner);
             } else {
                 ActionStatus fishStatus = fishAction.act(actioner);
 
@@ -161,22 +166,16 @@ public class GoFishing<T extends IAgent> extends TemporalAction<T> {
                         // Agent has fished enough
                         return ActionStatus.SUCCESS;
                     }
-
-                    System.out.println("Going to fish again");
                     fishAction = new Fish<>(maxTicksPerFish, waterBlock, plugin);
-
-                    fishAction.act(actioner);
                 } else if (fishStatus.isFinished() && elapsedTicks % 20 == 0) {
                     // Trying again
-                    System.out.println("Trying again");
                     fishAction = new Fish<>(maxTicksPerFish, waterBlock, plugin);
-
-                    fishAction.act(actioner);
                 }
             }
 
             return ActionStatus.IN_PROGRESS;
         } else {
+            // Agent is still on their way to the water
             ActionStatus goToStatus = goToWater.act(actioner);
 
             if (goToStatus.isFinished()) {
@@ -185,6 +184,30 @@ public class GoFishing<T extends IAgent> extends TemporalAction<T> {
 
             return ActionStatus.IN_PROGRESS;
         }
+    }
+
+    /**
+     *  Checks if the NPC standing on the candidateBlock has a line of sight to the waterBlock
+     * @param actioner
+     *  The NPC
+     * @param candidateBlock
+     *  The block where the NPC would be standing
+     * @param waterLocation
+     *  The location of the middle upper water block
+     * @return
+     *  True if the NPC would have a line of sight to the water block, false otherwise
+     */
+    public boolean hasLineOfSight(T actioner, Location candidateBlock, Location waterLocation) {
+        Location eyeLocation = candidateBlock.clone().add(0, actioner.getEyeHeight(), 0);
+        double maxDistance = eyeLocation.distance(waterLocation);
+
+        RayTraceResult result = eyeLocation.getWorld().rayTraceBlocks(
+                eyeLocation,
+                waterLocation.toVector().subtract(eyeLocation.toVector()),
+                maxDistance
+        );
+
+        return result == null; // If the ray did not hit anything, the NPC has line of sight
     }
 
     @Override

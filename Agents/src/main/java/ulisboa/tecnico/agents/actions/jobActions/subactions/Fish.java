@@ -16,6 +16,7 @@ import org.bukkit.loot.LootContext;
 import org.bukkit.loot.LootTable;
 import org.bukkit.loot.LootTables;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.entityutils.entity.npc.EntityAnimation;
 import ulisboa.tecnico.agents.actions.ActionStatus;
@@ -58,16 +59,25 @@ public class Fish<T extends IAgent> extends TemporalAction<T> {
     public void start(T actioner) {
         ItemStack fishingRod = new ItemStack(Material.FISHING_ROD);
 
-        System.out.println("Giving rod");
         actioner.getAgent().setItem(fishingRod, EquipmentSlot.HAND);
 
         Vector castVelocity = waterBlock.getLocation().add(0.5, 1, 0.5).toVector().subtract(actioner.getEyeLocation().toVector());
+
+        System.out.println("Cast velocity: " + castVelocity);
 
         castVelocity.normalize().multiply(2);
 
         actioner.getAgent().lookAt(castVelocity);
 
         fishHook = actioner.getAgent().castFishingHook(castVelocity);
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                fishHook.setVelocity(castVelocity);
+                System.out.println("Velocity: " + fishHook.getVelocity());
+            }
+        }.runTaskLater(plugin, 1);
 
         // Temporary
         fishHook.setWaitTime(40, 100);
@@ -141,8 +151,6 @@ public class Fish<T extends IAgent> extends TemporalAction<T> {
     }
 
     public void clear(T actioner) {
-        System.out.println("Clearing");
-
         fishHook.remove();
 
         actioner.getAgent().setItem(null, EquipmentSlot.HAND);

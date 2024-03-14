@@ -55,8 +55,12 @@ public interface IAgent extends ICharacter {
     @Override
     default Location getEyeLocation() {
         Location location = getLocation();
-        location.setY(location.getY() + getNPCData().getEyeHeight());
+        location.setY(location.getY() + getEyeHeight());
         return location;
+    }
+
+    default double getEyeHeight() {
+        return getNPCData().getEyeHeight();
     }
 
     void acquiredFishLoot(Collection<ItemStack> fishLoot);
