@@ -63,19 +63,17 @@ public class Fish<T extends IAgent> extends TemporalAction<T> {
 
         Vector castVelocity = waterBlock.getLocation().add(0.5, 1, 0.5).toVector().subtract(actioner.getEyeLocation().toVector());
 
-        System.out.println("Cast velocity: " + castVelocity);
-
         castVelocity.normalize().multiply(2);
 
         actioner.getAgent().lookAt(castVelocity);
 
         fishHook = actioner.getAgent().castFishingHook(castVelocity);
 
+        // Setting the velocity after a tick, since the hook tends to bug if it's assigned as it's spawning
         new BukkitRunnable() {
             @Override
             public void run() {
                 fishHook.setVelocity(castVelocity);
-                System.out.println("Velocity: " + fishHook.getVelocity());
             }
         }.runTaskLater(plugin, 1);
 
@@ -109,10 +107,10 @@ public class Fish<T extends IAgent> extends TemporalAction<T> {
                 double offset = 1;
 
                 for (ItemStack item : items) {
-                    ItemDisplay itemDisplay = DisplayUtils.createTemporaryItemDisplay(item, location.clone().add(0, offset, 0), 40, plugin);
+                    ItemDisplay itemDisplay = DisplayUtils.createTemporaryItemDisplay(item, location.clone().add(0, offset, 0), 40, plugin, true);
 
                     itemDisplay.setGlowing(true);
-                    itemDisplay.setGlowColorOverride(Color.GREEN);
+                    itemDisplay.setGlowColorOverride(Color.WHITE);
 
                     offset += 0.5;
                 }

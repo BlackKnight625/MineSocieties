@@ -127,8 +127,6 @@ public class GoFishing<T extends IAgent> extends TemporalAction<T> {
             return;
         }
 
-        System.out.println("Best block near water: " + bestBlockNearWater.getLocation());
-
         // Sending the NPC to the block near the water
         goToWater = new GoTo<>(bestBlockNearWater.getLocation().add(0.5, 1, 0.5));
 
