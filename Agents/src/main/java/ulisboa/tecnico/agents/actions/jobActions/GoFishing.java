@@ -124,7 +124,7 @@ public class GoFishing<T extends IAgent> extends TemporalAction<T> {
         // Sending the NPC to the block near the water
         goToWater = new GoTo<>(bestBlockNearWater.getLocation().add(0.5, 1, 0.5));
 
-        goToWater.start(actioner);
+        goToWater.act(actioner);
     }
 
     @Override
@@ -150,7 +150,7 @@ public class GoFishing<T extends IAgent> extends TemporalAction<T> {
                 System.out.println("Fishing for the 1st time");
                 fishAction = new Fish<>(maxTicksPerFish, waterBlock, plugin);
 
-                fishAction.start(actioner);
+                fishAction.act(actioner);
             } else {
                 ActionStatus fishStatus = fishAction.act(actioner);
 
@@ -165,13 +165,13 @@ public class GoFishing<T extends IAgent> extends TemporalAction<T> {
                     System.out.println("Going to fish again");
                     fishAction = new Fish<>(maxTicksPerFish, waterBlock, plugin);
 
-                    fishAction.start(actioner);
+                    fishAction.act(actioner);
                 } else if (fishStatus.isFinished() && elapsedTicks % 20 == 0) {
                     // Trying again
                     System.out.println("Trying again");
                     fishAction = new Fish<>(maxTicksPerFish, waterBlock, plugin);
 
-                    fishAction.start(actioner);
+                    fishAction.act(actioner);
                 }
             }
 
