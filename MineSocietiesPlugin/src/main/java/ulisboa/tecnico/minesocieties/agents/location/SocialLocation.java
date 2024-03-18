@@ -9,8 +9,7 @@ import ulisboa.tecnico.minesocieties.agents.npc.state.IExplainableContext;
 import ulisboa.tecnico.minesocieties.agents.npc.state.ISimpleExplanation;
 import ulisboa.tecnico.minesocieties.visitors.IContextVisitor;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  *  Represents a location that agents can know about.
@@ -27,6 +26,7 @@ public class SocialLocation implements IExplainableContext, ISimpleExplanation {
     private String name;
     private String description;
     private LocationAccess access;
+    private Set<LocationBoundActionType> possibleActionTypes = new LinkedHashSet<>();
 
     // Constructors
 
@@ -92,7 +92,19 @@ public class SocialLocation implements IExplainableContext, ISimpleExplanation {
         return uuid;
     }
 
+    public Collection<LocationBoundActionType> getPossibleActionTypes() {
+        return possibleActionTypes;
+    }
+
     // Other methods
+
+    public void addPossibleAction(LocationBoundActionType actionType) {
+        possibleActionTypes.add(actionType);
+    }
+
+    public void removePossibleAction(LocationBoundActionType actionType) {
+        possibleActionTypes.remove(actionType);
+    }
 
     public Location toBukkitLocation() throws NullPointerException {
         World world = Bukkit.getWorld(worldName);
@@ -113,6 +125,14 @@ public class SocialLocation implements IExplainableContext, ISimpleExplanation {
     @Override
     public String getExplanation() {
         return description;
+    }
+
+    public boolean isValid() {
+        return access.isValid();
+    }
+
+    public void fixInconsistencies() {
+        access.fixInconsistencies();
     }
 
     @Override
@@ -147,6 +167,12 @@ public class SocialLocation implements IExplainableContext, ISimpleExplanation {
      * A list of possible actions that can be executed at this location.
      */
     public List<ISocialAction> getPossibleActions() {
-        return null; // TODO: Must find a good way for locations to store the actions that can be executed there, and must also be easily modifiable
+        List<ISocialAction> actions = new ArrayList<>(possibleActionTypes.size());
+
+        for (LocationBoundActionType actionType : possibleActionTypes) {
+            actions.add(actionType.toNewSocialAction());
+        }
+
+        return actions;
     }
 }

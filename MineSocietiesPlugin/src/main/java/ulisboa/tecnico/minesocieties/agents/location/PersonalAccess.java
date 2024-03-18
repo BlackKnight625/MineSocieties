@@ -14,7 +14,16 @@ public class PersonalAccess extends LocationAccess {
     // Constructors
 
     public PersonalAccess(CharacterReference character) {
+        super(LocationAccessType.PERSONAL);
+
         this.character = character;
+    }
+
+    public PersonalAccess() {
+        super(LocationAccessType.PERSONAL);
+
+        // Constructor for GSON
+        this.character = null;
     }
 
     // Other methods
@@ -27,6 +36,16 @@ public class PersonalAccess extends LocationAccess {
     @Override
     public boolean hasAccess(SocialAgent agent, SocialLocation location) {
         return character.getUuid().equals(agent.getUUID());
+    }
+
+    @Override
+    public boolean isValid() {
+        return character.getReferencedCharacter() != null;
+    }
+
+    @Override
+    public void fixInconsistencies() {
+        // Nothing to do. If the sole agent referenced here becomes invalid, the access becomes invalid.
     }
 
     @Override

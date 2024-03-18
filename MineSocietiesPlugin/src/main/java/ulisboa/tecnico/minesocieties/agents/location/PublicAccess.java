@@ -10,6 +10,12 @@ import java.util.List;
 
 public class PublicAccess extends LocationAccess {
 
+    // Constructors
+
+    public PublicAccess() {
+        super(LocationAccessType.PUBLIC);
+    }
+
     // Other methods
 
     @Override
@@ -25,6 +31,16 @@ public class PublicAccess extends LocationAccess {
     @Override
     public boolean hasAccess(SocialAgent agent, SocialLocation location) {
         return true;
+    }
+
+    @Override
+    public boolean isValid() {
+        return true; // Public locations are always valid
+    }
+
+    @Override
+    public void fixInconsistencies() {
+        // Nothing to do. This access means everyone knows about this location
     }
 
     @Override

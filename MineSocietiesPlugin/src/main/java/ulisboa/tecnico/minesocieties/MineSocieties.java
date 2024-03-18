@@ -9,6 +9,7 @@ import ulisboa.tecnico.agents.ExampleReactiveAgentManager;
 import ulisboa.tecnico.llms.ChatGPTManager;
 import ulisboa.tecnico.llms.LLMManager;
 import ulisboa.tecnico.minesocieties.agents.SocialAgentManager;
+import ulisboa.tecnico.minesocieties.agents.location.LocationsManager;
 import ulisboa.tecnico.minesocieties.agents.npc.Message;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.commands.CommandManager;
@@ -17,6 +18,7 @@ import ulisboa.tecnico.minesocieties.packets.PacketManager;
 import ulisboa.tecnico.minesocieties.visitors.CurrentActionExplainer;
 import ulisboa.tecnico.minesocieties.visitors.IActionVisitor;
 
+import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 
 public class MineSocieties extends JavaPlugin {
@@ -27,6 +29,7 @@ public class MineSocieties extends JavaPlugin {
 
     private ExampleReactiveAgentManager reactiveAgentManager;
     private SocialAgentManager socialAgentManager;
+    private LocationsManager locationsManager;
     private LLMManager llmManager;
     private GuiManager guiManager;
     private PacketManager packetManager;
@@ -64,6 +67,8 @@ public class MineSocieties extends JavaPlugin {
         socialAgentManager = new SocialAgentManager(this);
 
         socialAgentManager.initialize();
+
+        locationsManager = new LocationsManager();
 
         new CommandManager(this);
 
@@ -103,7 +108,21 @@ public class MineSocieties extends JavaPlugin {
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    socialAgentManager.loadSavedAgents();
+                    try {
+                        socialAgentManager.loadSavedAgents();
+                        locationsManager.loadSync();
+                    } catch (IOException e) {
+                        //  Something critical happened while loading the agents. The server should be stopped
+                        // since a missing agent or location could cause side effects on other agent's memories
+                        getLogger().severe("Error loading saved agents and/or agent locations. Stopping the server.");
+                        e.printStackTrace();
+
+                        getServer().shutdown();
+                    }
+
+                    // Some locations might have been deleted or some agents may no longer exist. Removing invalid instances
+                    locationsManager.checkAndDeleteInvalidLocationsSync();
+                    socialAgentManager.deleteAgentsInvalidLocations();
                 }
             }.runTask(this);
         }
@@ -168,6 +187,10 @@ public class MineSocieties extends JavaPlugin {
 
     public SocialAgentManager getSocialAgentManager() {
         return socialAgentManager;
+    }
+
+    public LocationsManager getLocationsManager() {
+        return locationsManager;
     }
 
     public void setSocialAgentManager(SocialAgentManager socialAgentManager) {

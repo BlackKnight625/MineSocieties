@@ -13,6 +13,12 @@ public class SharedAccess extends LocationAccess {
 
     private Set<CharacterReference> agentsWithAccess = new HashSet<>();
 
+    // Constructors
+
+    public SharedAccess() {
+        super(LocationAccessType.SHARED);
+    }
+
     // Other methods
 
     @Override
@@ -23,6 +29,16 @@ public class SharedAccess extends LocationAccess {
     @Override
     public boolean hasAccess(SocialAgent agent, SocialLocation location) {
         return agentsWithAccess.contains(new CharacterReference(agent));
+    }
+
+    @Override
+    public boolean isValid() {
+        return !agentsWithAccess.isEmpty(); // If no agent knows about this shared location, then it's invalid
+    }
+
+    @Override
+    public void fixInconsistencies() {
+        agentsWithAccess.removeIf(characterReference -> characterReference.getReferencedCharacter() == null);
     }
 
     @Override

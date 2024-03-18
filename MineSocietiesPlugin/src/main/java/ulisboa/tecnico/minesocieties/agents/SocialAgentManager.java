@@ -19,6 +19,7 @@ import ulisboa.tecnico.minesocieties.commands.SocialAgentCommand;
 import ulisboa.tecnico.minesocieties.utils.ComponentUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 
 public class SocialAgentManager extends AbstractAgentManager<SocialAgent, SocialPlayer, SocialCharacter> {
@@ -72,7 +73,7 @@ public class SocialAgentManager extends AbstractAgentManager<SocialAgent, Social
         }
     }
 
-    public void loadSavedAgents() {
+    public void loadSavedAgents() throws IOException {
         File agentDirectory = new File(STATES_PATH.toUri());
 
         if (agentDirectory.exists()) {
@@ -98,8 +99,9 @@ public class SocialAgentManager extends AbstractAgentManager<SocialAgent, Social
                     MineSocieties.getPlugin().getLogger().info("Successfully deployed " + loadedAgent.getName() + " at " +
                             loadedAgent.getLocation());
                 } catch (AgentState.StateReadException e) {
-                    MineSocieties.getPlugin().getLogger().severe("Error loading a saved agent state");
-                    e.printStackTrace();
+                    MineSocieties.getPlugin().getLogger().severe("Error loading a saved agent state.");
+
+                    throw new IOException(e);
                 }
             }
         } else {
@@ -107,6 +109,13 @@ public class SocialAgentManager extends AbstractAgentManager<SocialAgent, Social
 
             agentDirectory.mkdirs();
         }
+    }
+
+    /**
+     *  Goes through the agents and deletes locations that no longer exist from their memories
+     */
+    public void deleteAgentsInvalidLocations() {
+        // TODO Must delete all LocationReferences whose SocialLocations are null
     }
 
     public void addPlayerAsViewer(Player player) {
