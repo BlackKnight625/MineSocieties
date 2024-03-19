@@ -6,6 +6,7 @@ import ulisboa.tecnico.minesocieties.agents.npc.state.CharacterReference;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class PublicAccess extends LocationAccess {
@@ -41,6 +42,11 @@ public class PublicAccess extends LocationAccess {
     @Override
     public void fixInconsistencies() {
         // Nothing to do. This access means everyone knows about this location
+    }
+
+    @Override
+    public Collection<CharacterReference> getStronglyConnectedAgents() {
+        return Collections.emptyList();
     }
 
     @Override

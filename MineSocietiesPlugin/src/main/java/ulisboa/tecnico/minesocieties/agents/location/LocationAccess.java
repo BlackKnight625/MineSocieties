@@ -42,4 +42,11 @@ public abstract class LocationAccess {
      * was deleted, it must remove it from its access.
      */
     public abstract void fixInconsistencies();
+
+    /**
+     * @return
+     *  Returns the agents that are strongly connected to the location access. This means that the agent's memory
+     * should be updated in case the location gets deleted.
+     */
+    public abstract Collection<CharacterReference> getStronglyConnectedAgents();
 }

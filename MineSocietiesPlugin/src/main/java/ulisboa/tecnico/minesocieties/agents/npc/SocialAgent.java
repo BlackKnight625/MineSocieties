@@ -153,13 +153,17 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
 
         if (state == null) {
             // It's the 1st time ever that this agent is being deployed. Giving it an initial state
+            SocialLocation home = new SocialLocation(getLocation(), getName() + "'s home", new SharedAccess(this));
+
             state = new AgentState(
                     getUUID(),
                     new AgentPersona(getName(), Instant.ofEpochSecond(
                             LocalDateTime.of(2000, Month.DECEMBER, 5, 12, 0).toEpochSecond(ZoneOffset.UTC)
                     )), // They all have my birthday by default, toot toot!
-                    new AgentLocation(getLocation(), getName() + "'s home")
+                    home
             );
+
+            MineSocieties.getPlugin().getLocationsManager().saveAsync(home);
         }
 
         messageDisplay.initialize();
@@ -490,8 +494,13 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
         possibleActions.add(new Idle()); // Temporary. An agent that chooses to be idle won't do anything until they receive an observation
 
         // Adding locations that the agent can go to
-        for (AgentLocation otherLocation : state.getAllLocations()) {
-            possibleActions.add(new InformativeGoTo(otherLocation));
+        for (LocationReference otherLocationReference : state.getAllLocations()) {
+            SocialLocation otherLocation = otherLocationReference.getLocation();
+
+            if (otherLocation != null) {
+                // The location might have been deleted during this iteration process, hence the check
+                possibleActions.add(new InformativeGoTo(otherLocation));
+            }
         }
 
         if (!currentActionStatus.isFinished()) {
@@ -544,14 +553,14 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
         }
 
         // Checking the other known locations
-        Iterator<LocationReference> iterator = memory.getKnownLocations().getMemorySections().iterator();
+        AgentKnownLocations knownLocations = memory.getKnownLocations();
 
-        while (iterator.hasNext()) {
-            SocialLocation location = iterator.next().getLocation();
+        for (LocationReference reference : knownLocations.getMemorySections()) {
+            SocialLocation location = reference.getLocation();
 
             if (location == null || !location.hasAccess(this)) {
                 // The location no longer exists or the agent no longer has access to it. Removing it.
-                iterator.remove();
+                knownLocations.remove(reference);
 
                 state.markDirty();
             }

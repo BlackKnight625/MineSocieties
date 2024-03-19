@@ -49,6 +49,11 @@ public class SharedAccess extends LocationAccess {
     }
 
     @Override
+    public Collection<CharacterReference> getStronglyConnectedAgents() {
+        return agentsWithAccess;
+    }
+
+    @Override
     public String toString() {
         return "SharedAccess{" +
                 "agentsWithAccess=" + agentsWithAccess +

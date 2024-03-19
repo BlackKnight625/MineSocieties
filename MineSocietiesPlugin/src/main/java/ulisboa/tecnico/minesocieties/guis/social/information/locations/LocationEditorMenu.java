@@ -9,7 +9,6 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.scheduler.BukkitRunnable;
 import ulisboa.tecnico.minesocieties.MineSocieties;
 import ulisboa.tecnico.minesocieties.agents.location.SocialLocation;
-import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
 import ulisboa.tecnico.minesocieties.guis.common.ErrorMenu;
 import ulisboa.tecnico.minesocieties.guis.common.GUIItem;
@@ -21,7 +20,6 @@ public class LocationEditorMenu extends GUIMenu {
 
     // Private attributes
 
-    private final SocialAgent agent;
     private final SocialLocation location;
     private final boolean editingIsLimited;
 
@@ -31,17 +29,14 @@ public class LocationEditorMenu extends GUIMenu {
      *  This constructor should be used when editing an existing location
      * @param player
      *  The player that's editing the location
-     * @param agent
-     *  The agent who has this location
      * @param location
      *  The location being edited
      * @param editingIsLimited
      *  If true, the location cannot be deleted and its description cannot be edited
      */
-    public LocationEditorMenu(SocialPlayer player, SocialAgent agent, SocialLocation location, boolean editingIsLimited) {
+    public LocationEditorMenu(SocialPlayer player, SocialLocation location, boolean editingIsLimited) {
         super(player, "Location editor", 27);
 
-        this.agent = agent;
         this.location = location;
         this.editingIsLimited = editingIsLimited;
     }
@@ -56,12 +51,12 @@ public class LocationEditorMenu extends GUIMenu {
         // Description and world editor
 
         if (!editingIsLimited) {
-            addClickable(14, new DescriptionEditor());
+            addClickable(14, new NameEditor());
         }
 
         addClickable(16, new WorldNameEditor());
 
-        addClickable(20, new CoordinateSelectorItem(this, agent, location));
+        addClickable(20, new CoordinateSelectorItem(this, location));
 
         addClickable(26, new GoBack(this));
 
@@ -101,7 +96,8 @@ public class LocationEditorMenu extends GUIMenu {
 
                             if (isValidCoordinate(coordinate)) {
                                 setCoordinate(coordinate);
-                                agent.getState().markDirty();
+
+                                MineSocieties.getPlugin().getLocationsManager().saveSync(location);
 
                                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
 
@@ -179,15 +175,15 @@ public class LocationEditorMenu extends GUIMenu {
         }
     }
 
-    private class DescriptionEditor extends GUIItem {
+    private class NameEditor extends GUIItem {
 
         // Constructors
 
-        public DescriptionEditor() {
-            super(LocationEditorMenu.this, Material.WRITABLE_BOOK, ChatColor.YELLOW + "Location's description");
+        public NameEditor() {
+            super(LocationEditorMenu.this, Material.WRITABLE_BOOK, ChatColor.YELLOW + "Location's name");
 
             addDescription(ChatColor.AQUA, "Current description:");
-            addDescription(ChatColor.GRAY, StringUtils.splitIntoLines(location.getDescription(), 30));
+            addDescription(ChatColor.GRAY, StringUtils.splitIntoLines(location.getName(), 30));
             addDescription(""); // Empty line
             addDescription(ChatColor.GREEN, "Click to edit");
         }
@@ -204,16 +200,16 @@ public class LocationEditorMenu extends GUIMenu {
                 new BukkitRunnable() {
                     @Override
                     public void run() {
-                        String newDescription = newDescriptionPages.stream().reduce("", (a, b) -> a + b);
+                        String newName = newDescriptionPages.stream().reduce("", (a, b) -> a + b);
 
-                        if (newDescription.length() > 256) {
-                            new ErrorMenu(getPlayer(), "The description is too long. Max is 256 characters.", LocationEditorMenu.this).open();
+                        if (newName.length() > 256) {
+                            new ErrorMenu(getPlayer(), "The name is too long. Max is 256 characters.", LocationEditorMenu.this).open();
 
                             return;
                         }
 
-                        location.setDescription(newDescription);
-                        agent.getState().markDirty();
+                        location.setName(newName);
+                        MineSocieties.getPlugin().getLocationsManager().saveSync(location);
 
                         open();
                     }
@@ -260,7 +256,7 @@ public class LocationEditorMenu extends GUIMenu {
                         }
 
                         location.setWorldName(worldName);
-                        agent.getState().markDirty();
+                        MineSocieties.getPlugin().getLocationsManager().saveSync(location);
 
                         open();
                     }

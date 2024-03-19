@@ -13,15 +13,13 @@ public class CoordinateSelectorItem extends GUIItem {
 
     // Private attributes
 
-    private final SocialAgent agent;
     private final SocialLocation location;
 
     // Constructors
 
-    public CoordinateSelectorItem(GUIMenu menu, SocialAgent agent, SocialLocation location) {
+    public CoordinateSelectorItem(GUIMenu menu, SocialLocation location) {
         super(menu, Material.RECOVERY_COMPASS, ChatColor.AQUA + "Click " + ChatColor.GRAY + "to receive an item");
 
-        this.agent = agent;
         this.location = location;
 
         addDescription(ChatColor.GRAY,
@@ -35,7 +33,7 @@ public class CoordinateSelectorItem extends GUIItem {
 
     @Override
     public void clicked(ClickType click) {
-        MineSocieties.getPlugin().getGuiManager().giveCoordinatesSelector(getMenu().getPlayer(), agent, location);
+        MineSocieties.getPlugin().getGuiManager().giveCoordinatesSelector(getMenu().getPlayer(), location);
 
         // Closing this menu
         getMenu().getPlayer().getPlayer().closeInventory();

@@ -46,7 +46,6 @@ public class GuiManager {
     private final NamespacedKey guiItemKey;
     private final NamespacedKey customBookKey;
     private final NamespacedKey npcEditStickKey;
-    private final NamespacedKey coordinatesEditorAgentUuidKey;
     private final NamespacedKey coordinatesEditorLocationUuidKey;
     private final Map<Integer, Consumer<List<String>>> customBookActions = new HashMap<>();
     private int lastCustomBookId = 0;
@@ -54,7 +53,6 @@ public class GuiManager {
     private static final String GUI_ITEM_KEY = "gui_item";
     private static final String CUSTOM_BOOK_KEY = "custom_book";
     private static final String NPC_EDIT_STICK_KEY = "npc_edit";
-    private static final String COORDINATES_EDITOR_AGENT_UUID_KEY = "coordinates_agent_uuid";
     private static final String COORDINATES_EDITOR_LOCATION_UUID_KEY = "coordinates_location_name";
 
     // Constructors
@@ -63,7 +61,6 @@ public class GuiManager {
         guiItemKey = new NamespacedKey(plugin, GUI_ITEM_KEY);
         customBookKey = new NamespacedKey(plugin, CUSTOM_BOOK_KEY);
         npcEditStickKey = new NamespacedKey(plugin, NPC_EDIT_STICK_KEY);
-        coordinatesEditorAgentUuidKey = new NamespacedKey(plugin, COORDINATES_EDITOR_AGENT_UUID_KEY);
         coordinatesEditorLocationUuidKey = new NamespacedKey(plugin, COORDINATES_EDITOR_LOCATION_UUID_KEY);
     }
 
@@ -204,7 +201,7 @@ public class GuiManager {
         return false;
     }
 
-    public void giveCoordinatesSelector(SocialPlayer player, SocialAgent agent, SocialLocation location) {
+    public void giveCoordinatesSelector(SocialPlayer player, SocialLocation location) {
         ItemStack coordinatesSelector = new ItemStack(Material.RECOVERY_COMPASS);
         ItemMeta itemMeta = coordinatesSelector.getItemMeta();
 
@@ -215,14 +212,10 @@ public class GuiManager {
                         .append(Component.text("on a block to set").color(TextColor.color(155, 155, 155))),
                 Component.text("the location \"").color(TextColor.color(155, 155, 155))
                         .append(Component.text(location.getName()).color(TextColor.color(255, 219, 49)))
-                        .append(Component.text("\"").color(TextColor.color(155, 155, 155))),
-                Component.text("of the agent \"").color(TextColor.color(155, 155, 155))
-                        .append(Component.text(agent.getName()).color(TextColor.color(213, 118, 39)))
                         .append(Component.text("\"").color(TextColor.color(155, 155, 155)))
         ));
         itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         itemMeta.addEnchant(Enchantment.DURABILITY, 1, true);
-        itemMeta.getPersistentDataContainer().set(coordinatesEditorAgentUuidKey, PersistentDataType.STRING, agent.getUUID().toString());
         itemMeta.getPersistentDataContainer().set(coordinatesEditorLocationUuidKey, PersistentDataType.STRING, location.getUuid().toString());
 
         coordinatesSelector.setItemMeta(itemMeta);
@@ -234,27 +227,13 @@ public class GuiManager {
         if (item != null && item.getItemMeta() != null) {
             PersistentDataContainer container = item.getItemMeta().getPersistentDataContainer();
 
-            return container.has(coordinatesEditorAgentUuidKey, PersistentDataType.STRING) &&
-                    container.has(coordinatesEditorLocationUuidKey, PersistentDataType.STRING);
+            return container.has(coordinatesEditorLocationUuidKey, PersistentDataType.STRING);
         }
 
         return false;
     }
 
-    public @Nullable SocialAgent getAgentFromCoordinatesSelector(ItemStack coordinatesSelector) {
-        String agentUuid = coordinatesSelector.getItemMeta().getPersistentDataContainer().get(coordinatesEditorAgentUuidKey, PersistentDataType.STRING);
-
-        if (agentUuid == null) {
-            // The agent referenced by the coordinates selector doesn't exist anymore
-            return null;
-        }
-
-        UUID uuid = UUID.fromString(agentUuid);
-
-        return MineSocieties.getPlugin().getSocialAgentManager().getAgent(uuid);
-    }
-
-    public @Nullable SocialLocation getLocationFromCoordinatesSelector(ItemStack coordinatesSelector, SocialAgent agent) {
+    public @Nullable SocialLocation getLocationFromCoordinatesSelector(ItemStack coordinatesSelector) {
         String locationUuid = coordinatesSelector.getItemMeta().getPersistentDataContainer().get(coordinatesEditorLocationUuidKey, PersistentDataType.STRING);
 
         if (locationUuid == null) {
@@ -382,40 +361,29 @@ public class GuiManager {
                 openAgentMenu(player, closestAgent);
             }
         } else if (isCoordinatesSelector(itemInHand)) {
-            SocialAgent agent = getAgentFromCoordinatesSelector(itemInHand);
+            SocialLocation location = getLocationFromCoordinatesSelector(itemInHand);
 
-            if (agent != null) {
-                SocialLocation location = getLocationFromCoordinatesSelector(itemInHand, agent);
+            if (location != null) {
+                // The player right-clicked on a block with a coordinates selector
+                Location newLocation = e.getClickedBlock().getLocation();
+                Vector oldPosition = location.getPosition();
 
-                if (location != null) {
-                    // The player right-clicked on a block with a coordinates selector
-                    Location newLocation = e.getClickedBlock().getLocation();
-                    Vector oldPosition = location.getPosition();
+                oldPosition.setX(newLocation.getX() + 0.5); // Pointing to the center of the block
+                oldPosition.setY(newLocation.getY() + 1); // Pointing above the block
+                oldPosition.setZ(newLocation.getZ() + 0.5); // Pointing to the center of the block
 
-                    oldPosition.setX(newLocation.getX() + 0.5); // Pointing to the center of the block
-                    oldPosition.setY(newLocation.getY() + 1); // Pointing above the block
-                    oldPosition.setZ(newLocation.getZ() + 0.5); // Pointing to the center of the block
+                location.setWorldName(newLocation.getWorld().getName());
 
-                    location.setWorldName(newLocation.getWorld().getName());
+                MineSocieties.getPlugin().getLocationsManager().saveAsync(location);
 
-                    MineSocieties.getPlugin().getLocationsManager().saveAsync(location);
-
-                    player.getPlayer().sendMessage(ComponentUtils.withPrefix(
-                            Component.text("The location of the agent ").color(TextColor.color(71, 255, 138))
-                                    .append(Component.text(agent.getName()).color(TextColor.color(213, 118, 39)))
-                                    .append(Component.text(" with the description ").color(TextColor.color(71, 255, 138)))
-                                    .append(Component.text(location.getName()).color(TextColor.color(255, 219, 49)))
-                                    .append(Component.text(" has been updated.").color(TextColor.color(71, 255, 138)))
-                    ));
-                } else {
-                    player.getPlayer().sendMessage(ComponentUtils.withPrefix(
-                            Component.text("The location referenced by the coordinates selector doesn't exist anymore.")
-                                    .color(TextColor.color(255, 0, 0))
-                    ));
-                }
+                player.getPlayer().sendMessage(ComponentUtils.withPrefix(
+                        Component.text("The location \"").color(TextColor.color(71, 255, 138))
+                                .append(Component.text(location.getName()).color(TextColor.color(255, 219, 49)))
+                                .append(Component.text("\" has been updated.").color(TextColor.color(71, 255, 138)))
+                ));
             } else {
                 player.getPlayer().sendMessage(ComponentUtils.withPrefix(
-                        Component.text("The agent referenced by the coordinates selector doesn't exist anymore.")
+                        Component.text("The location referenced by the coordinates selector doesn't exist anymore.")
                                 .color(TextColor.color(255, 0, 0))
                 ));
             }

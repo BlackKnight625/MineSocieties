@@ -5,6 +5,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
+import ulisboa.tecnico.minesocieties.MineSocieties;
 import ulisboa.tecnico.minesocieties.agents.location.SocialLocation;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.guis.common.GUIMenu;
@@ -15,18 +16,16 @@ public class LocationEditItem extends GUIMenuOpener {
 
     // Private attributes
 
-    private final SocialAgent agent;
     private final boolean editingIsLimited;
     private final SocialLocation location;
 
     // Constructors
 
-    public LocationEditItem(GUIMenu menu, Material material, SocialAgent agent, SocialLocation location, boolean editingIsLimited) {
+    public LocationEditItem(GUIMenu menu, Material material, SocialLocation location, boolean editingIsLimited) {
         super(menu, material,
-                new LocationEditorMenu(menu.getPlayer(), agent, location, editingIsLimited),
+                new LocationEditorMenu(menu.getPlayer(), location, editingIsLimited),
                 ChatColor.YELLOW + toCoordinates(location));
 
-        this.agent = agent;
         this.location = location;
         this.editingIsLimited = editingIsLimited;
 
@@ -48,8 +47,7 @@ public class LocationEditItem extends GUIMenuOpener {
             super.clicked(click);
         } else if (click.isRightClick() && !editingIsLimited) {
             // Deleting this location
-            agent.getState().getMemory().getKnownLocations().remove(location.toReference());
-            agent.getState().markDirty();
+            MineSocieties.getPlugin().getLocationsManager().deleteAsync(location);
 
             Player player = getMenu().getPlayer().getPlayer();
 

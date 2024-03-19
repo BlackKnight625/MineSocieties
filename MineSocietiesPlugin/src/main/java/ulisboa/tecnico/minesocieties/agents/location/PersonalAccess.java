@@ -49,6 +49,11 @@ public class PersonalAccess extends LocationAccess {
     }
 
     @Override
+    public Collection<CharacterReference> getStronglyConnectedAgents() {
+        return Collections.singleton(character);
+    }
+
+    @Override
     public String toString() {
         return "PersonalAccess{" +
                 "agent=" + character +

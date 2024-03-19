@@ -6,6 +6,7 @@ import org.bukkit.World;
 import org.bukkit.util.Vector;
 import ulisboa.tecnico.minesocieties.agents.actions.ISocialAction;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
+import ulisboa.tecnico.minesocieties.agents.npc.state.CharacterReference;
 import ulisboa.tecnico.minesocieties.agents.npc.state.IExplainableContext;
 import ulisboa.tecnico.minesocieties.agents.npc.state.ISimpleExplanation;
 import ulisboa.tecnico.minesocieties.visitors.IContextVisitor;
@@ -132,6 +133,10 @@ public class SocialLocation implements IExplainableContext, ISimpleExplanation {
 
     public boolean hasAccess(SocialAgent agent) {
         return access.hasAccess(agent, this);
+    }
+
+    public Collection<CharacterReference> getStronglyConnectedAgentsCopy() {
+        return new ArrayList<>(access.getStronglyConnectedAgents());
     }
 
     @Override

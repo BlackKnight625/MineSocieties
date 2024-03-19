@@ -4,12 +4,15 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import ulisboa.tecnico.agents.utils.ReadWriteLock;
 import ulisboa.tecnico.minesocieties.MineSocieties;
+import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
+import ulisboa.tecnico.minesocieties.agents.npc.state.CharacterReference;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LocationsManager {
 
@@ -126,5 +129,39 @@ public class LocationsManager {
         });
 
         saveSync();
+    }
+
+    public void deleteAsync(SocialLocation location) {
+        var agenstAffected = location.getStronglyConnectedAgentsCopy();
+
+        // Deleting the file in another thread
+        MineSocieties.getPlugin().getThreadPool().execute(() -> {
+            AtomicBoolean deleted = new AtomicBoolean(false);
+
+            locationsLock.write(() -> {
+                locations.remove(location.getUuid());
+
+                try {
+                    Files.delete(LOCATIONS_PATH.resolve(toFileName(location)));
+                } catch (IOException e) {
+                    MineSocieties.getPlugin().getLogger().severe("Unable to delete location \"" + location.getName() + "\"'s file");
+                    e.printStackTrace();
+                }
+
+                deleted.set(true);
+            });
+
+            if (deleted.get()) {
+                // Successfully deleted the location. Must update the agents whose memories included this location
+                for (CharacterReference reference : agenstAffected) {
+                    SocialAgent agent = (SocialAgent) reference.getReferencedCharacter();
+
+                    if (agent != null) {
+                        agent.getState().getMemory().getKnownLocations().remove(location.toReference());
+                        agent.getState().markDirty();
+                    }
+                }
+            }
+        });
     }
 }
