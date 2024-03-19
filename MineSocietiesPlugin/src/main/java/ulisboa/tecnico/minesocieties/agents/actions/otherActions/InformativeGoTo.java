@@ -3,8 +3,8 @@ package ulisboa.tecnico.minesocieties.agents.actions.otherActions;
 import org.bukkit.Location;
 import ulisboa.tecnico.agents.actions.otherActions.GoTo;
 import ulisboa.tecnico.minesocieties.agents.actions.ISocialAction;
+import ulisboa.tecnico.minesocieties.agents.location.SocialLocation;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
-import ulisboa.tecnico.minesocieties.agents.npc.state.AgentLocation;
 import ulisboa.tecnico.minesocieties.visitors.IActionVisitor;
 
 public class InformativeGoTo extends GoTo<SocialAgent> implements ISocialAction {
@@ -21,10 +21,10 @@ public class InformativeGoTo extends GoTo<SocialAgent> implements ISocialAction 
         this.destinationDescription = destinationDescription;
     }
 
-    public InformativeGoTo(AgentLocation agentLocation) {
-        super(agentLocation.toBukkitLocation());
+    public InformativeGoTo(SocialLocation socialLocation) {
+        super(socialLocation.toBukkitLocation());
 
-        this.destinationDescription = agentLocation.getDescription();
+        this.destinationDescription = socialLocation.getExplanation();
     }
 
     // Getters and setters

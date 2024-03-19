@@ -52,6 +52,14 @@ public class LocationsManager {
         return location.getName() + "_" + location.getUuid() + ".json";
     }
 
+    public void saveAsync() {
+        MineSocieties.getPlugin().getThreadPool().execute(this::saveSync);
+    }
+
+    public void saveAsync(SocialLocation location) {
+        MineSocieties.getPlugin().getThreadPool().execute(() -> saveSync(location));
+    }
+
     public void saveSync() {
         locationsLock.readLock();
         var locationsCopy = new ArrayList<>(locations.values());
@@ -59,12 +67,16 @@ public class LocationsManager {
 
         // Writing the locations one by one
         for (SocialLocation location : locationsCopy) {
-            try {
-                Files.writeString(LOCATIONS_PATH.resolve(toFileName(location)), gson.toJson(location));
-            } catch (IOException e) {
-                MineSocieties.getPlugin().getLogger().severe("Unable to save location '" + location.getName() + "' to a file.");
-                e.printStackTrace();
-            }
+            saveSync(location);
+        }
+    }
+
+    public void saveSync(SocialLocation location) {
+        try {
+            Files.writeString(LOCATIONS_PATH.resolve(toFileName(location)), gson.toJson(location));
+        } catch (IOException e) {
+            MineSocieties.getPlugin().getLogger().severe("Unable to save location '" + location.getName() + "' to a file.");
+            e.printStackTrace();
         }
     }
 
@@ -112,5 +124,7 @@ public class LocationsManager {
                 }
             }
         });
+
+        saveSync();
     }
 }

@@ -1,5 +1,7 @@
 package ulisboa.tecnico.minesocieties.agents.npc.state;
 
+import ulisboa.tecnico.minesocieties.agents.location.LocationReference;
+import ulisboa.tecnico.minesocieties.agents.location.SocialLocation;
 import ulisboa.tecnico.minesocieties.visitors.IContextVisitor;
 
 public class AgentMemory implements IExplainableContext {
@@ -10,15 +12,15 @@ public class AgentMemory implements IExplainableContext {
     private AgentShortTermMemory shortTermMemory = new AgentShortTermMemory();
     private AgentLongTermMemory longTermMemory = new AgentLongTermMemory();
     private AgentPastActions pastActions = new AgentPastActions();
-    private AgentLocation home;
+    private LocationReference home;
     private AgentKnownLocations knownLocations = new AgentKnownLocations();
 
     // Constructors
 
     public AgentMemory() {}
 
-    public AgentMemory(AgentLocation home) {
-        this.home = home;
+    public AgentMemory(SocialLocation home) {
+        this.home = home.toReference();
     }
 
     // Getters and setters
@@ -39,8 +41,12 @@ public class AgentMemory implements IExplainableContext {
         return pastActions;
     }
 
-    public AgentLocation getHome() {
+    public LocationReference getHome() {
         return home;
+    }
+
+    public void setHome(LocationReference home) {
+        this.home = home;
     }
 
     public AgentKnownLocations getKnownLocations() {

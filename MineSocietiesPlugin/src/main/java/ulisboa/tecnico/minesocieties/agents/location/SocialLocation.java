@@ -5,6 +5,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.util.Vector;
 import ulisboa.tecnico.minesocieties.agents.actions.ISocialAction;
+import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.agents.npc.state.IExplainableContext;
 import ulisboa.tecnico.minesocieties.agents.npc.state.ISimpleExplanation;
 import ulisboa.tecnico.minesocieties.visitors.IContextVisitor;
@@ -24,24 +25,22 @@ public class SocialLocation implements IExplainableContext, ISimpleExplanation {
     private Vector position;
     private String worldName;
     private String name;
-    private String description;
     private LocationAccess access;
     private Set<LocationBoundActionType> possibleActionTypes = new LinkedHashSet<>();
 
     // Constructors
 
-    public SocialLocation(Vector position, String worldName, String name, String description, LocationAccess access) {
+    public SocialLocation(Vector position, String worldName, String name, LocationAccess access) {
         this.position = position;
         this.worldName = worldName;
         this.name = name;
-        this.description = description;
         this.access = access;
 
         this.uuid = UUID.randomUUID();
     }
 
-    public SocialLocation(Location location, String name, String description, LocationAccess access) {
-        this(location.toVector(), location.getWorld().getName(), name, description, access);
+    public SocialLocation(Location location, String name, LocationAccess access) {
+        this(location.toVector(), location.getWorld().getName(), name, access);
     }
 
     public SocialLocation() {}
@@ -70,14 +69,6 @@ public class SocialLocation implements IExplainableContext, ISimpleExplanation {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public LocationAccess getAccess() {
@@ -124,7 +115,7 @@ public class SocialLocation implements IExplainableContext, ISimpleExplanation {
 
     @Override
     public String getExplanation() {
-        return description;
+        return name;
     }
 
     public boolean isValid() {
@@ -133,6 +124,14 @@ public class SocialLocation implements IExplainableContext, ISimpleExplanation {
 
     public void fixInconsistencies() {
         access.fixInconsistencies();
+    }
+
+    public LocationReference toReference() {
+        return new LocationReference(this);
+    }
+
+    public boolean hasAccess(SocialAgent agent) {
+        return access.hasAccess(agent, this);
     }
 
     @Override
@@ -157,7 +156,6 @@ public class SocialLocation implements IExplainableContext, ISimpleExplanation {
                 ", position=" + position +
                 ", worldName='" + worldName + '\'' +
                 ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
                 ", access=" + access +
                 '}';
     }

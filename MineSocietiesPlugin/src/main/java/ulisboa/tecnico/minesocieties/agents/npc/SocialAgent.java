@@ -24,6 +24,9 @@ import ulisboa.tecnico.minesocieties.agents.actions.otherActions.Idle;
 import ulisboa.tecnico.minesocieties.agents.actions.otherActions.InformativeGoTo;
 import ulisboa.tecnico.minesocieties.agents.actions.otherActions.Thinking;
 import ulisboa.tecnico.minesocieties.agents.actions.socialActions.SendChatTo;
+import ulisboa.tecnico.minesocieties.agents.location.LocationReference;
+import ulisboa.tecnico.minesocieties.agents.location.SharedAccess;
+import ulisboa.tecnico.minesocieties.agents.location.SocialLocation;
 import ulisboa.tecnico.minesocieties.agents.npc.state.*;
 import ulisboa.tecnico.minesocieties.agents.observation.ISocialObserver;
 import ulisboa.tecnico.minesocieties.agents.observation.wrapped.SocialReceivedChatFromObservation;
@@ -514,6 +517,49 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
     @Override
     public void acquiredFishLoot(Collection<ItemStack> fishLoot) {
         // TODO Implement a serializable inventory for NPCs and add the loot to it
+    }
+
+    public void deleteAgentsInvalidLocations() {
+        AgentMemory memory = state.getMemory();
+        SocialLocation home = memory.getHome().getLocation();
+
+        if (home == null) {
+            // The agent's home was deleted. They must always havea  home, though
+            SocialLocation newHome = new SocialLocation(
+                    state.getCurrentLocation().toBukkitLocation(), getName() + "'s home", new SharedAccess(this));
+
+            memory.setHome(newHome.toReference());
+
+            MineSocieties.getPlugin().getLocationsManager().addLocation(newHome);
+
+            state.markDirty();
+        } else {
+            // The agent's home is valid. Checking if this agent has access to it
+            if (!home.hasAccess(this)) {
+                // The User must have removed the agent from the home's access, possibly via editing the json file. Resetting the access
+                home.setAccess(new SharedAccess(this));
+
+                state.markDirty();
+            }
+        }
+
+        // Checking the other known locations
+        Iterator<LocationReference> iterator = memory.getKnownLocations().getMemorySections().iterator();
+
+        while (iterator.hasNext()) {
+            SocialLocation location = iterator.next().getLocation();
+
+            if (location == null || !location.hasAccess(this)) {
+                // The location no longer exists or the agent no longer has access to it. Removing it.
+                iterator.remove();
+
+                state.markDirty();
+            }
+        }
+    }
+
+    public CharacterReference toReference() {
+        return new CharacterReference(this);
     }
 
     // Static methods

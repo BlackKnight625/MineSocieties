@@ -9,6 +9,8 @@ import ulisboa.tecnico.llms.LLMRole;
 import ulisboa.tecnico.minesocieties.MineSocieties;
 import ulisboa.tecnico.minesocieties.agents.SocialAgentManager;
 import ulisboa.tecnico.minesocieties.agents.actions.exceptions.MalformedNewStateResponseException;
+import ulisboa.tecnico.minesocieties.agents.location.LocationReference;
+import ulisboa.tecnico.minesocieties.agents.location.SocialLocation;
 import ulisboa.tecnico.minesocieties.utils.InstantTypeAdapter;
 import ulisboa.tecnico.minesocieties.visitors.IContextVisitor;
 
@@ -53,7 +55,7 @@ public class AgentState implements IExplainableContext {
 
     public AgentState() {}
 
-    public AgentState(UUID uuid, AgentPersona persona, AgentLocation home) {
+    public AgentState(UUID uuid, AgentPersona persona, SocialLocation home) {
         this.uuid = uuid;
         this.memory = new AgentMemory(home);
         this.persona = persona;
@@ -432,8 +434,8 @@ public class AgentState implements IExplainableContext {
      * @return
      *  Returns all the locations that this agent knows about
      */
-    public List<AgentLocation> getAllLocations() {
-        List<AgentLocation> locations = new ArrayList<>();
+    public List<LocationReference> getAllLocations() {
+        List<LocationReference> locations = new ArrayList<>();
 
         locations.add(memory.getHome());
         locations.addAll(memory.getKnownLocations().getMemorySections());

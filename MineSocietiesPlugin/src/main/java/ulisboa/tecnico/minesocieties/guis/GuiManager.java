@@ -22,8 +22,8 @@ import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import ulisboa.tecnico.minesocieties.MineSocieties;
+import ulisboa.tecnico.minesocieties.agents.location.SocialLocation;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
-import ulisboa.tecnico.minesocieties.agents.npc.state.AgentLocation;
 import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
 import ulisboa.tecnico.minesocieties.guis.social.SocialAgentMainMenu;
 import ulisboa.tecnico.minesocieties.utils.ComponentUtils;
@@ -47,7 +47,7 @@ public class GuiManager {
     private final NamespacedKey customBookKey;
     private final NamespacedKey npcEditStickKey;
     private final NamespacedKey coordinatesEditorAgentUuidKey;
-    private final NamespacedKey coordinatesEditorLocationNameKey;
+    private final NamespacedKey coordinatesEditorLocationUuidKey;
     private final Map<Integer, Consumer<List<String>>> customBookActions = new HashMap<>();
     private int lastCustomBookId = 0;
 
@@ -55,7 +55,7 @@ public class GuiManager {
     private static final String CUSTOM_BOOK_KEY = "custom_book";
     private static final String NPC_EDIT_STICK_KEY = "npc_edit";
     private static final String COORDINATES_EDITOR_AGENT_UUID_KEY = "coordinates_agent_uuid";
-    private static final String COORDINATES_EDITOR_LOCATION_NAME_KEY = "coordinates_location_name";
+    private static final String COORDINATES_EDITOR_LOCATION_UUID_KEY = "coordinates_location_name";
 
     // Constructors
 
@@ -64,7 +64,7 @@ public class GuiManager {
         customBookKey = new NamespacedKey(plugin, CUSTOM_BOOK_KEY);
         npcEditStickKey = new NamespacedKey(plugin, NPC_EDIT_STICK_KEY);
         coordinatesEditorAgentUuidKey = new NamespacedKey(plugin, COORDINATES_EDITOR_AGENT_UUID_KEY);
-        coordinatesEditorLocationNameKey = new NamespacedKey(plugin, COORDINATES_EDITOR_LOCATION_NAME_KEY);
+        coordinatesEditorLocationUuidKey = new NamespacedKey(plugin, COORDINATES_EDITOR_LOCATION_UUID_KEY);
     }
 
     // Getters and setters
@@ -204,7 +204,7 @@ public class GuiManager {
         return false;
     }
 
-    public void giveCoordinatesSelector(SocialPlayer player, SocialAgent agent, AgentLocation location) {
+    public void giveCoordinatesSelector(SocialPlayer player, SocialAgent agent, SocialLocation location) {
         ItemStack coordinatesSelector = new ItemStack(Material.RECOVERY_COMPASS);
         ItemMeta itemMeta = coordinatesSelector.getItemMeta();
 
@@ -214,7 +214,7 @@ public class GuiManager {
                 Component.text("Right-click ").color(TextColor.color(71, 255, 138))
                         .append(Component.text("on a block to set").color(TextColor.color(155, 155, 155))),
                 Component.text("the location \"").color(TextColor.color(155, 155, 155))
-                        .append(Component.text(location.getDescription()).color(TextColor.color(255, 219, 49)))
+                        .append(Component.text(location.getName()).color(TextColor.color(255, 219, 49)))
                         .append(Component.text("\"").color(TextColor.color(155, 155, 155))),
                 Component.text("of the agent \"").color(TextColor.color(155, 155, 155))
                         .append(Component.text(agent.getName()).color(TextColor.color(213, 118, 39)))
@@ -223,7 +223,7 @@ public class GuiManager {
         itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         itemMeta.addEnchant(Enchantment.DURABILITY, 1, true);
         itemMeta.getPersistentDataContainer().set(coordinatesEditorAgentUuidKey, PersistentDataType.STRING, agent.getUUID().toString());
-        itemMeta.getPersistentDataContainer().set(coordinatesEditorLocationNameKey, PersistentDataType.STRING, location.getDescription());
+        itemMeta.getPersistentDataContainer().set(coordinatesEditorLocationUuidKey, PersistentDataType.STRING, location.getUuid().toString());
 
         coordinatesSelector.setItemMeta(itemMeta);
 
@@ -235,7 +235,7 @@ public class GuiManager {
             PersistentDataContainer container = item.getItemMeta().getPersistentDataContainer();
 
             return container.has(coordinatesEditorAgentUuidKey, PersistentDataType.STRING) &&
-                    container.has(coordinatesEditorLocationNameKey, PersistentDataType.STRING);
+                    container.has(coordinatesEditorLocationUuidKey, PersistentDataType.STRING);
         }
 
         return false;
@@ -254,18 +254,15 @@ public class GuiManager {
         return MineSocieties.getPlugin().getSocialAgentManager().getAgent(uuid);
     }
 
-    public @Nullable AgentLocation getAgentLocationFromCoordinatesSelector(ItemStack coordinatesSelector, SocialAgent agent) {
-        String locationName = coordinatesSelector.getItemMeta().getPersistentDataContainer().get(coordinatesEditorLocationNameKey, PersistentDataType.STRING);
+    public @Nullable SocialLocation getLocationFromCoordinatesSelector(ItemStack coordinatesSelector, SocialAgent agent) {
+        String locationUuid = coordinatesSelector.getItemMeta().getPersistentDataContainer().get(coordinatesEditorLocationUuidKey, PersistentDataType.STRING);
 
-        if (locationName == null) {
-            // The location referenced by the coordinates selector doesn't exist anymore
+        if (locationUuid == null) {
+            // The compass does not have
             return null;
         }
 
-        return agent.getState().getAllLocations().stream()
-                .filter(agentLocation -> agentLocation.getDescription().equals(locationName))
-                .findFirst()
-                .orElse(null);
+        return MineSocieties.getPlugin().getLocationsManager().getLocation(UUID.fromString(locationUuid));
     }
 
     public void giveNPCStickIfNotPresent(SocialPlayer player) {
@@ -388,7 +385,7 @@ public class GuiManager {
             SocialAgent agent = getAgentFromCoordinatesSelector(itemInHand);
 
             if (agent != null) {
-                AgentLocation location = getAgentLocationFromCoordinatesSelector(itemInHand, agent);
+                SocialLocation location = getLocationFromCoordinatesSelector(itemInHand, agent);
 
                 if (location != null) {
                     // The player right-clicked on a block with a coordinates selector
@@ -401,13 +398,13 @@ public class GuiManager {
 
                     location.setWorldName(newLocation.getWorld().getName());
 
-                    agent.getState().markDirty();
+                    MineSocieties.getPlugin().getLocationsManager().saveAsync(location);
 
                     player.getPlayer().sendMessage(ComponentUtils.withPrefix(
                             Component.text("The location of the agent ").color(TextColor.color(71, 255, 138))
                                     .append(Component.text(agent.getName()).color(TextColor.color(213, 118, 39)))
                                     .append(Component.text(" with the description ").color(TextColor.color(71, 255, 138)))
-                                    .append(Component.text(location.getDescription()).color(TextColor.color(255, 219, 49)))
+                                    .append(Component.text(location.getName()).color(TextColor.color(255, 219, 49)))
                                     .append(Component.text(" has been updated.").color(TextColor.color(71, 255, 138)))
                     ));
                 } else {

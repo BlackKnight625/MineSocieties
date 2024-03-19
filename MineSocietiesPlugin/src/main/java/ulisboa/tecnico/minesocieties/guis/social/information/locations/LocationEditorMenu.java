@@ -8,8 +8,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.scheduler.BukkitRunnable;
 import ulisboa.tecnico.minesocieties.MineSocieties;
+import ulisboa.tecnico.minesocieties.agents.location.SocialLocation;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
-import ulisboa.tecnico.minesocieties.agents.npc.state.AgentLocation;
 import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
 import ulisboa.tecnico.minesocieties.guis.common.ErrorMenu;
 import ulisboa.tecnico.minesocieties.guis.common.GUIItem;
@@ -22,7 +22,7 @@ public class LocationEditorMenu extends GUIMenu {
     // Private attributes
 
     private final SocialAgent agent;
-    private final AgentLocation location;
+    private final SocialLocation location;
     private final boolean editingIsLimited;
 
     // Constructors
@@ -38,7 +38,7 @@ public class LocationEditorMenu extends GUIMenu {
      * @param editingIsLimited
      *  If true, the location cannot be deleted and its description cannot be edited
      */
-    public LocationEditorMenu(SocialPlayer player, SocialAgent agent, AgentLocation location, boolean editingIsLimited) {
+    public LocationEditorMenu(SocialPlayer player, SocialAgent agent, SocialLocation location, boolean editingIsLimited) {
         super(player, "Location editor", 27);
 
         this.agent = agent;

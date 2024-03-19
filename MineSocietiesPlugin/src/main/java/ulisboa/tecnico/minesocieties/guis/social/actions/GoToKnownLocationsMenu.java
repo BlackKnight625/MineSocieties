@@ -4,7 +4,6 @@ import org.bukkit.Material;
 import ulisboa.tecnico.minesocieties.agents.actions.otherActions.InformativeGoTo;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.agents.npc.state.AgentKnownLocations;
-import ulisboa.tecnico.minesocieties.agents.npc.state.AgentLocation;
 import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
 import ulisboa.tecnico.minesocieties.guis.common.GoBack;
 import ulisboa.tecnico.minesocieties.guis.common.PageableMenu;
@@ -32,7 +31,7 @@ public class GoToKnownLocationsMenu extends PageableMenu {
     public void refreshItemsInPage() {
         // Adding an item to make agents go to every location they know
         fillPageFromList(ITEMS_PER_PAGE, knownLocations.getMemorySections().stream().toList(),
-                loc -> new ActionExecutorItem(this, Material.COMPASS, agent, new InformativeGoTo(loc)));
+                loc -> new ActionExecutorItem(this, Material.COMPASS, agent, new InformativeGoTo(loc.getLocation())));
 
         addClickable(35, new GoBack(this));
 

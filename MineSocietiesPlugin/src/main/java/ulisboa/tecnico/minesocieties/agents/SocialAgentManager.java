@@ -11,6 +11,7 @@ import ulisboa.tecnico.agents.AbstractAgentManager;
 import ulisboa.tecnico.agents.observation.ReceivedChatObservation;
 import ulisboa.tecnico.minesocieties.MineSocieties;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
+import ulisboa.tecnico.minesocieties.agents.npc.state.AgentMemory;
 import ulisboa.tecnico.minesocieties.agents.npc.state.AgentState;
 import ulisboa.tecnico.minesocieties.agents.observation.SocialEventListener;
 import ulisboa.tecnico.minesocieties.agents.observation.wrapped.SocialReceivedChatFromObservation;
@@ -115,7 +116,7 @@ public class SocialAgentManager extends AbstractAgentManager<SocialAgent, Social
      *  Goes through the agents and deletes locations that no longer exist from their memories
      */
     public void deleteAgentsInvalidLocations() {
-        // TODO Must delete all LocationReferences whose SocialLocations are null
+        forEachAgent(SocialAgent::deleteAgentsInvalidLocations);
     }
 
     public void addPlayerAsViewer(Player player) {

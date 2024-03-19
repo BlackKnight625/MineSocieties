@@ -5,9 +5,8 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
+import ulisboa.tecnico.minesocieties.agents.location.SocialLocation;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
-import ulisboa.tecnico.minesocieties.agents.npc.state.AgentLocation;
-import ulisboa.tecnico.minesocieties.guis.common.GUIItem;
 import ulisboa.tecnico.minesocieties.guis.common.GUIMenu;
 import ulisboa.tecnico.minesocieties.guis.common.GUIMenuOpener;
 import ulisboa.tecnico.minesocieties.utils.StringUtils;
@@ -18,11 +17,11 @@ public class LocationEditItem extends GUIMenuOpener {
 
     private final SocialAgent agent;
     private final boolean editingIsLimited;
-    private final AgentLocation location;
+    private final SocialLocation location;
 
     // Constructors
 
-    public LocationEditItem(GUIMenu menu, Material material, SocialAgent agent, AgentLocation location, boolean editingIsLimited) {
+    public LocationEditItem(GUIMenu menu, Material material, SocialAgent agent, SocialLocation location, boolean editingIsLimited) {
         super(menu, material,
                 new LocationEditorMenu(menu.getPlayer(), agent, location, editingIsLimited),
                 ChatColor.YELLOW + toCoordinates(location));
@@ -31,7 +30,7 @@ public class LocationEditItem extends GUIMenuOpener {
         this.location = location;
         this.editingIsLimited = editingIsLimited;
 
-        addDescription(ChatColor.GRAY, StringUtils.splitIntoLines(location.getDescription(), 30));
+        addDescription(ChatColor.GRAY, StringUtils.splitIntoLines(location.getName(), 30));
         addDescription("");
 
         if (!editingIsLimited) {
@@ -49,7 +48,7 @@ public class LocationEditItem extends GUIMenuOpener {
             super.clicked(click);
         } else if (click.isRightClick() && !editingIsLimited) {
             // Deleting this location
-            agent.getState().getMemory().getKnownLocations().remove(location);
+            agent.getState().getMemory().getKnownLocations().remove(location.toReference());
             agent.getState().markDirty();
 
             Player player = getMenu().getPlayer().getPlayer();
@@ -60,7 +59,7 @@ public class LocationEditItem extends GUIMenuOpener {
         }
     }
 
-    private static String toCoordinates(AgentLocation location) {
+    private static String toCoordinates(SocialLocation location) {
         return ChatColor.YELLOW + "X: " + ChatColor.GRAY + location.getPosition().getBlockX() +
                 ChatColor.YELLOW + " Y: " + ChatColor.GRAY + location.getPosition().getBlockY() +
                 ChatColor.YELLOW + " Z: " + ChatColor.GRAY + location.getPosition().getBlockZ() +

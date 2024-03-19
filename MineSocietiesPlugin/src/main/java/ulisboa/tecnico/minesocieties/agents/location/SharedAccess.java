@@ -3,6 +3,7 @@ package ulisboa.tecnico.minesocieties.agents.location;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.agents.npc.state.CharacterReference;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -17,6 +18,12 @@ public class SharedAccess extends LocationAccess {
 
     public SharedAccess() {
         super(LocationAccessType.SHARED);
+    }
+
+    public SharedAccess(SocialAgent... agents) {
+        super(LocationAccessType.SHARED);
+
+        agentsWithAccess.addAll(Arrays.stream(agents).map(SocialAgent::toReference).toList());
     }
 
     // Other methods
