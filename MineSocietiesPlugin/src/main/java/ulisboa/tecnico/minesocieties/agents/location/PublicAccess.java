@@ -1,5 +1,6 @@
 package ulisboa.tecnico.minesocieties.agents.location;
 
+import org.bukkit.Material;
 import ulisboa.tecnico.minesocieties.MineSocieties;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.agents.npc.state.CharacterReference;
@@ -35,7 +36,7 @@ public class PublicAccess extends LocationAccess {
     }
 
     @Override
-    public boolean isValid() {
+    public boolean isAccessValid() {
         return true; // Public locations are always valid
     }
 
@@ -52,5 +53,20 @@ public class PublicAccess extends LocationAccess {
     @Override
     public String toString() {
         return "PublicAccess{}";
+    }
+
+    @Override
+    public Material getGuiMaterial() {
+        return Material.OAK_DOOR;
+    }
+
+    @Override
+    public String getGuiName() {
+        return "Public Access";
+    }
+
+    @Override
+    protected String getGuiDescription() {
+        return "All agents can know about this location with no restrictions attached";
     }
 }

@@ -3,6 +3,8 @@ package ulisboa.tecnico.minesocieties.guis.social.information.locations;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.util.Vector;
+import ulisboa.tecnico.minesocieties.agents.location.LocationReference;
+import ulisboa.tecnico.minesocieties.agents.location.SocialLocation;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.agents.npc.state.AgentLocation;
 import ulisboa.tecnico.minesocieties.agents.npc.state.AgentMemory;
@@ -46,16 +48,16 @@ public class LocationsMenu extends GUIMenu {
         fillRestWithPanes(Material.ORANGE_STAINED_GLASS_PANE);
     }
 
-    public static String toLocationString(AgentLocation agentLocation) {
-        Vector position = agentLocation.getPosition();
+    public static String toLocationString(LocationReference agentLocation) {
+        Vector position = agentLocation.getLocation().getPosition();
 
         return ChatColor.AQUA + " (" + ChatColor.RED + position.getBlockX() + ChatColor.AQUA + ", " +
                 ChatColor.RED + position.getBlockY() + ChatColor.AQUA + ", " +
                 ChatColor.RED + position.getBlockZ() + ChatColor.AQUA + ") " +
-                ChatColor.GRAY + agentLocation.getDescription();
+                ChatColor.GRAY + agentLocation.getName();
     }
 
-    public static void addLocationToDescription(GUIItem item, AgentLocation location) {
+    public static void addLocationToDescription(GUIItem item, LocationReference location) {
         String descriptionLine = LocationsMenu.toLocationString(location);
 
         if (descriptionLine.length() > 46) {
@@ -66,10 +68,10 @@ public class LocationsMenu extends GUIMenu {
         item.addDescription(descriptionLine);
     }
 
-    public static void addLocationsToDescription(GUIItem item, Collection<AgentLocation> locations, int max) {
+    public static void addLocationsToDescription(GUIItem item, Collection<LocationReference> locations, int max) {
         int counter = 0;
 
-        for (AgentLocation location : locations) {
+        for (LocationReference location : locations) {
             LocationsMenu.addLocationToDescription(item, location);
             counter++;
 

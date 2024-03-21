@@ -10,10 +10,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import ulisboa.tecnico.minesocieties.MineSocieties;
 import ulisboa.tecnico.minesocieties.agents.location.SocialLocation;
 import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
-import ulisboa.tecnico.minesocieties.guis.common.ErrorMenu;
-import ulisboa.tecnico.minesocieties.guis.common.GUIItem;
-import ulisboa.tecnico.minesocieties.guis.common.GUIMenu;
-import ulisboa.tecnico.minesocieties.guis.common.GoBack;
+import ulisboa.tecnico.minesocieties.guis.common.*;
 import ulisboa.tecnico.minesocieties.utils.StringUtils;
 
 public class LocationEditorMenu extends GUIMenu {
@@ -262,6 +259,16 @@ public class LocationEditorMenu extends GUIMenu {
                     }
                 }.runTask(MineSocieties.getPlugin());
             });
+        }
+    }
+
+    private class AccessEditor extends GUIMenuOpener {
+
+        // Private attributes
+
+
+        public AccessEditor() {
+            super(LocationEditorMenu.this, location.getAccess().getGuiMaterial(), null, ChatColor.YELLOW + location.getAccess().getGuiName());
         }
     }
 }

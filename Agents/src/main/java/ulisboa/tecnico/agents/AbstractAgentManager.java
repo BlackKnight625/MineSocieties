@@ -11,10 +11,7 @@ import ulisboa.tecnico.agents.observation.EventListener;
 import ulisboa.tecnico.agents.player.IPlayerAgent;
 import ulisboa.tecnico.agents.utils.ReadWriteLock;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;

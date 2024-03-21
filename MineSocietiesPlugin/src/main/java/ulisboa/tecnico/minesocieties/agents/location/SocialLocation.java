@@ -2,6 +2,7 @@ package ulisboa.tecnico.minesocieties.agents.location;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.util.Vector;
 import ulisboa.tecnico.minesocieties.agents.actions.ISocialAction;
@@ -28,6 +29,8 @@ public class SocialLocation implements IExplainableContext, ISimpleExplanation {
     private String name;
     private LocationAccess access;
     private Set<LocationBoundActionType> possibleActionTypes = new LinkedHashSet<>();
+    private Material guiMaterial;
+    private volatile boolean deleted = false;
 
     // Constructors
 
@@ -38,6 +41,7 @@ public class SocialLocation implements IExplainableContext, ISimpleExplanation {
         this.access = access;
 
         this.uuid = UUID.randomUUID();
+        this.guiMaterial = Material.RECOVERY_COMPASS;
     }
 
     public SocialLocation(Location location, String name, LocationAccess access) {
@@ -88,6 +92,18 @@ public class SocialLocation implements IExplainableContext, ISimpleExplanation {
         return possibleActionTypes;
     }
 
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public Material getGuiMaterial() {
+        return guiMaterial;
+    }
+
+    public void setGuiMaterial(Material guiMaterial) {
+        this.guiMaterial = guiMaterial;
+    }
+
     // Other methods
 
     public void addPossibleAction(LocationBoundActionType actionType) {
@@ -119,8 +135,8 @@ public class SocialLocation implements IExplainableContext, ISimpleExplanation {
         return name;
     }
 
-    public boolean isValid() {
-        return access.isValid();
+    public boolean isAccessValid() {
+        return access.isAccessValid();
     }
 
     public void fixInconsistencies() {
@@ -137,6 +153,10 @@ public class SocialLocation implements IExplainableContext, ISimpleExplanation {
 
     public Collection<CharacterReference> getStronglyConnectedAgentsCopy() {
         return new ArrayList<>(access.getStronglyConnectedAgents());
+    }
+
+    public void deleted() {
+        deleted = true;
     }
 
     @Override

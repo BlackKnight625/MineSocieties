@@ -1,5 +1,6 @@
 package ulisboa.tecnico.minesocieties.agents.location;
 
+import org.bukkit.Material;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.agents.npc.state.CharacterReference;
 
@@ -39,7 +40,7 @@ public class PersonalAccess extends LocationAccess {
     }
 
     @Override
-    public boolean isValid() {
+    public boolean isAccessValid() {
         return character.getReferencedCharacter() != null;
     }
 
@@ -58,5 +59,20 @@ public class PersonalAccess extends LocationAccess {
         return "PersonalAccess{" +
                 "agent=" + character +
                 '}';
+    }
+
+    @Override
+    public Material getGuiMaterial() {
+        return Material.IRON_DOOR;
+    }
+
+    @Override
+    public String getGuiName() {
+        return "Private Acess";
+    }
+
+    @Override
+    protected String getGuiDescription() {
+        return "Only the specified agent can ever know about this location";
     }
 }

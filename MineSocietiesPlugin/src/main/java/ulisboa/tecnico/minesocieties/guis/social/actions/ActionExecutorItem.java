@@ -5,6 +5,7 @@ import org.bukkit.Material;
 import org.bukkit.event.inventory.ClickType;
 import ulisboa.tecnico.minesocieties.agents.actions.ISocialAction;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
+import ulisboa.tecnico.minesocieties.guis.common.ErrorMenu;
 import ulisboa.tecnico.minesocieties.guis.common.GUIItem;
 import ulisboa.tecnico.minesocieties.guis.common.GUIMenu;
 import ulisboa.tecnico.minesocieties.utils.StringUtils;
@@ -35,6 +36,10 @@ public class ActionExecutorItem extends GUIItem {
 
     @Override
     public void clicked(ClickType click) {
-        agent.selectedNewActionSync(action);
+        if (action.canBeExecuted(agent)) {
+            agent.selectedNewActionSync(action);
+        } else {
+            new ErrorMenu(getMenu().getPlayer(), "This action cannot be executed", getMenu()).open();
+        }
     }
 }

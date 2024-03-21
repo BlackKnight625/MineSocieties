@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import ulisboa.tecnico.agents.utils.ReadWriteLock;
 import ulisboa.tecnico.minesocieties.MineSocieties;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
+import ulisboa.tecnico.minesocieties.agents.npc.state.AgentMemory;
 import ulisboa.tecnico.minesocieties.agents.npc.state.CharacterReference;
 
 import java.io.File;
@@ -14,6 +15,10 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ *  Manages the SocialLocation instances. SocialLocations are added and deleted very rarely, so it's fine
+ * to use access methods in the Main thread.
+ */
 public class LocationsManager {
 
     // Private attributes
@@ -74,12 +79,22 @@ public class LocationsManager {
         }
     }
 
+    public void saveSync(LocationReference reference) {
+        SocialLocation location = reference.getLocation();
+
+        if (location != null) {
+            saveSync(location);
+        }
+    }
+
     public void saveSync(SocialLocation location) {
-        try {
-            Files.writeString(LOCATIONS_PATH.resolve(toFileName(location)), gson.toJson(location));
-        } catch (IOException e) {
-            MineSocieties.getPlugin().getLogger().severe("Unable to save location '" + location.getName() + "' to a file.");
-            e.printStackTrace();
+        if (!location.isDeleted()) {
+            try {
+                Files.writeString(LOCATIONS_PATH.resolve(toFileName(location)), gson.toJson(location));
+            } catch (IOException e) {
+                MineSocieties.getPlugin().getLogger().severe("Unable to save location '" + location.getName() + "' to a file.");
+                e.printStackTrace();
+            }
         }
     }
 
@@ -114,7 +129,7 @@ public class LocationsManager {
 
                 location.fixInconsistencies();
 
-                if (!location.isValid()) {
+                if (!location.isAccessValid()) {
                     iterator.remove();
 
                     try {
@@ -131,37 +146,60 @@ public class LocationsManager {
         saveSync();
     }
 
+    public void deleteAsync(LocationReference reference) {
+        SocialLocation location = reference.getLocation();
+
+        if (location != null) {
+            deleteAsync(location);
+        }
+    }
+
     public void deleteAsync(SocialLocation location) {
         var agenstAffected = location.getStronglyConnectedAgentsCopy();
 
+        if (location.isDeleted()) {
+            return; // No work to do. Location has already been dealt with
+        }
+
         // Deleting the file in another thread
         MineSocieties.getPlugin().getThreadPool().execute(() -> {
-            AtomicBoolean deleted = new AtomicBoolean(false);
+            boolean deleted = false;
 
-            locationsLock.write(() -> {
-                locations.remove(location.getUuid());
+            try {
+                Files.delete(LOCATIONS_PATH.resolve(toFileName(location)));
 
-                try {
-                    Files.delete(LOCATIONS_PATH.resolve(toFileName(location)));
-                } catch (IOException e) {
-                    MineSocieties.getPlugin().getLogger().severe("Unable to delete location \"" + location.getName() + "\"'s file");
-                    e.printStackTrace();
-                }
+                deleted = true;
+            } catch (IOException e) {
+                MineSocieties.getPlugin().getLogger().severe("Unable to delete location \"" + location.getName() + "\"'s file");
+                e.printStackTrace();
+            }
 
-                deleted.set(true);
-            });
+            if (deleted) {
+                locationsLock.write(() -> {
+                    locations.remove(location.getUuid());
+                    location.deleted();
+                });
 
-            if (deleted.get()) {
                 // Successfully deleted the location. Must update the agents whose memories included this location
                 for (CharacterReference reference : agenstAffected) {
                     SocialAgent agent = (SocialAgent) reference.getReferencedCharacter();
 
                     if (agent != null) {
-                        agent.getState().getMemory().getKnownLocations().remove(location.toReference());
+                        AgentMemory memory = agent.getState().getMemory();
+
+                        memory.getKnownLocations().remove(location.toReference());
                         agent.getState().markDirty();
                     }
                 }
             }
         });
+    }
+
+    public List<SocialLocation> getAllLocations() {
+        locationsLock.readLock();
+        List<SocialLocation> locationsCopy = new ArrayList<>(locations.values());
+        locationsLock.readUnlock();
+
+        return locationsCopy;
     }
 }

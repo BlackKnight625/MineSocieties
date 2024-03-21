@@ -7,7 +7,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import ulisboa.tecnico.minesocieties.MineSocieties;
 import ulisboa.tecnico.minesocieties.agents.location.SocialLocation;
-import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.guis.common.GUIMenu;
 import ulisboa.tecnico.minesocieties.guis.common.GUIMenuOpener;
 import ulisboa.tecnico.minesocieties.utils.StringUtils;
@@ -21,8 +20,8 @@ public class LocationEditItem extends GUIMenuOpener {
 
     // Constructors
 
-    public LocationEditItem(GUIMenu menu, Material material, SocialLocation location, boolean editingIsLimited) {
-        super(menu, material,
+    public LocationEditItem(GUIMenu menu, SocialLocation location, boolean editingIsLimited) {
+        super(menu, location.getGuiMaterial(),
                 new LocationEditorMenu(menu.getPlayer(), location, editingIsLimited),
                 ChatColor.YELLOW + toCoordinates(location));
 

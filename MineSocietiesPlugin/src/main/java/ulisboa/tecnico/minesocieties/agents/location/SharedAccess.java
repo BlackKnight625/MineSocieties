@@ -1,5 +1,6 @@
 package ulisboa.tecnico.minesocieties.agents.location;
 
+import org.bukkit.Material;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.agents.npc.state.CharacterReference;
 
@@ -39,8 +40,8 @@ public class SharedAccess extends LocationAccess {
     }
 
     @Override
-    public boolean isValid() {
-        return !agentsWithAccess.isEmpty(); // If no agent knows about this shared location, then it's invalid
+    public boolean isAccessValid() {
+        return true; // A shared location is always valid
     }
 
     @Override
@@ -58,5 +59,20 @@ public class SharedAccess extends LocationAccess {
         return "SharedAccess{" +
                 "agentsWithAccess=" + agentsWithAccess +
                 '}';
+    }
+
+    @Override
+    public Material getGuiMaterial() {
+        return Material.CRIMSON_DOOR;
+    }
+
+    @Override
+    public String getGuiName() {
+        return "Shared Access";
+    }
+
+    @Override
+    protected String getGuiDescription() {
+        return "Only the agents allowed by this location can ever know about it";
     }
 }

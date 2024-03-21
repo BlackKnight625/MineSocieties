@@ -216,32 +216,19 @@ public class GoFishing<T extends IAgent> extends TemporalAction<T> {
     }
 
     public List<Block> getAccessibleWaterBlocks(T actioner) {
-        List<Block> nearbyBlocks = BlockUtils.getNearbyBlocks(actioner.getLocation(), MAX_FISHING_DISTANCE);
+        return getAccessibleWaterBlocks(actioner.getLocation());
+    }
+
+    public List<Block> getAccessibleWaterBlocks(Location location) {
+        List<Block> nearbyBlocks = BlockUtils.getNearbyBlocks(location, MAX_FISHING_DISTANCE);
 
         // Filter the blocks to only keep the ones that are water
         nearbyBlocks.removeIf(block -> block.getType() != Material.WATER);
 
-        Location eyeLocation = actioner.getEyeLocation();
-
         // Must check what blocks are accessible
         nearbyBlocks.removeIf(block -> {
             // Water blocks without air on top are not accessible
-            if (!block.getRelative(BlockFace.UP).getType().isAir()) {
-                return false;
-            }
-
-            // Water blocks without a line of sight from the agent's eyes are not accessible
-            Location blockCenter = block.getLocation().add(0.5, 0.5, 0.5);
-
-            RayTraceResult result = eyeLocation.getWorld().rayTraceBlocks(eyeLocation, blockCenter.toVector().subtract(eyeLocation.toVector()), 5);
-
-            if (result == null || result.getHitBlock() == null) {
-                // Somehow, the ray did not hit anything
-                return false;
-            }
-
-            // The block is accessible if the ray hit it
-            return result.getHitBlock().equals(block);
+            return block.getRelative(BlockFace.UP).getType().isAir();
         });
 
         return nearbyBlocks;

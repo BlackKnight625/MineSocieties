@@ -1,5 +1,7 @@
 package ulisboa.tecnico.minesocieties.agents.actions;
 
+import org.apache.commons.lang3.tuple.Pair;
+import org.bukkit.Location;
 import ulisboa.tecnico.agents.actions.IAction;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.visitors.IActionVisitor;
@@ -49,5 +51,20 @@ public interface ISocialAction extends IAction<SocialAgent> {
      */
     default boolean canBeContinued() {
         return true;
+    }
+
+    /**
+     *  Checks if an action of this kind could possibly be executed by anyone at the given Location.
+     * This is used to check if an action of this kind can be associated with a SocialLocation.
+     *  For example, a SocialLocation should not be able to have a InformativeGoFishing action associated with it if
+     * there's no water nearby.
+     * @param location
+     *  The given location
+     * @return
+     *  A Pair holding true if an action of this kind could possibly be executed by anyone at the given Location or
+     * holding false and a String with the reason why it can't be executed.
+     */
+    default Pair<Boolean, String> canBeExecutedInLocation(Location location) {
+        return Pair.of(true, "");
     }
 }

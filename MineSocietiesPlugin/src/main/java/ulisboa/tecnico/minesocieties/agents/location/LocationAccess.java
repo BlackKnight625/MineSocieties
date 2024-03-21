@@ -1,9 +1,12 @@
 package ulisboa.tecnico.minesocieties.agents.location;
 
+import org.bukkit.Material;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.agents.npc.state.CharacterReference;
+import ulisboa.tecnico.minesocieties.utils.StringUtils;
 
 import java.util.Collection;
+import java.util.List;
 
 public abstract class LocationAccess {
 
@@ -35,7 +38,7 @@ public abstract class LocationAccess {
      *  For example, if a PersonalAccess belongs to an agent that no longer exists, then it doesn't make sense for
      * the restriction brought by the Personal Access to exist. Therefore, the location should be deleted.
      */
-    public abstract boolean isValid();
+    public abstract boolean isAccessValid();
 
     /**
      *  Fixes any inconsistencies in the location access. For example, if a SharedAccess references an Agent that
@@ -49,4 +52,14 @@ public abstract class LocationAccess {
      * should be updated in case the location gets deleted.
      */
     public abstract Collection<CharacterReference> getStronglyConnectedAgents();
+
+    public abstract Material getGuiMaterial();
+
+    public abstract String getGuiName();
+
+    protected abstract String getGuiDescription();
+
+    public List<String> getGuiDescriptionLines() {
+        return StringUtils.splitIntoLines(getGuiDescription(), 30);
+    }
 }

@@ -2,6 +2,7 @@ package ulisboa.tecnico.minesocieties.agents.npc;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -118,6 +119,16 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
 
     // Other methods
 
+    public UUID getSkin() {
+        UUID skinUuid = npc.getData().getSkin();
+
+        if (skinUuid == null) {
+            return getUUID();
+        } else {
+            return skinUuid;
+        }
+    }
+
     public void tick() {
         act();
 
@@ -146,6 +157,14 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
         }
     }
 
+    public SocialLocation getNewHomeLocation() {
+        SocialLocation newHome = new SocialLocation(getLocation(), getName() + "'s home", new SharedAccess(this));
+
+        newHome.setGuiMaterial(Material.RED_BED);
+
+        return newHome;
+    }
+
 
     @Override
     public void deploy() {
@@ -153,7 +172,7 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
 
         if (state == null) {
             // It's the 1st time ever that this agent is being deployed. Giving it an initial state
-            SocialLocation home = new SocialLocation(getLocation(), getName() + "'s home", new SharedAccess(this));
+            SocialLocation home = getNewHomeLocation();
 
             state = new AgentState(
                     getUUID(),
@@ -534,8 +553,7 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
 
         if (home == null) {
             // The agent's home was deleted. They must always havea  home, though
-            SocialLocation newHome = new SocialLocation(
-                    state.getCurrentLocation().toBukkitLocation(), getName() + "'s home", new SharedAccess(this));
+            SocialLocation newHome = getNewHomeLocation();
 
             memory.setHome(newHome.toReference());
 
