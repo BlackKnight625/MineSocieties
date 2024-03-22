@@ -10,7 +10,7 @@ import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
 import ulisboa.tecnico.minesocieties.guis.common.GUIMenu;
 import ulisboa.tecnico.minesocieties.guis.common.GUIMenuOpener;
 import ulisboa.tecnico.minesocieties.guis.common.GoBack;
-import ulisboa.tecnico.minesocieties.guis.social.information.locations.LocationsMenu;
+import ulisboa.tecnico.minesocieties.guis.social.locations.LocationsMenu;
 
 public class ActionMenu extends GUIMenu {
 

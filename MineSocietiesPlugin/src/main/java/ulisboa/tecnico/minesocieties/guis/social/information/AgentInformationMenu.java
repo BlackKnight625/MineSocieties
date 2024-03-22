@@ -5,7 +5,7 @@ import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
 import ulisboa.tecnico.minesocieties.guis.common.GUIMenu;
 import ulisboa.tecnico.minesocieties.guis.common.GoBack;
-import ulisboa.tecnico.minesocieties.guis.social.information.locations.LocationsItem;
+import ulisboa.tecnico.minesocieties.guis.social.locations.LocationsItem;
 import ulisboa.tecnico.minesocieties.guis.social.information.memory.LongTermMemoryItem;
 import ulisboa.tecnico.minesocieties.guis.social.information.memory.PastActionsItem;
 import ulisboa.tecnico.minesocieties.guis.social.information.memory.ShortTermMemoryItem;

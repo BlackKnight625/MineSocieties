@@ -1,12 +1,10 @@
-package ulisboa.tecnico.minesocieties.guis.social.information.locations;
+package ulisboa.tecnico.minesocieties.guis.social.locations;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.util.Vector;
 import ulisboa.tecnico.minesocieties.agents.location.LocationReference;
-import ulisboa.tecnico.minesocieties.agents.location.SocialLocation;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
-import ulisboa.tecnico.minesocieties.agents.npc.state.AgentLocation;
 import ulisboa.tecnico.minesocieties.agents.npc.state.AgentMemory;
 import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
 import ulisboa.tecnico.minesocieties.guis.common.GUIItem;

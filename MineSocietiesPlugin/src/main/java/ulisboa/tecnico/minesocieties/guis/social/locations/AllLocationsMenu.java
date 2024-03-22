@@ -1,4 +1,4 @@
-package ulisboa.tecnico.minesocieties.guis.social.information.locations;
+package ulisboa.tecnico.minesocieties.guis.social.locations;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;

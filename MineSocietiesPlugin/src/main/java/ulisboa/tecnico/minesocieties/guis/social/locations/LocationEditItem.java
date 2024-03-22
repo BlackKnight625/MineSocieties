@@ -1,7 +1,6 @@
-package ulisboa.tecnico.minesocieties.guis.social.information.locations;
+package ulisboa.tecnico.minesocieties.guis.social.locations;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;

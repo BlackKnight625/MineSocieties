@@ -1,4 +1,4 @@
-package ulisboa.tecnico.minesocieties.guis.social.information.locations;
+package ulisboa.tecnico.minesocieties.guis.social.locations;
 
 import ulisboa.tecnico.minesocieties.agents.location.SocialLocation;
 import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
