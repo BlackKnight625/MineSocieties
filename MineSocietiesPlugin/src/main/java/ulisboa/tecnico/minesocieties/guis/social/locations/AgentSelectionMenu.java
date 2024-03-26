@@ -5,6 +5,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.jetbrains.annotations.Nullable;
 import ulisboa.tecnico.minesocieties.MineSocieties;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
@@ -15,26 +16,32 @@ import ulisboa.tecnico.minesocieties.guis.common.PageableMenu;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Predicate;
 
-public class AgentSelectionMenu extends PageableMenu {
+public abstract class AgentSelectionMenu extends PageableMenu {
 
     // Private attributes
 
     private final List<SocialAgent> agents = new ArrayList<>();
-    private final BiConsumer<SocialAgent, ClickType> whenSelected;
 
     private static final int MAX_AGENTS_PER_PAGE = 45;
 
     // Constructors
 
-    public AgentSelectionMenu(SocialPlayer player, String name, BiConsumer<SocialAgent, ClickType> whenSelected) {
+    public AgentSelectionMenu(SocialPlayer player, String name) {
         super(player, name, 54);
-
-        this.whenSelected = whenSelected;
 
         // Adding all agents
         MineSocieties.getPlugin().getSocialAgentManager().forEachAgent(agents::add);
     }
+
+    // Getters and setters
+
+    protected List<SocialAgent> getAgents() {
+        return agents;
+    }
+
+    // Other methods
 
     public void reloadItemsInPage() {
         fillPageFromList(0, MAX_AGENTS_PER_PAGE, agents, AgentSelectorItem::new);
@@ -66,9 +73,16 @@ public class AgentSelectionMenu extends PageableMenu {
         return (agents.size() / MAX_AGENTS_PER_PAGE) + 1;
     }
 
+    public abstract void onAgentSelected(SocialAgent agent, ClickType type);
+
+    public void customModifyAgentSelector(AgentSelectorItem agentSelectorItem) {
+        // Only shows the "Click to select" by default
+        agentSelectorItem.addDescription(ChatColor.GREEN + "Click to select");
+    }
+
     // Private classes
 
-    private class AgentSelectorItem extends GUIItem {
+    protected class AgentSelectorItem extends GUIItem {
 
         // Private attributes
 
@@ -88,14 +102,20 @@ public class AgentSelectionMenu extends PageableMenu {
 
             getItemStack().setItemMeta(skullMeta);
 
-            addDescription(ChatColor.GREEN + "Click to select");
+            customModifyAgentSelector(this);
+        }
+
+        // Getters and setters
+
+        public SocialAgent getAgent() {
+            return agent;
         }
 
         // Other methods
 
         @Override
         public void clicked(ClickType click) {
-            whenSelected.accept(agent, click);
+            onAgentSelected(agent, click);
         }
     }
 }

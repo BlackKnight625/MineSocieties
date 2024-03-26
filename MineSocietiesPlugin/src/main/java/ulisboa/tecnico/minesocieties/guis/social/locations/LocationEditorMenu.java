@@ -41,20 +41,19 @@ public class LocationEditorMenu extends GUIMenu {
     @Override
     public void fillShopWithClickables() {
         // Buttons to edit coordinates
-        addClickable(10, new XEditor());
-        addClickable(11, new YEditor());
-        addClickable(12, new ZEditor());
+        addClickable(9, new XEditor());
+        addClickable(10, new YEditor());
+        addClickable(11, new ZEditor());
 
         // Description and world editor
 
         if (!editingIsLimited) {
-            addClickable(14, new NameEditor());
+            addClickable(13, new NameEditor());
         }
 
-        addClickable(16, new WorldNameEditor());
-
+        addClickable(15, new WorldNameEditor());
+        addClickable(17, new AccessEditor());
         addClickable(20, new CoordinateSelectorItem(this, location));
-
         addClickable(26, new GoBack(this));
 
         fillRestWithPanes(Material.PURPLE_STAINED_GLASS_PANE);
@@ -94,7 +93,7 @@ public class LocationEditorMenu extends GUIMenu {
                             if (isValidCoordinate(coordinate)) {
                                 setCoordinate(coordinate);
 
-                                MineSocieties.getPlugin().getLocationsManager().saveSync(location);
+                                MineSocieties.getPlugin().getLocationsManager().saveAsync(location);
 
                                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
 
@@ -206,7 +205,7 @@ public class LocationEditorMenu extends GUIMenu {
                         }
 
                         location.setName(newName);
-                        MineSocieties.getPlugin().getLocationsManager().saveSync(location);
+                        MineSocieties.getPlugin().getLocationsManager().saveAsync(location);
 
                         open();
                     }
@@ -253,7 +252,7 @@ public class LocationEditorMenu extends GUIMenu {
                         }
 
                         location.setWorldName(worldName);
-                        MineSocieties.getPlugin().getLocationsManager().saveSync(location);
+                        MineSocieties.getPlugin().getLocationsManager().saveAsync(location);
 
                         open();
                     }
@@ -264,11 +263,18 @@ public class LocationEditorMenu extends GUIMenu {
 
     private class AccessEditor extends GUIMenuOpener {
 
-        // Private attributes
-
+        // Constructors
 
         public AccessEditor() {
-            super(LocationEditorMenu.this, location.getAccess().getGuiMaterial(), null, ChatColor.YELLOW + location.getAccess().getGuiName());
+            super(LocationEditorMenu.this, location.getAccess().getGuiMaterial(),
+                    new AccessEditMenu(getPlayer(), location, editingIsLimited), ChatColor.YELLOW + location.getAccess().getGuiName());
+
+            // Showing information regarding this access
+
+            addDescription(ChatColor.GRAY, location.getAccess().getGuiDescriptionLines());
+
+            addDescription(""); // Empty line
+            addDescription(ChatColor.GREEN, "Click to edit");
         }
     }
 }

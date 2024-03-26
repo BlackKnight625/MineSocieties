@@ -2,7 +2,9 @@ package ulisboa.tecnico.minesocieties.guis.common;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.inventory.ClickType;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
@@ -163,5 +165,16 @@ public abstract class GUIItem implements Clickable {
 			ErrorMenu.error(_menu.getPlayer(), _menu, e,
 					"An error occurred while trying to perform the clicking action of the item you clicked.");
 		}
+	}
+
+	public void makeItemGlow() {
+		ItemMeta meta = _item.getItemMeta();
+
+		assert meta != null : "Given item must contain item meta! Given item: " + _item;
+
+		meta.addEnchant(Enchantment.DURABILITY, 1, true);
+		meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+
+		_item.setItemMeta(meta);
 	}
 }

@@ -47,7 +47,7 @@ public class AllLocationsMenu extends PageableMenu {
                         this,
                         location,
                         location.getStronglyConnectedAgentsCopy().stream().anyMatch( // Editting should be limited if it's an agent's home
-                                agent -> ((SocialAgent)agent.getReferencedCharacter()).getState().getMemory().getHome().equals(location.toReference())
+                                location::isAgentsHome
                         )
                 )
         );
@@ -92,7 +92,6 @@ public class AllLocationsMenu extends PageableMenu {
         }
 
         // Other methods
-
 
         @Override
         public void clicked(ClickType click) {

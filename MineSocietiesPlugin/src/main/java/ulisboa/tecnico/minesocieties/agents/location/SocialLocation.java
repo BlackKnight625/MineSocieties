@@ -106,6 +106,14 @@ public class SocialLocation implements IExplainableContext, ISimpleExplanation {
 
     // Other methods
 
+    public boolean isAgentsHome(SocialAgent agent) {
+        return agent.getState().getMemory().getHome().equals(toReference());
+    }
+
+    public boolean isAgentsHome(CharacterReference agent) {
+        return ((SocialAgent) agent.getReferencedCharacter()).getState().getMemory().getHome().equals(toReference());
+    }
+
     public void addPossibleAction(LocationBoundActionType actionType) {
         possibleActionTypes.add(actionType);
     }

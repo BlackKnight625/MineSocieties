@@ -158,7 +158,12 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
     }
 
     public SocialLocation getNewHomeLocation() {
-        SocialLocation newHome = new SocialLocation(getLocation(), getName() + "'s home", new SharedAccess(this));
+        SharedAccess access = new SharedAccess(this);
+
+        // Adding this agent to the referenced agents
+        access.addAgent(toReference());
+
+        SocialLocation newHome = new SocialLocation(getLocation(), getName() + "'s home", access);
 
         newHome.setGuiMaterial(Material.RED_BED);
 

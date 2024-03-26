@@ -3,6 +3,8 @@ package ulisboa.tecnico.minesocieties.agents.location;
 import org.bukkit.Material;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.agents.npc.state.CharacterReference;
+import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
+import ulisboa.tecnico.minesocieties.guis.social.locations.AgentSelectionMenu;
 import ulisboa.tecnico.minesocieties.utils.StringUtils;
 
 import java.util.Collection;
@@ -18,6 +20,12 @@ public abstract class LocationAccess {
 
     public LocationAccess(LocationAccessType type) {
         this.type = type;
+    }
+
+    // Getters and setters
+
+    public LocationAccessType getType() {
+        return type;
     }
 
     // Other methods
@@ -53,13 +61,19 @@ public abstract class LocationAccess {
      */
     public abstract Collection<CharacterReference> getStronglyConnectedAgents();
 
-    public abstract Material getGuiMaterial();
+    public Material getGuiMaterial() {
+        return type.getGuiMaterial();
+    }
 
-    public abstract String getGuiName();
-
-    protected abstract String getGuiDescription();
+    public String getGuiName() {
+        return type.getGuiName();
+    }
 
     public List<String> getGuiDescriptionLines() {
-        return StringUtils.splitIntoLines(getGuiDescription(), 30);
+        return type.getGuiDescription();
+    }
+
+    public AgentSelectionMenu getAccessAgentsEditor(SocialPlayer player, SocialLocation location) {
+        return type.getAccessAgentsEditor(player, location, this);
     }
 }

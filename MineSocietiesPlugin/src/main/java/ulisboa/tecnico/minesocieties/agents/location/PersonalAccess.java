@@ -1,6 +1,7 @@
 package ulisboa.tecnico.minesocieties.agents.location;
 
 import org.bukkit.Material;
+import org.jetbrains.annotations.Nullable;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.agents.npc.state.CharacterReference;
 
@@ -10,7 +11,7 @@ import java.util.Collections;
 public class PersonalAccess extends LocationAccess {
 
     // Private attributes
-    private final CharacterReference character;
+    private CharacterReference character;
 
     // Constructors
 
@@ -24,24 +25,34 @@ public class PersonalAccess extends LocationAccess {
         super(LocationAccessType.PERSONAL);
 
         // Constructor for GSON
-        this.character = null;
     }
+
+    // Getters and setters
+
+    public @Nullable CharacterReference getCharacter() {
+        return character;
+    }
+
+    public void setCharacter(@Nullable CharacterReference character) {
+        this.character = character;
+    }
+
 
     // Other methods
 
     @Override
     public Collection<CharacterReference> getCharactersWithAccess(SocialLocation location) {
-        return Collections.singleton(character);
+        return character == null ? Collections.emptyList() : Collections.singleton(character);
     }
 
     @Override
     public boolean hasAccess(SocialAgent agent, SocialLocation location) {
-        return character.getUuid().equals(agent.getUUID());
+        return character != null && character.getUuid().equals(agent.getUUID());
     }
 
     @Override
     public boolean isAccessValid() {
-        return character.getReferencedCharacter() != null;
+        return character != null && character.getReferencedCharacter() != null;
     }
 
     @Override
@@ -51,7 +62,7 @@ public class PersonalAccess extends LocationAccess {
 
     @Override
     public Collection<CharacterReference> getStronglyConnectedAgents() {
-        return Collections.singleton(character);
+        return character == null ? Collections.emptyList() : Collections.singleton(character);
     }
 
     @Override
@@ -59,20 +70,5 @@ public class PersonalAccess extends LocationAccess {
         return "PersonalAccess{" +
                 "agent=" + character +
                 '}';
-    }
-
-    @Override
-    public Material getGuiMaterial() {
-        return Material.IRON_DOOR;
-    }
-
-    @Override
-    public String getGuiName() {
-        return "Private Acess";
-    }
-
-    @Override
-    protected String getGuiDescription() {
-        return "Only the specified agent can ever know about this location";
     }
 }

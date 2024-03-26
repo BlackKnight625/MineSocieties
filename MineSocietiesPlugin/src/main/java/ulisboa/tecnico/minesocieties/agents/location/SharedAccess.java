@@ -54,25 +54,18 @@ public class SharedAccess extends LocationAccess {
         return agentsWithAccess;
     }
 
+    public void addAgent(CharacterReference reference) {
+        agentsWithAccess.add(reference);
+    }
+
+    public void removeAgent(CharacterReference reference) {
+        agentsWithAccess.remove(reference);
+    }
+
     @Override
     public String toString() {
         return "SharedAccess{" +
                 "agentsWithAccess=" + agentsWithAccess +
                 '}';
-    }
-
-    @Override
-    public Material getGuiMaterial() {
-        return Material.CRIMSON_DOOR;
-    }
-
-    @Override
-    public String getGuiName() {
-        return "Shared Access";
-    }
-
-    @Override
-    protected String getGuiDescription() {
-        return "Only the agents allowed by this location can ever know about it";
     }
 }

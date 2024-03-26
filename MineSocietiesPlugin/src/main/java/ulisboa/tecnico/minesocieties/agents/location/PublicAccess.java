@@ -54,19 +54,4 @@ public class PublicAccess extends LocationAccess {
     public String toString() {
         return "PublicAccess{}";
     }
-
-    @Override
-    public Material getGuiMaterial() {
-        return Material.OAK_DOOR;
-    }
-
-    @Override
-    public String getGuiName() {
-        return "Public Access";
-    }
-
-    @Override
-    protected String getGuiDescription() {
-        return "All agents can know about this location with no restrictions attached";
-    }
 }
