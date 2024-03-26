@@ -21,13 +21,13 @@ public class PublicAccess extends LocationAccess {
     // Other methods
 
     @Override
-    public Collection<CharacterReference> getCharactersWithAccess(SocialLocation location) {
-        List<CharacterReference> characters = new ArrayList<>();
+    public Collection<CharacterReference> getAgentsWithAccess() {
+        List<CharacterReference> agents = new ArrayList<>();
 
         // Adding all valid agents
-        MineSocieties.getPlugin().getSocialAgentManager().forEachValidAgent(agent -> characters.add(new CharacterReference(agent)));
+        MineSocieties.getPlugin().getSocialAgentManager().forEachValidAgent(agent -> agents.add(new CharacterReference(agent)));
 
-        return characters;
+        return agents;
     }
 
     @Override
@@ -46,12 +46,12 @@ public class PublicAccess extends LocationAccess {
     }
 
     @Override
-    public Collection<CharacterReference> getStronglyConnectedAgents() {
-        return Collections.emptyList();
+    public String toString() {
+        return "PublicAccess{}";
     }
 
     @Override
-    public String toString() {
-        return "PublicAccess{}";
+    public boolean isRestricted() {
+        return false;
     }
 }

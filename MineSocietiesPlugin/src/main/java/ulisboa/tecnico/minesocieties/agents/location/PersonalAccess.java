@@ -41,7 +41,7 @@ public class PersonalAccess extends LocationAccess {
     // Other methods
 
     @Override
-    public Collection<CharacterReference> getCharactersWithAccess(SocialLocation location) {
+    public Collection<CharacterReference> getAgentsWithAccess() {
         return character == null ? Collections.emptyList() : Collections.singleton(character);
     }
 
@@ -58,11 +58,6 @@ public class PersonalAccess extends LocationAccess {
     @Override
     public void fixInconsistencies() {
         // Nothing to do. If the sole agent referenced here becomes invalid, the access becomes invalid.
-    }
-
-    @Override
-    public Collection<CharacterReference> getStronglyConnectedAgents() {
-        return character == null ? Collections.emptyList() : Collections.singleton(character);
     }
 
     @Override

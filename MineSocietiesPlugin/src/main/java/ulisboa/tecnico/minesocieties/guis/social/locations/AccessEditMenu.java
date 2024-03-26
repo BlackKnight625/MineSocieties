@@ -5,14 +5,18 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.event.inventory.ClickType;
 import ulisboa.tecnico.minesocieties.MineSocieties;
+import ulisboa.tecnico.minesocieties.agents.location.LocationAccess;
 import ulisboa.tecnico.minesocieties.agents.location.LocationAccessType;
 import ulisboa.tecnico.minesocieties.agents.location.SocialLocation;
+import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.agents.npc.state.CharacterReference;
 import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
 import ulisboa.tecnico.minesocieties.guis.common.GUIItem;
 import ulisboa.tecnico.minesocieties.guis.common.GUIMenu;
 import ulisboa.tecnico.minesocieties.guis.common.GUIMenuOpener;
 import ulisboa.tecnico.minesocieties.guis.common.GoBack;
+
+import java.util.Collection;
 
 public class AccessEditMenu extends GUIMenu {
 
@@ -48,7 +52,7 @@ public class AccessEditMenu extends GUIMenu {
             agentsSelector.addDescription(ChatColor.AQUA, "NPCs with access");
 
             // Adding the names of all agents with explicit access
-            agentsSelector.addDescription(ChatColor.GRAY, location.getAccess().getStronglyConnectedAgents().stream().map(CharacterReference::getName).toList());
+            agentsSelector.addDescription(ChatColor.GRAY, location.getAccess().getAgentsWithAccess().stream().map(CharacterReference::getName).toList());
 
             addClickable(15, agentsSelector);
         }

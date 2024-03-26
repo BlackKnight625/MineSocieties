@@ -1,6 +1,7 @@
 package ulisboa.tecnico.minesocieties.guis.social.locations;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Sound;
 import org.bukkit.event.inventory.ClickType;
 import ulisboa.tecnico.minesocieties.MineSocieties;
 import ulisboa.tecnico.minesocieties.agents.location.SharedAccess;
@@ -17,7 +18,7 @@ public class SharedAccessAgentsEditorMenu extends AgentSelectionMenu {
 
     private final SharedAccess access;
     private final SocialLocation location;
-    private Collection<CharacterReference> stronglyConnectedAgents;
+    private Collection<CharacterReference> agentsWithAccess;
 
     // Constructors
 
@@ -37,36 +38,49 @@ public class SharedAccessAgentsEditorMenu extends AgentSelectionMenu {
     @Override
     public void fillShopWithClickables() {
         // Caching the already selected agents
-        stronglyConnectedAgents = access.getStronglyConnectedAgents();
+        agentsWithAccess = access.getAgentsWithAccess();
 
         super.fillShopWithClickables();
     }
 
     @Override
     public void onAgentSelected(SocialAgent agent, ClickType type) {
-        if (type.isLeftClick()) {
+        boolean success = false;
+
+        if (type.isLeftClick() && !agentsWithAccess.contains(agent.toReference())) {
             // Adding the agent to the list
             access.addAgent(agent.toReference());
-        } else {
+            access.rememberLocation(location.toReference(), agent);
+
+            success = true;
+        } else if (type.isRightClick() && agentsWithAccess.contains(agent.toReference())) {
             // Removing the agent from the list
             access.removeAgent(agent.toReference());
+            access.forgetLocation(location.toReference(), agent);
 
-            agent.deleteAgentsInvalidLocations();
+            success = true;
         }
 
-        MineSocieties.getPlugin().getLocationsManager().saveAsync(location);
+        if (success) {
+            MineSocieties.getPlugin().getLocationsManager().saveAsync(location);
 
-        getPlayer().getPlayer().playSound(getPlayer().getPlayer().getLocation(), org.bukkit.Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
+            getPlayer().getPlayer().playSound(
+                    getPlayer().getPlayer().getLocation(),
+                    type.isLeftClick() ? Sound.BLOCK_NOTE_BLOCK_PLING : Sound.BLOCK_LAVA_EXTINGUISH,
+                    1,
+                    1);
 
-        hardReset();
+            hardReset();
+        }
     }
 
     @Override
     public void customModifyAgentSelector(AgentSelectionMenu.AgentSelectorItem agentSelectorItem) {
-        if (stronglyConnectedAgents.contains(agentSelectorItem.getAgent().toReference())) {
+        agentSelectorItem.addDescription(""); // New line
+
+        if (agentsWithAccess.contains(agentSelectorItem.getAgent().toReference())) {
             agentSelectorItem.makeItemGlow();
 
-            agentSelectorItem.addDescription(""); // New line
             agentSelectorItem.addDescription(ChatColor.GREEN, "Selected!");
             agentSelectorItem.addDescription(ChatColor.RED, "Right-click to remove");
         } else {

@@ -30,7 +30,7 @@ public class SharedAccess extends LocationAccess {
     // Other methods
 
     @Override
-    public Collection<CharacterReference> getCharactersWithAccess(SocialLocation location) {
+    public Collection<CharacterReference> getAgentsWithAccess() {
         return agentsWithAccess;
     }
 
@@ -47,11 +47,6 @@ public class SharedAccess extends LocationAccess {
     @Override
     public void fixInconsistencies() {
         agentsWithAccess.removeIf(characterReference -> characterReference.getReferencedCharacter() == null);
-    }
-
-    @Override
-    public Collection<CharacterReference> getStronglyConnectedAgents() {
-        return agentsWithAccess;
     }
 
     public void addAgent(CharacterReference reference) {

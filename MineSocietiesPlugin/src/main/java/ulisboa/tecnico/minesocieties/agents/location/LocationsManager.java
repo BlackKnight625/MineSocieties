@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  *  Manages the SocialLocation instances. SocialLocations are added and deleted very rarely, so it's fine
@@ -155,7 +154,7 @@ public class LocationsManager {
     }
 
     public void deleteAsync(SocialLocation location) {
-        var agenstAffected = location.getStronglyConnectedAgentsCopy();
+        var agenstAffected = location.getAgentsWithAccessCopy();
 
         if (location.isDeleted()) {
             return; // No work to do. Location has already been dealt with

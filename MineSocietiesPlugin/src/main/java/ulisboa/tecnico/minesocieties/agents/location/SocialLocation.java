@@ -38,10 +38,11 @@ public class SocialLocation implements IExplainableContext, ISimpleExplanation {
         this.position = position;
         this.worldName = worldName;
         this.name = name;
-        this.access = access;
 
         this.uuid = UUID.randomUUID();
         this.guiMaterial = Material.RECOVERY_COMPASS;
+
+        setAccess(access);
     }
 
     public SocialLocation(Location location, String name, LocationAccess access) {
@@ -81,7 +82,13 @@ public class SocialLocation implements IExplainableContext, ISimpleExplanation {
     }
 
     public void setAccess(LocationAccess access) {
+        if (this.access != null) {
+            this.access.deleted(this);
+        }
+
         this.access = access;
+
+        access.initialize(this);
     }
 
     public UUID getUuid() {
@@ -159,8 +166,8 @@ public class SocialLocation implements IExplainableContext, ISimpleExplanation {
         return access.hasAccess(agent, this);
     }
 
-    public Collection<CharacterReference> getStronglyConnectedAgentsCopy() {
-        return new ArrayList<>(access.getStronglyConnectedAgents());
+    public Collection<CharacterReference> getAgentsWithAccessCopy() {
+        return new ArrayList<>(access.getAgentsWithAccess());
     }
 
     public void deleted() {

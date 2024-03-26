@@ -1,6 +1,7 @@
 package ulisboa.tecnico.minesocieties.guis.social.locations;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Sound;
 import org.bukkit.event.inventory.ClickType;
 import org.jetbrains.annotations.Nullable;
 import ulisboa.tecnico.minesocieties.MineSocieties;
@@ -44,29 +45,47 @@ public class PersonalAccessAgentsEditorMenu extends AgentSelectionMenu {
 
     @Override
     public void onAgentSelected(SocialAgent agent, ClickType type) {
-        if (type.isLeftClick()) {
+        boolean success = false;
+
+        if (type.isLeftClick() && !agent.toReference().equals(reference)) {
+            if (reference != null) {
+                // Must make the previous agent forget the location
+                access.forgetLocation(location.toReference(), (SocialAgent) reference.getReferencedCharacter());
+            }
+
             // Set the agent
             access.setCharacter(agent.toReference());
-        } else {
+            access.rememberLocation(location.toReference(), agent);
+
+            success = true;
+        } else if (type.isRightClick() && agent.toReference().equals(reference)) {
             // Remove the agent
             access.setCharacter(null);
+            access.forgetLocation(location.toReference(), agent);
 
-            agent.deleteAgentsInvalidLocations();
+            success = true;
         }
 
-        MineSocieties.getPlugin().getLocationsManager().saveAsync(location);
+        if (success) {
+            MineSocieties.getPlugin().getLocationsManager().saveAsync(location);
 
-        getPlayer().getPlayer().playSound(getPlayer().getPlayer().getLocation(), org.bukkit.Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
+            getPlayer().getPlayer().playSound(
+                    getPlayer().getPlayer().getLocation(),
+                    type.isLeftClick() ? Sound.BLOCK_NOTE_BLOCK_PLING : Sound.BLOCK_LAVA_EXTINGUISH,
+                    1,
+                    1);
 
-        hardReset();
+            hardReset();
+        }
     }
 
     @Override
     public void customModifyAgentSelector(AgentSelectorItem agentSelectorItem) {
+        agentSelectorItem.addDescription(""); // New line
+
         if (reference != null && reference.equals(agentSelectorItem.getAgent().toReference())) {
             agentSelectorItem.makeItemGlow();
 
-            agentSelectorItem.addDescription(""); // New line
             agentSelectorItem.addDescription(ChatColor.GREEN, "Selected!");
             agentSelectorItem.addDescription(ChatColor.RED, "Right-click to remove");
         } else {

@@ -6,7 +6,6 @@ import org.bukkit.event.inventory.ClickType;
 import ulisboa.tecnico.minesocieties.MineSocieties;
 import ulisboa.tecnico.minesocieties.agents.location.PublicAccess;
 import ulisboa.tecnico.minesocieties.agents.location.SocialLocation;
-import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
 import ulisboa.tecnico.minesocieties.guis.common.GUIMenuOpener;
 import ulisboa.tecnico.minesocieties.guis.common.GoBack;
@@ -46,7 +45,7 @@ public class AllLocationsMenu extends PageableMenu {
                 location -> new LocationEditItem(
                         this,
                         location,
-                        location.getStronglyConnectedAgentsCopy().stream().anyMatch( // Editting should be limited if it's an agent's home
+                        location.getAgentsWithAccessCopy().stream().anyMatch( // Editting should be limited if it's an agent's home
                                 location::isAgentsHome
                         )
                 )

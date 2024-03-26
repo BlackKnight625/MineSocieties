@@ -557,7 +557,7 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
         SocialLocation home = memory.getHome().getLocation();
 
         if (home == null) {
-            // The agent's home was deleted. They must always havea  home, though
+            // The agent's home was deleted. They must always have a home, though
             SocialLocation newHome = getNewHomeLocation();
 
             memory.setHome(newHome.toReference());
@@ -570,6 +570,8 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
             if (!home.hasAccess(this)) {
                 // The User must have removed the agent from the home's access, possibly via editing the json file. Resetting the access
                 home.setAccess(new SharedAccess(this));
+
+                MineSocieties.getPlugin().getLocationsManager().saveAsync(home);
 
                 state.markDirty();
             }
