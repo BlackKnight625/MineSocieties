@@ -1,0 +1,18 @@
+- Add location bound actions to the action list of agents
+--- Make the range configurable
+
+- Add agent inventory and make agents aware of its contents
+- Add give item action
+- Add trade action
+
+- Add farming action
+- Add wood chopping action
+
+- Make more things congifurable
+--- Fishing search radius
+---
+
+- More prompt engineering
+--- Investigate how fine-tuning could improve agent choices for ChatGPT
+
+- Add compatibility with other models
