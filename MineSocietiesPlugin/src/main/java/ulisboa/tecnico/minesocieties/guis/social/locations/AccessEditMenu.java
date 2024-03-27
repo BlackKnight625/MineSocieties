@@ -45,7 +45,7 @@ public class AccessEditMenu extends GUIMenu {
         if (selectionMenu != null) {
             GUIMenuOpener agentsSelector = new GUIMenuOpener(this, Material.REPEATER, selectionMenu, ChatColor.BLUE + "Edit NPCs with access");
 
-            agentsSelector.addDescription(ChatColor.AQUA, "NPCs with access");
+            agentsSelector.addDescription(ChatColor.AQUA, "NPCs with access:");
 
             // Adding the names of all agents with explicit access
             agentsSelector.addDescription(ChatColor.GRAY, location.getAccess().getAgentsWithAccess().stream().map(CharacterReference::getName).toList());

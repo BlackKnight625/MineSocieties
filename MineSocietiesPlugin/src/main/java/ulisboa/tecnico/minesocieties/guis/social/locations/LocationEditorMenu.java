@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.scheduler.BukkitRunnable;
 import ulisboa.tecnico.minesocieties.MineSocieties;
+import ulisboa.tecnico.minesocieties.agents.location.LocationBoundActionType;
 import ulisboa.tecnico.minesocieties.agents.location.SocialLocation;
 import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
 import ulisboa.tecnico.minesocieties.guis.common.*;
@@ -32,7 +33,7 @@ public class LocationEditorMenu extends GUIMenu {
      *  If true, the location cannot be deleted and its description cannot be edited
      */
     public LocationEditorMenu(SocialPlayer player, SocialLocation location, boolean editingIsLimited) {
-        super(player, "Location editor", 27);
+        super(player, "Location editor", 36);
 
         this.location = location;
         this.editingIsLimited = editingIsLimited;
@@ -49,13 +50,17 @@ public class LocationEditorMenu extends GUIMenu {
 
         if (!editingIsLimited) {
             addClickable(13, new NameEditor());
-            addClickable(14, new MaterialEditor());
+            addClickable(22, new MaterialEditor());
         }
 
-        addClickable(15, new WorldNameEditor());
-        addClickable(17, new AccessEditor());
+        addClickable(14, new WorldNameEditor());
+        addClickable(23, new AccessEditor());
+
         addClickable(19, new CoordinateSelectorItem(this, location));
-        addClickable(26, new GoBack(this));
+
+        addClickable(16, new ActionsEditor());
+
+        addClickable(35, new GoBack(this));
 
         fillRestWithPanes(Material.PURPLE_STAINED_GLASS_PANE);
     }
@@ -290,6 +295,26 @@ public class LocationEditorMenu extends GUIMenu {
                     "to make it easier to identify ",
                     "the location in the GUI."
             );
+        }
+    }
+
+    private class ActionsEditor extends GUIMenuOpener {
+
+        // Constructors
+
+        public ActionsEditor() {
+            super(LocationEditorMenu.this, Material.REDSTONE, new LocationBoundActionMenu(getPlayer(), location), ChatColor.BLUE + "Location's actions");
+
+            addDescription(ChatColor.GRAY,
+                    "You may choose actions that NPCs",
+                    "can perform if they're close to",
+                    "this location."
+            );
+
+            addDescription(ChatColor.AQUA + "Current actions:");
+
+            // Showing all selected actions
+            addDescription(ChatColor.BLUE, location.getPossibleActionTypes().stream().map(LocationBoundActionType::getGuiName).toList());
         }
     }
 }

@@ -137,6 +137,10 @@ public class SocialLocation implements IExplainableContext, ISimpleExplanation {
         possibleActionTypes.remove(actionType);
     }
 
+    public boolean hasPossibleAction(LocationBoundActionType actionType) {
+        return possibleActionTypes.contains(actionType);
+    }
+
     public Location toBukkitLocation() throws NullPointerException {
         World world = Bukkit.getWorld(worldName);
 
