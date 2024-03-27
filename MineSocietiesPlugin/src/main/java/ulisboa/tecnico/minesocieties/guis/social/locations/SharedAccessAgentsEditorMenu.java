@@ -29,7 +29,7 @@ public class SharedAccessAgentsEditorMenu extends AgentSelectionMenu {
         this.access = access;
 
         // Not allowing agents to be removed if this location is their home
-        getAgents().removeIf(location::isAgentsHome);
+        getAgents().removeIf(location::isSpecialLocation);
     }
 
     // Other methods

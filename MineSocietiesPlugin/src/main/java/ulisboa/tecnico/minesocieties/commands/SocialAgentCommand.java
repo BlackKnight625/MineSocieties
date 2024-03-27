@@ -9,6 +9,7 @@ import revxrsal.commands.exception.CommandErrorException;
 import ulisboa.tecnico.minesocieties.MineSocieties;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
+import ulisboa.tecnico.minesocieties.guis.social.locations.AllLocationsMenu;
 import ulisboa.tecnico.minesocieties.utils.ComponentUtils;
 
 @Command("agent")
@@ -23,7 +24,7 @@ public class SocialAgentCommand {
     @CommandPermission("minesocieties.deploy")
     public void deployAgent(Player player, String agentName, @Optional String description) {
         try {
-            MineSocieties.getPlugin().getSocialAgentManager().deployAgent(agentName, player.getLocation(), description);
+            MineSocieties.getPlugin().getSocialAgentManager().deployNewAgent(agentName, player.getLocation(), description);
             MineSocieties.getPlugin().getGuiManager().giveNPCStickIfNotPresent(getSocialPlayer(player));
         } catch (IllegalArgumentException e) {
             throw new CommandErrorException("An error occurred while deploying a social agent: " + e.getMessage());
@@ -61,6 +62,12 @@ public class SocialAgentCommand {
         } else {
             player.sendMessage(ComponentUtils.withPrefix(Component.text("Social agents can no longer choose their actions.").color(TextColor.color(229, 68, 29))));
         }
+    }
+
+    @Subcommand("locations")
+    @CommandPermission("minesocieties.admin")
+    public void openLocationsMenu(Player player) {
+        new AllLocationsMenu(getSocialPlayer(player)).open();
     }
 
     private SocialPlayer getSocialPlayer(Player player) {

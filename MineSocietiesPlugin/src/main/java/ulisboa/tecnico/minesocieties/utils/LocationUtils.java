@@ -1,5 +1,6 @@
 package ulisboa.tecnico.minesocieties.utils;
 
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -26,12 +27,12 @@ public class LocationUtils {
     }
 
     public static List<String> getNearbyCharacterNamesExcludingSelf(Location location, UUID self) {
-        List<String> names = new ArrayList<>();
+        List<String> names = getNearbyAgentNamesExcludingSelf(location, self);
 
         int maxChatRange = MineSocieties.getPlugin().getMaxChatRange();
 
         for (Entity entity : location.getWorld().getNearbyEntities(location, maxChatRange, maxChatRange, maxChatRange)) {
-            if (entity instanceof Player other && !self.equals(other.getUniqueId())) {
+            if (entity instanceof Player other && !self.equals(other.getUniqueId()) && other.getGameMode() != GameMode.SPECTATOR) {
                 // Found a nearby player
                 names.add(other.getName());
             }
@@ -45,6 +46,19 @@ public class LocationUtils {
 
         MineSocieties.getPlugin().getSocialAgentManager().forEachValidAgent(agent -> {
             if (isCloseForChatting(location, agent.getLocation())) {
+                // Found a nearby agent
+                names.add(agent.getName());
+            }
+        });
+
+        return names;
+    }
+
+    public static List<String> getNearbyAgentNamesExcludingSelf(Location location, UUID self) {
+        List<String> names = new ArrayList<>();
+
+        MineSocieties.getPlugin().getSocialAgentManager().forEachValidAgent(agent -> {
+            if (!self.equals(agent.getUUID()) && isCloseForChatting(location, agent.getLocation())) {
                 // Found a nearby agent
                 names.add(agent.getName());
             }

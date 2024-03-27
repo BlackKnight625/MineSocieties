@@ -49,11 +49,12 @@ public class LocationEditorMenu extends GUIMenu {
 
         if (!editingIsLimited) {
             addClickable(13, new NameEditor());
+            addClickable(14, new MaterialEditor());
         }
 
         addClickable(15, new WorldNameEditor());
         addClickable(17, new AccessEditor());
-        addClickable(20, new CoordinateSelectorItem(this, location));
+        addClickable(19, new CoordinateSelectorItem(this, location));
         addClickable(26, new GoBack(this));
 
         fillRestWithPanes(Material.PURPLE_STAINED_GLASS_PANE);
@@ -178,7 +179,6 @@ public class LocationEditorMenu extends GUIMenu {
         public NameEditor() {
             super(LocationEditorMenu.this, Material.WRITABLE_BOOK, ChatColor.YELLOW + "Location's name");
 
-            addDescription(ChatColor.AQUA, "Current description:");
             addDescription(ChatColor.GRAY, StringUtils.splitIntoLines(location.getName(), 30));
             addDescription(""); // Empty line
             addDescription(ChatColor.GREEN, "Click to edit");
@@ -275,6 +275,21 @@ public class LocationEditorMenu extends GUIMenu {
 
             addDescription(""); // Empty line
             addDescription(ChatColor.GREEN, "Click to edit");
+        }
+    }
+
+    private class MaterialEditor extends GUIMenuOpener {
+
+        // Constructors
+
+        public MaterialEditor() {
+            super(LocationEditorMenu.this, location.getGuiMaterial(), new MaterialSelectorMenu(getPlayer(), location), ChatColor.DARK_GREEN + "Location's item");
+
+            addDescription(ChatColor.GRAY,
+                    "Purely cosmetic. The purpose is ",
+                    "to make it easier to identify ",
+                    "the location in the GUI."
+            );
         }
     }
 }

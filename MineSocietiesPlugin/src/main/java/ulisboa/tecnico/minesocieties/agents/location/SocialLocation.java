@@ -30,7 +30,7 @@ public class SocialLocation implements IExplainableContext, ISimpleExplanation {
     private LocationAccess access;
     private Set<LocationBoundActionType> possibleActionTypes = new LinkedHashSet<>();
     private Material guiMaterial;
-    private volatile boolean deleted = false;
+    private transient boolean deleted = false;
 
     // Constructors
 
@@ -113,12 +113,20 @@ public class SocialLocation implements IExplainableContext, ISimpleExplanation {
 
     // Other methods
 
-    public boolean isAgentsHome(SocialAgent agent) {
+    /**
+     *  Checks if this location is a special location for this Agent, meaning it has special treatment.
+     *  For example, the agent's home is stored in a special place in their Memory.
+     * @param agent
+     *  The agent whose special locations are being checked.
+     * @return
+     *  True if this location is a special location for the agent.
+     */
+    public boolean isSpecialLocation(SocialAgent agent) {
         return agent.getState().getMemory().getHome().equals(toReference());
     }
 
-    public boolean isAgentsHome(CharacterReference agent) {
-        return ((SocialAgent) agent.getReferencedCharacter()).getState().getMemory().getHome().equals(toReference());
+    public boolean isSpecialLocation(CharacterReference agent) {
+        return isSpecialLocation((SocialAgent) agent.getReferencedCharacter());
     }
 
     public void addPossibleAction(LocationBoundActionType actionType) {

@@ -14,7 +14,10 @@ import ulisboa.tecnico.minesocieties.guis.common.GoBack;
 
 import java.util.Collection;
 
-public class LocationsMenu extends GUIMenu {
+/**
+ *  This menu allows players to see which locations a specific agent has access to and edit them.
+ */
+public class AgentLocationsMenu extends GUIMenu {
 
     // Private attributes
 
@@ -22,7 +25,7 @@ public class LocationsMenu extends GUIMenu {
 
     // Constructors
 
-    public LocationsMenu(SocialPlayer player, SocialAgent agent) {
+    public AgentLocationsMenu(SocialPlayer player, SocialAgent agent) {
         super(player, "Locations", 27);
 
         this.agent = agent;
@@ -35,8 +38,7 @@ public class LocationsMenu extends GUIMenu {
         AgentMemory memory = agent.getState().getMemory();
 
         // Adding buttons to edit locations that must exist in the agent's memory
-        addClickable(10, new LocationEditItem(this, Material.RED_BED, agent, memory.getHome(), true));
-        // TODO: Add Job location and maybe others
+        addClickable(10, new LocationEditItem(this, memory.getHome().getLocation(), true));
 
         // Adding button to view/edit other locations, which are allowed to be deleted and their number isn't limited
         addClickable(16, new OtherLocationsMenuOpener());
@@ -56,7 +58,7 @@ public class LocationsMenu extends GUIMenu {
     }
 
     public static void addLocationToDescription(GUIItem item, LocationReference location) {
-        String descriptionLine = LocationsMenu.toLocationString(location);
+        String descriptionLine = AgentLocationsMenu.toLocationString(location);
 
         if (descriptionLine.length() > 46) {
             // Line is too long
@@ -70,7 +72,7 @@ public class LocationsMenu extends GUIMenu {
         int counter = 0;
 
         for (LocationReference location : locations) {
-            LocationsMenu.addLocationToDescription(item, location);
+            AgentLocationsMenu.addLocationToDescription(item, location);
             counter++;
 
             if (counter > max) {
@@ -89,9 +91,9 @@ public class LocationsMenu extends GUIMenu {
         // Constructors
 
         public OtherLocationsMenuOpener() {
-            super(LocationsMenu.this, Material.MAP, new OtherLocationsMenu(getPlayer(), agent), ChatColor.DARK_AQUA + "Other locations");
+            super(AgentLocationsMenu.this, Material.MAP, new OtherLocationsMenu(getPlayer(), agent), ChatColor.DARK_AQUA + "Other locations");
 
-            LocationsMenu.addLocationsToDescription(this, agent.getState().getMemory().getKnownLocations().getMemorySections(), 8);
+            AgentLocationsMenu.addLocationsToDescription(this, agent.getState().getMemory().getKnownLocations().getMemorySections(), 8);
         }
     }
 }

@@ -11,8 +11,6 @@ import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.agents.npc.state.CharacterReference;
 import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
 
-import java.util.function.Predicate;
-
 public class PersonalAccessAgentsEditorMenu extends AgentSelectionMenu {
 
     // Private attributes
@@ -30,7 +28,7 @@ public class PersonalAccessAgentsEditorMenu extends AgentSelectionMenu {
         this.access = access;
 
         // Not allowing agents to be removed if this location is their home
-        getAgents().removeIf(location::isAgentsHome);
+        getAgents().removeIf(location::isSpecialLocation);
     }
 
     // Other methods

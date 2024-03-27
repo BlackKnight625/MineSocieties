@@ -72,7 +72,7 @@ public class CurrentContextExplainer implements IContextVisitor {
 
     @Override
     public String explainLocation(SocialLocation location) {
-        return location.getDescription();
+        return location.getName();
     }
 
     @Override

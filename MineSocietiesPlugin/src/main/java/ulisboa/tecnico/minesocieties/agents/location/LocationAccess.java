@@ -96,13 +96,17 @@ public abstract class LocationAccess {
     }
 
     public void forgetLocation(LocationReference location, SocialAgent agent) {
-        agent.getState().getMemory().getKnownLocations().remove(location);
-        agent.getState().markDirty();
+        if (!location.getLocation().isSpecialLocation(agent)) {
+            agent.getState().getMemory().getKnownLocations().remove(location);
+            agent.getState().markDirty();
+        }
     }
 
     public void rememberLocation(LocationReference location, SocialAgent agent) {
-        agent.getState().getMemory().getKnownLocations().addMemorySection(location);
-        agent.getState().markDirty();
+        if (!location.getLocation().isSpecialLocation(agent)) {
+            agent.getState().getMemory().getKnownLocations().addMemorySection(location);
+            agent.getState().markDirty();
+        }
     }
 
     public void forEachAgentWithAccess(Consumer<SocialAgent> action) {

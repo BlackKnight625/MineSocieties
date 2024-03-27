@@ -55,9 +55,9 @@ public class AgentState implements IExplainableContext {
 
     public AgentState() {}
 
-    public AgentState(UUID uuid, AgentPersona persona, SocialLocation home) {
+    public AgentState(UUID uuid, AgentPersona persona) {
         this.uuid = uuid;
-        this.memory = new AgentMemory(home);
+        this.memory = new AgentMemory();
         this.persona = persona;
     }
 

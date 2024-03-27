@@ -11,6 +11,7 @@ import ulisboa.tecnico.minesocieties.agents.npc.state.CharacterReference;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -56,7 +57,7 @@ public class LocationsManager {
     }
 
     public String toFileName(SocialLocation location) {
-        return location.getName() + "_" + location.getUuid() + ".json";
+        return location.getUuid() + ".json";
     }
 
     public void saveAsync() {
@@ -168,6 +169,8 @@ public class LocationsManager {
                 Files.delete(LOCATIONS_PATH.resolve(toFileName(location)));
 
                 deleted = true;
+            } catch (NoSuchFileException e) {
+                // File doesn't exist. Nothing to worry about
             } catch (IOException e) {
                 MineSocieties.getPlugin().getLogger().severe("Unable to delete location \"" + location.getName() + "\"'s file");
                 e.printStackTrace();

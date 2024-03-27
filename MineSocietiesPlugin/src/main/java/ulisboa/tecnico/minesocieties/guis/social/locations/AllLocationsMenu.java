@@ -24,9 +24,13 @@ public class AllLocationsMenu extends PageableMenu {
 
     // Constructors
 
-    public AllLocationsMenu(SocialPlayer player, String name, int size) {
-        super(player, name, size);
+    public AllLocationsMenu(SocialPlayer player) {
+        super(player, "All locations", 54);
 
+        fetchLocations();
+    }
+
+    private void fetchLocations() {
         locations = MineSocieties.getPlugin().getLocationsManager().getAllLocations();
 
         sortLocations();
@@ -46,7 +50,7 @@ public class AllLocationsMenu extends PageableMenu {
                         this,
                         location,
                         location.getAgentsWithAccessCopy().stream().anyMatch( // Editting should be limited if it's an agent's home
-                                location::isAgentsHome
+                                location::isSpecialLocation
                         )
                 )
         );
@@ -97,6 +101,11 @@ public class AllLocationsMenu extends PageableMenu {
             // Creating a new location
             SocialLocation newLocation = new SocialLocation(getPlayer().getLocation().toVector(), getPlayer().getLocation().getWorld().getName(),
                     "Brand new location", new PublicAccess());
+
+            MineSocieties.getPlugin().getLocationsManager().addLocation(newLocation);
+            MineSocieties.getPlugin().getLocationsManager().saveAsync(newLocation);
+
+            fetchLocations();
 
             // Opening the menu to edit the new location
             setMenuToOpen(new LocationEditorMenu(getPlayer(), newLocation, false));

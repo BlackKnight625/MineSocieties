@@ -19,10 +19,6 @@ public class AgentMemory implements IExplainableContext {
 
     public AgentMemory() {}
 
-    public AgentMemory(SocialLocation home) {
-        this.home = home.toReference();
-    }
-
     // Getters and setters
 
     public AgentConversations getConversations() {

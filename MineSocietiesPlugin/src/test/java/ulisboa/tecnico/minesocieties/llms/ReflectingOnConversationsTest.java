@@ -1,10 +1,14 @@
 package ulisboa.tecnico.minesocieties.llms;
 
+import org.bukkit.util.Vector;
 import org.entityutils.entity.npc.player.AnimatedPlayerNPC;
 import org.entityutils.utils.data.PlayerNPCData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ulisboa.tecnico.minesocieties.MineSocieties;
+import ulisboa.tecnico.minesocieties.agents.location.LocationReference;
+import ulisboa.tecnico.minesocieties.agents.location.PublicAccess;
+import ulisboa.tecnico.minesocieties.agents.location.SocialLocation;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.agents.npc.state.*;
 import ulisboa.tecnico.minesocieties.visitors.CurrentContextExplainer;
@@ -56,7 +60,9 @@ public class ReflectingOnConversationsTest extends BaseLLMTest {
         alexState = new AgentState(uuid,
                 new AgentPersona(name, Instant.ofEpochSecond(
                         LocalDateTime.of(2000, Month.DECEMBER, 5, 12, 0).toEpochSecond(ZoneOffset.UTC)
-                )), new AgentLocation());
+                )));
+
+        alexState.getMemory().setHome(new LocationReference(new SocialLocation(new Vector(0, 0, 0), "Earth", "Alex's home", new PublicAccess())));
 
         agent.setState(alexState);
 

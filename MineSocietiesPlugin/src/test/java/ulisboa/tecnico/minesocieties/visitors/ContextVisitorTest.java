@@ -2,6 +2,9 @@ package ulisboa.tecnico.minesocieties.visitors;
 
 import org.bukkit.util.Vector;
 import org.junit.jupiter.api.Test;
+import ulisboa.tecnico.minesocieties.agents.location.LocationReference;
+import ulisboa.tecnico.minesocieties.agents.location.PublicAccess;
+import ulisboa.tecnico.minesocieties.agents.location.SocialLocation;
 import ulisboa.tecnico.minesocieties.agents.npc.state.*;
 
 import java.time.Instant;
@@ -41,10 +44,11 @@ public class ContextVisitorTest {
         AgentState alexState = new AgentState(new UUID(625, 625),
                 new AgentPersona(alex.getName(), Instant.ofEpochSecond(
                         LocalDateTime.of(2000, Month.DECEMBER, 5, 12, 0).toEpochSecond(ZoneOffset.UTC)
-                )),
-                new AgentLocation(new Vector(0, 0, 0), "Earth", "Alex's home")
+                ))
         );
         AgentMemory alexMemory = alexState.getMemory();
+
+        alexMemory.setHome(new LocationReference(new SocialLocation(new Vector(0, 0, 0), "Earth", "Alex's home", new PublicAccess())));
 
         // Creating some conversations
         AgentConversations alexConversations = alexMemory.getConversations();
@@ -84,9 +88,10 @@ public class ContextVisitorTest {
         AgentState alexState = new AgentState(new UUID(625, 625),
                 new AgentPersona(alex.getName(), Instant.ofEpochSecond(
                         LocalDateTime.of(2000, Month.DECEMBER, 5, 12, 0).toEpochSecond(ZoneOffset.UTC)
-                )),
-                new AgentLocation(new Vector(0, 0, 0), "Earth", "Alex's home")
+                ))
         );
+
+        alexState.getMemory().setHome(new LocationReference(new SocialLocation(new Vector(0, 0, 0), "Earth", "Alex's home", new PublicAccess())));
 
         // Testing the visitor
         CurrentContextExplainer visitor = new CurrentContextExplainer();

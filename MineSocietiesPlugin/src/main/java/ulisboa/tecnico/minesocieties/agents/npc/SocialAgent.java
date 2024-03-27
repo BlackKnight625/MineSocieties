@@ -157,17 +157,21 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
         }
     }
 
-    public SocialLocation getNewHomeLocation() {
-        SharedAccess access = new SharedAccess(this);
-
-        // Adding this agent to the referenced agents
-        access.addAgent(toReference());
-
+    public void setNewHomeLocation() {
+        SharedAccess access = new SharedAccess();
         SocialLocation newHome = new SocialLocation(getLocation(), getName() + "'s home", access);
+
+        state.getMemory().setHome(newHome.toReference());
+
+        // Adding this agent to the referenced agents after setting the home so that this lcoation may know that it's special
+        access.addAgent(toReference());
 
         newHome.setGuiMaterial(Material.RED_BED);
 
-        return newHome;
+        MineSocieties.getPlugin().getLocationsManager().addLocation(newHome);
+        MineSocieties.getPlugin().getLocationsManager().saveAsync(newHome);
+
+        state.markDirty();
     }
 
 
@@ -177,17 +181,22 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
 
         if (state == null) {
             // It's the 1st time ever that this agent is being deployed. Giving it an initial state
-            SocialLocation home = getNewHomeLocation();
-
             state = new AgentState(
                     getUUID(),
                     new AgentPersona(getName(), Instant.ofEpochSecond(
                             LocalDateTime.of(2000, Month.DECEMBER, 5, 12, 0).toEpochSecond(ZoneOffset.UTC)
-                    )), // They all have my birthday by default, toot toot!
-                    home
+                    )) // They all have my birthday by default, toot toot!
             );
 
-            MineSocieties.getPlugin().getLocationsManager().saveAsync(home);
+            // Giving the agent a home
+            setNewHomeLocation();
+
+            // Must add public locations to the agent
+            for (SocialLocation socialLocation : MineSocieties.getPlugin().getLocationsManager().getAllLocations()) {
+                if (!socialLocation.getAccess().isRestricted()) {
+                    state.getMemory().getKnownLocations().addMemorySection(socialLocation.toReference());
+                }
+            }
         }
 
         messageDisplay.initialize();
@@ -558,13 +567,7 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
 
         if (home == null) {
             // The agent's home was deleted. They must always have a home, though
-            SocialLocation newHome = getNewHomeLocation();
-
-            memory.setHome(newHome.toReference());
-
-            MineSocieties.getPlugin().getLocationsManager().addLocation(newHome);
-
-            state.markDirty();
+            setNewHomeLocation();
         } else {
             // The agent's home is valid. Checking if this agent has access to it
             if (!home.hasAccess(this)) {

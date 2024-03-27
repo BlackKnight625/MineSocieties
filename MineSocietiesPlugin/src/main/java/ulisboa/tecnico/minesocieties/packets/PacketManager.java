@@ -10,6 +10,7 @@ import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
@@ -40,12 +41,11 @@ public class PacketManager {
 
                     // Changing the sign back to its previous block
                     WrapperPlayServerBlockChange blockPacket = new WrapperPlayServerBlockChange();
-                    Location location = player.getPlayer().getLocation();
-                    BlockPosition blockPosition = new BlockPosition(location.getBlockX(), location.getBlockY() + 3, location.getBlockZ());
+                    Location location = player.getPlayer().getLocation().add(0, 3, 0);
+                    BlockPosition blockPosition = new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ());
 
                     blockPacket.setLocation(blockPosition);
                     blockPacket.setBlockData(WrappedBlockData.createData(location.getBlock().getBlockData()));
-
                     blockPacket.sendPacket(player.getPlayer());
                 }
             }

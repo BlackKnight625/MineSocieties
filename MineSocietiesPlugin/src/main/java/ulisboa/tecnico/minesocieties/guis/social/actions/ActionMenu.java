@@ -10,7 +10,7 @@ import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
 import ulisboa.tecnico.minesocieties.guis.common.GUIMenu;
 import ulisboa.tecnico.minesocieties.guis.common.GUIMenuOpener;
 import ulisboa.tecnico.minesocieties.guis.common.GoBack;
-import ulisboa.tecnico.minesocieties.guis.social.locations.LocationsMenu;
+import ulisboa.tecnico.minesocieties.guis.social.locations.AgentLocationsMenu;
 
 public class ActionMenu extends GUIMenu {
 
@@ -51,7 +51,7 @@ public class ActionMenu extends GUIMenu {
                 super(ActionMenu.this, Material.RECOVERY_COMPASS, new GoToKnownLocationsMenu(getPlayer(), agent),
                         ChatColor.AQUA + "Click to see more locations:");
 
-                LocationsMenu.addLocationsToDescription(this, agent.getState().getMemory().getKnownLocations().getMemorySections(), 6);
+                AgentLocationsMenu.addLocationsToDescription(this, agent.getState().getMemory().getKnownLocations().getMemorySections(), 6);
             }
     }
 }

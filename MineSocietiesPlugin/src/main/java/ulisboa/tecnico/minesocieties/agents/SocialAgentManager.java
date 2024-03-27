@@ -10,13 +10,12 @@ import revxrsal.commands.exception.CommandErrorException;
 import ulisboa.tecnico.agents.AbstractAgentManager;
 import ulisboa.tecnico.agents.observation.ReceivedChatObservation;
 import ulisboa.tecnico.minesocieties.MineSocieties;
+import ulisboa.tecnico.minesocieties.agents.location.SocialLocation;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
-import ulisboa.tecnico.minesocieties.agents.npc.state.AgentMemory;
 import ulisboa.tecnico.minesocieties.agents.npc.state.AgentState;
 import ulisboa.tecnico.minesocieties.agents.observation.SocialEventListener;
 import ulisboa.tecnico.minesocieties.agents.observation.wrapped.SocialReceivedChatFromObservation;
 import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
-import ulisboa.tecnico.minesocieties.commands.SocialAgentCommand;
 import ulisboa.tecnico.minesocieties.utils.ComponentUtils;
 
 import java.io.File;
@@ -52,9 +51,10 @@ public class SocialAgentManager extends AbstractAgentManager<SocialAgent, Social
         return new SocialPlayer(player);
     }
 
-    public SocialAgent deployAgent(String name, Location location, @Nullable String description) throws IllegalArgumentException {
+    public SocialAgent deployNewAgent(String name, Location location, @Nullable String description) throws IllegalArgumentException {
         SocialAgent agent = deployAgent(name, location);
 
+        // Turning the initial description into a memory
         if (description != null && !description.isEmpty()) {
             agent.getState().insertDescriptionAsync(description);
         }

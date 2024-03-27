@@ -11,10 +11,10 @@ public class LocationsItem extends GUIMenuOpener {
     // Constructors
 
     public LocationsItem(AgentInformationMenu menu, SocialAgent agent) {
-        super(menu, Material.COMPASS, new LocationsMenu(menu.getPlayer(), agent), ChatColor.GOLD + "Known locations");
+        super(menu, Material.COMPASS, new AgentLocationsMenu(menu.getPlayer(), agent), ChatColor.GOLD + "Known locations");
 
         // Adding some states to the description
-        LocationsMenu.addLocationsToDescription(this, agent.getState().getAllLocations(), 8);
+        AgentLocationsMenu.addLocationsToDescription(this, agent.getState().getAllLocations(), 8);
 
         addDescription("");
         addDescription(ChatColor.GREEN + "Click to edit/view more details");

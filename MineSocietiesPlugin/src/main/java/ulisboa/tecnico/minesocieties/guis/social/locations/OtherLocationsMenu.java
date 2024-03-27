@@ -7,6 +7,7 @@ import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.agents.npc.state.AgentKnownLocations;
 import ulisboa.tecnico.minesocieties.agents.npc.state.AgentLocation;
 import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
+import ulisboa.tecnico.minesocieties.guis.common.GUIMenu;
 import ulisboa.tecnico.minesocieties.guis.common.GUIMenuOpener;
 import ulisboa.tecnico.minesocieties.guis.common.GoBack;
 import ulisboa.tecnico.minesocieties.guis.common.PageableMenu;
@@ -39,9 +40,9 @@ public class OtherLocationsMenu extends PageableMenu {
     private void reloadItemsInPage() {
         // Placing all locations
         fillPageFromList(PAGE_SIZE, locations.getMemorySections().stream().toList(),
-                l -> new LocationEditItem(this, Material.COMPASS, agent, l, false));
+                l -> new LocationEditItem(this, l.getLocation(), false));
 
-        addClickable(45, new NewLocationAdder());
+        addClickable(45, new AllLocationsOpener());
 
         addClickable(53, new GoBack(this));
 
@@ -69,32 +70,17 @@ public class OtherLocationsMenu extends PageableMenu {
 
     // Private classes
 
-    private class NewLocationAdder extends GUIMenuOpener {
+    private class AllLocationsOpener extends GUIMenuOpener {
 
-        // Constructors
+        public AllLocationsOpener() {
+            super(OtherLocationsMenu.this, Material.RECOVERY_COMPASS, new AllLocationsMenu(getPlayer()), ChatColor.GOLD + "See all locations");
 
-        public NewLocationAdder() {
-            super(OtherLocationsMenu.this, Material.RECOVERY_COMPASS,
-                    null, ChatColor.GREEN + "Add new location");
-        }
-
-        // Other methods
-
-
-        @Override
-        public void clicked(ClickType click) {
-            // Creating a new location
-            AgentLocation newLocation = new AgentLocation(getPlayer().getLocation().toVector(), getPlayer().getLocation().getWorld().getName(),
-                    "The description for the location. Ex: " + agent.getName() + "'s job.");
-
-            // Saving the new unedited location
-            agent.getState().getMemory().getKnownLocations().addMemorySection(newLocation);
-            agent.getState().markDirty();
-
-            // Opening the menu to edit the new location
-            setMenuToOpen(new LocationEditorMenu(getPlayer(), agent, newLocation, false));
-
-            super.clicked(click);
+            addDescription(ChatColor.GRAY,
+                    "You may also run",
+                    ChatColor.AQUA + "/agent locations" + ChatColor.GRAY + " to see",
+                    "all locations without",
+                    "needing to come to this GUI."
+            );
         }
     }
 }

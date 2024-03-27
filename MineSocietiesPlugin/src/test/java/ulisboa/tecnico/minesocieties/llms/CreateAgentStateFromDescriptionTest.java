@@ -2,6 +2,9 @@ package ulisboa.tecnico.minesocieties.llms;
 
 import org.bukkit.util.Vector;
 import org.junit.jupiter.api.Test;
+import ulisboa.tecnico.minesocieties.agents.location.LocationReference;
+import ulisboa.tecnico.minesocieties.agents.location.PublicAccess;
+import ulisboa.tecnico.minesocieties.agents.location.SocialLocation;
 import ulisboa.tecnico.minesocieties.agents.npc.state.AgentLocation;
 import ulisboa.tecnico.minesocieties.agents.npc.state.AgentPersona;
 import ulisboa.tecnico.minesocieties.agents.npc.state.AgentState;
@@ -16,12 +19,15 @@ import java.util.UUID;
 public class CreateAgentStateFromDescriptionTest extends BaseLLMTest {
 
     private AgentState getNewAgentState() {
-        return new AgentState(new UUID(625, 625),
+        AgentState state = new AgentState(new UUID(625, 625),
                 new AgentPersona("Alex Johnson", Instant.ofEpochSecond(
                         LocalDateTime.of(2000, Month.DECEMBER, 5, 12, 0).toEpochSecond(ZoneOffset.UTC)
-                )),
-                new AgentLocation(new Vector(0, 0, 0), "Earth", "Alex's home")
+                ))
         );
+
+        state.getMemory().setHome(new LocationReference(new SocialLocation(new Vector(0, 0, 0), "Earth", "Alex's home", new PublicAccess())));
+
+        return state;
     }
 
     @Test
