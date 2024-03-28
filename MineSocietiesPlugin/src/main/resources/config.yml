@@ -28,6 +28,7 @@ loadSavedAgents: Yes
 # Whether agents can start querying the LLM to choose actions after a server restart. This should be
 # off by default as to not immediately start spending LLM credits after the server starts.
 # If this is off, running '/agent allow_action_choice true' will allow agents to start choosing actions, which must be done
+# after every server restart
 agentsCanStartChoosingActionsByDefault: No
 
 # Whether a message should display above agent's heads explaining what they are doing right now
@@ -38,3 +39,6 @@ showThoughts: Yes
 
 # The number of ticks that the thought message should be displayed for, if showThoughts is enabled. Default is 15 seconds (300 ticks)
 showThoughtsTicks: 300
+
+# The max distance (in blocks) that an agent can be from a Location in order to possibly execute actions bound to that Location
+locationBoundActionRange: 7.0

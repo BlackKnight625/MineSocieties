@@ -6,6 +6,25 @@ import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.visitors.IActionVisitor;
 
 public class ContinueCurrentAction implements ISocialAction {
+
+    // Private attributes
+
+    private final ISocialAction currentAction;
+
+    // Constructors
+
+    public ContinueCurrentAction(ISocialAction currentAction) {
+        this.currentAction = currentAction;
+    }
+
+    // Getters and setters
+
+    public ISocialAction getCurrentAction() {
+        return this.currentAction;
+    }
+
+    // Other methods
+
     @Override
     public ActionStatus act(SocialAgent actioner) {
         return ActionStatus.SUCCESS;

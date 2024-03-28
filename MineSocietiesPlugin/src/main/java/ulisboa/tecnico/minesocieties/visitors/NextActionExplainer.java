@@ -35,7 +35,8 @@ public class NextActionExplainer implements IActionVisitor {
 
     @Override
     public String visitContinueCurrentAction(ContinueCurrentAction continueCurrentAction) {
-        return "Continue doing what they're currently doing";
+        // Special action. Will explain that the agent may continue doing the current action
+        return "Continue " + continueCurrentAction.getCurrentAction().accept(new CurrentActionExplainer());
     }
 
     @Override

@@ -5,8 +5,10 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.util.Vector;
+import ulisboa.tecnico.minesocieties.MineSocieties;
 import ulisboa.tecnico.minesocieties.agents.actions.ISocialAction;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
+import ulisboa.tecnico.minesocieties.agents.npc.state.AgentLocation;
 import ulisboa.tecnico.minesocieties.agents.npc.state.CharacterReference;
 import ulisboa.tecnico.minesocieties.agents.npc.state.IExplainableContext;
 import ulisboa.tecnico.minesocieties.agents.npc.state.ISimpleExplanation;
@@ -186,6 +188,16 @@ public class SocialLocation implements IExplainableContext, ISimpleExplanation {
         deleted = true;
     }
 
+    public boolean isClose(Location location) {
+        return location.getWorld().getName().equals(worldName) &&
+                location.toVector().distanceSquared(position) <= MineSocieties.getPlugin().getLocationBoundActionRangeSquared();
+    }
+
+    public boolean isClose(AgentLocation location) {
+        return location.getWorldName().equals(worldName) &&
+                location.getPosition().distanceSquared(position) <= MineSocieties.getPlugin().getLocationBoundActionRangeSquared();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -224,5 +236,9 @@ public class SocialLocation implements IExplainableContext, ISimpleExplanation {
         }
 
         return actions;
+    }
+
+    public boolean hasPossibleActions() {
+        return !possibleActionTypes.isEmpty();
     }
 }

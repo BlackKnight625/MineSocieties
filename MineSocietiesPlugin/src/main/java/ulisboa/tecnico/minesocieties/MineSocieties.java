@@ -41,6 +41,8 @@ public class MineSocieties extends JavaPlugin {
     private boolean showWhatAgentsAreDoing;
     private boolean showThoughts;
     private int showThoughtsTicks;
+    private double locationBoundActionRange;
+    private double locationBoundActionRangeSquared;
 
     // Other methods
 
@@ -102,6 +104,9 @@ public class MineSocieties extends JavaPlugin {
         showWhatAgentsAreDoing = getConfig().getBoolean("showWhatAgentsAreDoing");
         showThoughts = getConfig().getBoolean("showThoughts");
         showThoughtsTicks = getConfig().getInt("showThoughtsTicks");
+        locationBoundActionRange = getConfig().getDouble("locationBoundActionRange");
+
+        locationBoundActionRangeSquared = locationBoundActionRange * locationBoundActionRange;
 
         if (loadSavedAgents) {
             // Loading all agents in the next tick
@@ -252,6 +257,14 @@ public class MineSocieties extends JavaPlugin {
 
     public boolean showWhatAgentsAreDoing() {
         return showWhatAgentsAreDoing;
+    }
+
+    public double getLocationBoundActionRange() {
+        return locationBoundActionRange;
+    }
+
+    public double getLocationBoundActionRangeSquared() {
+        return locationBoundActionRangeSquared;
     }
 
     public static MineSocieties getPlugin() {

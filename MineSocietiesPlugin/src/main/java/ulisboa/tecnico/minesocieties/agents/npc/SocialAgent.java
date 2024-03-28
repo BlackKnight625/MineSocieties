@@ -240,7 +240,7 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
                         "You will receive the description of an NPC and a list of possible actions. " +
                         "You must choose the action that is the most appropriate for them " +
                         "given the situation they find themselves in. Write down your choice as " +
-                        "{<number of action>}{<optional arguments, if none leave empty}{<the reasoning for your choice>}" +
+                        "Action{<number of action>}{<optional arguments, if none leave empty}{<the reasoning for your choice>}" +
                         (showThoughts ? "{<the NPC's thought process, short, 1st person>}" : "")
                 )
         );
@@ -250,16 +250,16 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
                 "{Rafael is 22 years old. Their personality consists: ai-enthusiast, intelligent. Their current emotions are: " +
                         "relaxed, focused. Francisco likes Rafael's thesis. Rui Prada is helping Rafael writing his thesis. " +
                         "Rui Prada just said 'Hi Rafael! Do you need more help with Chapter 4?'} " +
-                        "{Actions:\n1) Engage in conversation. If you choose this, write the name of the person who should receive the message, then the message and then " +
+                        "{Actions:\nAction 1) Engage in conversation. If you choose this, write the name of the person who should receive the message, then the message and then " +
                         "whether it makes sense for Rafael to wait for a reply (a 'yes' or 'no') in this format: name|message|wait_for_reply. The " +
                         "possible people to chat with are {Francisco, Rui Prada}\n" +
-                        "2) Go home.\n}"
+                        "Action 2) Go home.\n}"
                 )
         );
 
         // Giving an example of output to the model
         messageList.add(new LLMMessage(LLMRole.ASSISTANT,
-                "{1}{Rui Prada|Thanks for offering, but for now I'm all good. I'll let you know if I need help!|yes}" +
+                "Action{1}{Rui Prada|Thanks for offering, but for now I'm all good. I'll let you know if I need help!|yes}" +
                         "{Since Rafael is focused, going home now will break said focus. Rui Prada just started a conversation with Rafael, " +
                         "so it's logical that Rafael would reply to Rui Prada, addressing Rui Prada's offer for help. There's no indication that " +
                         "Rafael is struggling or needs help, as such, Rafael politely refuses Rui Prada's help. Since Rafael is replying to Rui Prada's question, " +
@@ -300,7 +300,7 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
             throw new MalformedActionChoiceException(actionReply, "Action choice is malformed: There's no curly brackets '{'.");
         }
 
-        if (replySections.length < 4 /*It's 4 due to the 1st empty section that the split method generates*/) {
+        if (replySections.length < 4 /*It's 4 due to the 1st useless section behind the '{'*/) {
             throw new MalformedActionChoiceException(actionReply, "Action choice does not contain 3 sections of curly brackets. " +
                     "It only contains " + replySections.length + ".");
         }
@@ -389,7 +389,10 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
                 pastActions.forgetMemorySectionOlderThan(Instant.now().minus(10, ChronoUnit.MINUTES));
             }
 
-            currentAction.cancel(this);
+            if (!currentActionStatus.isFinished()) {
+                // Must cancel the ongoing action
+                currentAction.cancel(this);
+            }
 
             currentAction = newAction;
             currentActionStatus = ActionStatus.IN_PROGRESS;
@@ -494,6 +497,7 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
         int i = 1;
 
         for (var action : possibleActions) {
+            builder.append("Option ");
             builder.append(i);
             builder.append(") ");
 
@@ -521,6 +525,8 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
 
     public List<ISocialAction> getPossibleActions() {
         List<ISocialAction> possibleActions = new LinkedList<>();
+        // Getting an AgentLocation instead of a Location since this method may be called outside the main thread
+        AgentLocation currentLocation = state.getCurrentLocation();
 
         // Adding all actions that this agent can take
         possibleActions.add(new SendChatTo());
@@ -530,15 +536,20 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
         for (LocationReference otherLocationReference : state.getAllLocations()) {
             SocialLocation otherLocation = otherLocationReference.getLocation();
 
-            if (otherLocation != null) {
+            if (otherLocation != null && !otherLocation.isDeleted()) {
                 // The location might have been deleted during this iteration process, hence the check
                 possibleActions.add(new InformativeGoTo(otherLocation));
+
+                if (otherLocation.hasPossibleActions() && otherLocation.hasAccess(this) && otherLocation.isClose(currentLocation)) {
+                    // This location is accessible, close to the NPC, and there are actions that can be executed there
+                    possibleActions.addAll(otherLocation.getPossibleActions());
+                }
             }
         }
 
         if (!currentActionStatus.isFinished()) {
             // Agent can decide to continue its current action
-            possibleActions.add(new ContinueCurrentAction());
+            possibleActions.add(new ContinueCurrentAction(currentAction));
         }
 
         // Removing actions that cannot be executed

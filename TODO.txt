@@ -8,7 +8,7 @@
 - Add farming action
 - Add wood chopping action
 
-- Make more things congifurable
+- Make more things configurable
 --- Fishing search radius
 ---
 
@@ -16,3 +16,13 @@
 --- Investigate how fine-tuning could improve agent choices for ChatGPT
 
 - Add compatibility with other models
+
+--- Bugs ---
+- Auto-complete for "/agent talk" doesn't work
+
+--- Ideas ---
+- To deal with 2 agents sending a chat to each other nearly at the same time and ending up speaking very quickly:
+--- Make SocialObservations have a method called reactionUrgency() that returns
+----- URGENT if the agent should react immediately
+----- CAN_WAIT if the agent should put the observation in a queue and react to it later
+----- CAN_BE_IGNORED if the agent can ignore the observation if they're currently busy

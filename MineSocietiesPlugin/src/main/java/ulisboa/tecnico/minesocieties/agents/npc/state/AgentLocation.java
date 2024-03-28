@@ -8,7 +8,9 @@ import ulisboa.tecnico.minesocieties.visitors.IContextVisitor;
 
 import java.util.Objects;
 
-// TODO: Make locations known to certain agents
+/*
+ * Represents a basic form of a serializable location.
+ */
 public class AgentLocation implements IExplainableContext, ISimpleExplanation {
 
     // Private attributes
