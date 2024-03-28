@@ -19,6 +19,7 @@
 
 --- Bugs ---
 - Auto-complete for "/agent talk" doesn't work
+- NPCs in unloaded chunks will keep making decisions
 
 --- Ideas ---
 - To deal with 2 agents sending a chat to each other nearly at the same time and ending up speaking very quickly:
