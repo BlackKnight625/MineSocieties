@@ -1,12 +1,13 @@
-- Add location bound actions to the action list of agents
---- Make the range configurable
-
 - Add agent inventory and make agents aware of its contents
 - Add give item action
 - Add trade action
 
 - Add farming action
 - Add wood chopping action
+
+- Add more observations
+--- Characters entering chatting range of agents
+---
 
 - Make more things configurable
 --- Fishing search radius

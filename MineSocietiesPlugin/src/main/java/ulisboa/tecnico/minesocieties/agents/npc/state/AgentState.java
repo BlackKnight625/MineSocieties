@@ -3,6 +3,7 @@ package ulisboa.tecnico.minesocieties.agents.npc.state;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+import org.bukkit.inventory.Inventory;
 import org.entityutils.entity.npc.player.AnimatedPlayerNPC;
 import ulisboa.tecnico.llms.LLMMessage;
 import ulisboa.tecnico.llms.LLMRole;
@@ -12,6 +13,7 @@ import ulisboa.tecnico.minesocieties.agents.actions.exceptions.MalformedNewState
 import ulisboa.tecnico.minesocieties.agents.location.LocationReference;
 import ulisboa.tecnico.minesocieties.agents.location.SocialLocation;
 import ulisboa.tecnico.minesocieties.utils.InstantTypeAdapter;
+import ulisboa.tecnico.minesocieties.utils.InventoryTypeAdapter;
 import ulisboa.tecnico.minesocieties.visitors.IContextVisitor;
 
 import java.io.File;
@@ -45,6 +47,7 @@ public class AgentState implements IExplainableContext {
     private AgentPersona persona;
     private UUID uuid;
     private AgentLocation currentLocation;
+    private AgentInventory inventory = new AgentInventory();
     private transient boolean dirty = false;
     private final transient Lock stateLock = new ReentrantLock();
     private final transient Lock saveInProgress = new ReentrantLock();
@@ -426,6 +429,7 @@ public class AgentState implements IExplainableContext {
         gsonBuilder.setPrettyPrinting();
 
         gsonBuilder.registerTypeAdapter(Instant.class, new InstantTypeAdapter());
+        gsonBuilder.registerTypeAdapter(Inventory.class, new InventoryTypeAdapter());
 
         GSON = gsonBuilder.create();
     }
