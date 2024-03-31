@@ -22,12 +22,20 @@ public class ReadWriteLock {
         lock.readLock().lock();
     }
 
+    public boolean tryReadLock() {
+        return lock.readLock().tryLock();
+    }
+
     public void readUnlock() {
         lock.readLock().unlock();
     }
 
     public void writeLock() {
         lock.writeLock().lock();
+    }
+
+    public boolean tryWriteLock() {
+        return lock.writeLock().tryLock();
     }
 
     public void writeUnlock() {
@@ -44,6 +52,20 @@ public class ReadWriteLock {
         }
     }
 
+    public boolean tryWrite(Runnable runnable) {
+        if (tryWriteLock()) {
+            try {
+                runnable.run();
+            } finally {
+                writeUnlock();
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
     public void read(Runnable runnable) {
         readLock();
 
@@ -52,5 +74,19 @@ public class ReadWriteLock {
         } finally {
             readUnlock();
         }
+    }
+
+    public boolean tryRead(Runnable runnable) {
+        if (tryReadLock()) {
+            try {
+                runnable.run();
+            } finally {
+                readUnlock();
+            }
+
+            return true;
+        }
+
+        return false;
     }
 }

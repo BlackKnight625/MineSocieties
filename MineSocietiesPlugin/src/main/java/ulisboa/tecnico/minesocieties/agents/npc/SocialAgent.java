@@ -569,7 +569,12 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
 
     @Override
     public void acquiredFishLoot(Collection<ItemStack> fishLoot) {
-        // TODO Implement a serializable inventory for NPCs and add the loot to it
+        addOrDropItems(fishLoot);
+    }
+
+    public void addOrDropItems(Collection<ItemStack> items) {
+        state.getInventory().addOrDropItem(this, items.toArray(new ItemStack[items.size()]));
+        state.markDirty();
     }
 
     public void deleteAgentsInvalidLocations() {

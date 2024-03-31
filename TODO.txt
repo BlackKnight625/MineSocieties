@@ -28,3 +28,11 @@
 ----- URGENT if the agent should react immediately
 ----- CAN_WAIT if the agent should put the observation in a queue and react to it later
 ----- CAN_BE_IGNORED if the agent can ignore the observation if they're currently busy
+
+
+--- Future ---
+- Possible race conditions when GSON is serializing the AgentState while the main thread modifies it
+--- Either have a lock on the AgentState
+----- Must encapsulate every single access to its attributes
+--- Or make a custom TypeSerializer for AgentState
+----- High coupling with AgentState since it must know how to serialize it

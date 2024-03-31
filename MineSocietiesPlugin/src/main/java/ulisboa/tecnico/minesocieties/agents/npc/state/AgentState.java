@@ -94,6 +94,10 @@ public class AgentState implements IExplainableContext {
         return this.dirty;
     }
 
+    public AgentInventory getInventory() {
+        return inventory;
+    }
+
     // Other methods
 
     public void updateCurrentLocation(AnimatedPlayerNPC npc) {

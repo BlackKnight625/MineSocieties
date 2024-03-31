@@ -32,4 +32,6 @@ public interface IContextVisitor {
     String explainLongTermMemory(AgentLongTermMemory longTermMemory);
 
     String explainPastActions(AgentPastActions pastActions);
+
+    String explainInventory(AgentInventory inventory);
 }

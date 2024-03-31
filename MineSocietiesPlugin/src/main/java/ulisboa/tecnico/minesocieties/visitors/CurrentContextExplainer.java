@@ -1,8 +1,14 @@
 package ulisboa.tecnico.minesocieties.visitors;
 
+import org.apache.commons.lang3.text.WordUtils;
+import org.bukkit.inventory.ItemStack;
 import ulisboa.tecnico.minesocieties.agents.location.SocialLocation;
 import ulisboa.tecnico.minesocieties.agents.npc.state.*;
 import ulisboa.tecnico.minesocieties.utils.StringUtils;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 
 public class CurrentContextExplainer implements IContextVisitor {
     @Override
@@ -14,6 +20,8 @@ public class CurrentContextExplainer implements IContextVisitor {
         builder.append(state.getPersonalities().accept(this));
         builder.append(' ');
         builder.append(state.getMoods().accept(this));
+        builder.append(' ');
+        builder.append(state.getInventory().accept(this));
         builder.append(' ');
         builder.append(state.getMemory().accept(this));
 
@@ -231,6 +239,33 @@ public class CurrentContextExplainer implements IContextVisitor {
             }
 
             builder.deleteCharAt(builder.length() - 1);
+
+            return builder.toString();
+        } else {
+            return "";
+        }
+    }
+
+    @Override
+    public String explainInventory(AgentInventory inventory) {
+        // Creating a linked list since it has good removal complexity
+        LinkedList<ItemStack> contents = new LinkedList<>(List.of(inventory.getInventory()));
+
+        contents.removeIf(Objects::isNull);
+
+        if (contents.size() != 0) {
+            StringBuilder builder = new StringBuilder("They have ");
+
+            for (ItemStack item : contents) {
+                builder.append(item.getAmount());
+                builder.append(" ");
+                builder.append(item.getType().toString().replace('_', ' ').toLowerCase());
+                builder.append(", ");
+            }
+
+            // Removing the last comma and whitespace
+            builder.delete(builder.length() - 2, builder.length());
+            builder.append(" in their inventory.");
 
             return builder.toString();
         } else {

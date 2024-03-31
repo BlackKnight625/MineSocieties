@@ -152,7 +152,7 @@ public class MineSocieties extends JavaPlugin {
                     });
                 });
             }
-        }.runTaskTimer(this, 20, 10 * 20);
+        }.runTaskTimerAsynchronously(this, 20, 10 * 20);
 
         if (showWhatAgentsAreDoing) {
             // Showing a message on top of agent's heads indicating what they are doing
