@@ -7,30 +7,26 @@ import ulisboa.tecnico.minesocieties.agents.location.SocialLocation;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.visitors.IActionVisitor;
 
+import java.util.List;
+
 public class InformativeGoTo extends GoTo<SocialAgent> implements ISocialAction {
 
     // Private attributes
 
-    private final String destinationDescription;
+    private final SocialLocation socialLocation;
 
     // Constructors
-
-    public InformativeGoTo(Location destination, String destinationDescription) {
-        super(destination);
-
-        this.destinationDescription = destinationDescription;
-    }
 
     public InformativeGoTo(SocialLocation socialLocation) {
         super(socialLocation.toBukkitLocation());
 
-        this.destinationDescription = socialLocation.getExplanation();
+        this.socialLocation = socialLocation;
     }
 
     // Getters and setters
 
     public String getDestinationDescription() {
-        return destinationDescription;
+        return socialLocation.getExplanation();
     }
 
     // Other methods
@@ -54,5 +50,9 @@ public class InformativeGoTo extends GoTo<SocialAgent> implements ISocialAction 
     @Override
     public String accept(IActionVisitor visitor) {
         return visitor.visitGoTo(this);
+    }
+
+    public List<ISocialAction> getPossibleActionsAtDestination() {
+        return socialLocation.getPossibleActions();
     }
 }

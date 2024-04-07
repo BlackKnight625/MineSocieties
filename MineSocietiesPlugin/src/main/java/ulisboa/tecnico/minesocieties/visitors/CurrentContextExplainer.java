@@ -6,6 +6,7 @@ import ulisboa.tecnico.minesocieties.agents.location.SocialLocation;
 import ulisboa.tecnico.minesocieties.agents.npc.state.*;
 import ulisboa.tecnico.minesocieties.utils.StringUtils;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -249,11 +250,16 @@ public class CurrentContextExplainer implements IContextVisitor {
     @Override
     public String explainInventory(AgentInventory inventory) {
         // Creating a linked list since it has good removal complexity
-        LinkedList<ItemStack> contents = new LinkedList<>(List.of(inventory.getInventory()));
+        ItemStack[] itemsArray = inventory.getInventory();
+        List<ItemStack> contents = new ArrayList<>(itemsArray.length);
 
-        contents.removeIf(Objects::isNull);
+        for (ItemStack item : inventory.getInventory()) {
+            if (item != null) {
+                contents.add(item);
+            }
+        }
 
-        if (contents.size() != 0) {
+        if (!contents.isEmpty()) {
             StringBuilder builder = new StringBuilder("They have ");
 
             for (ItemStack item : contents) {

@@ -1,8 +1,11 @@
 package ulisboa.tecnico.minesocieties.visitors;
 
-import ulisboa.tecnico.agents.actions.otherActions.GoTo;
 import ulisboa.tecnico.minesocieties.agents.actions.jobActions.InformativeGoFishing;
-import ulisboa.tecnico.minesocieties.agents.actions.otherActions.*;
+import ulisboa.tecnico.minesocieties.agents.actions.otherActions.ContinueCurrentAction;
+import ulisboa.tecnico.minesocieties.agents.actions.otherActions.Idle;
+import ulisboa.tecnico.minesocieties.agents.actions.otherActions.InformativeGoTo;
+import ulisboa.tecnico.minesocieties.agents.actions.otherActions.Thinking;
+import ulisboa.tecnico.minesocieties.agents.actions.otherActions.WaitFor;
 import ulisboa.tecnico.minesocieties.agents.actions.socialActions.SendChatTo;
 
 /**
@@ -15,7 +18,27 @@ public class NextActionExplainer implements IActionVisitor {
 
     @Override
     public String visitGoTo(InformativeGoTo informativeGoTo) {
-        return "Go to " + informativeGoTo.getDestinationDescription();
+        String explanation = "Go to " + informativeGoTo.getDestinationDescription();
+        var possibleActions = informativeGoTo.getPossibleActionsAtDestination();
+
+        if (possibleActions.isEmpty()) {
+            return explanation;
+        } else {
+            // Adding all possible actions that can be executed at the destination
+            StringBuilder builder = new StringBuilder(explanation);
+
+            builder.append(", where they could ");
+
+            for (int i = 0; i < possibleActions.size(); i++) {
+                builder.append(possibleActions.get(i).accept(this));
+
+                if (i < possibleActions.size() - 1) {
+                    builder.append(" or ");
+                }
+            }
+
+            return builder.toString();
+        }
     }
 
     @Override
