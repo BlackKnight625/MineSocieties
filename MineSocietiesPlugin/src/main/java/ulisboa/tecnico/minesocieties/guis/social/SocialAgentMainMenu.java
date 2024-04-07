@@ -10,6 +10,7 @@ import ulisboa.tecnico.minesocieties.guis.common.GUIMenuOpener;
 import ulisboa.tecnico.minesocieties.guis.social.actions.ActionExecutorItem;
 import ulisboa.tecnico.minesocieties.guis.social.actions.ActionMenu;
 import ulisboa.tecnico.minesocieties.guis.social.information.AgentInformationMenu;
+import ulisboa.tecnico.minesocieties.guis.social.inventory.AgentInventoryMenu;
 import ulisboa.tecnico.minesocieties.utils.StringUtils;
 
 /**
@@ -34,6 +35,7 @@ public class SocialAgentMainMenu extends GUIMenu {
     @Override
     public void fillShopWithClickables() {
         addClickable(10, new AgentInformationMenuOpener());
+        addClickable(13, new InventoryMenuOpener());
         addClickable(16, new ActionMenuOpener());
 
         fillRestWithPanes(Material.GREEN_STAINED_GLASS_PANE);
@@ -77,6 +79,16 @@ public class SocialAgentMainMenu extends GUIMenu {
                     "Click to see the actions",
                     "that you can force " + agent.getName(),
                     "to excecute.");
+        }
+    }
+
+    private class InventoryMenuOpener extends GUIMenuOpener {
+
+        // Constructors
+
+        public InventoryMenuOpener() {
+            super(SocialAgentMainMenu.this, Material.CHEST, new AgentInventoryMenu(getPlayer(), agent, true),
+                    ChatColor.DARK_AQUA + "See " + ChatColor.GOLD + agent.getName() + ChatColor.DARK_AQUA + "'s inventory");
         }
     }
 }

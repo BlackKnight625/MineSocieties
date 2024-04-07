@@ -37,6 +37,10 @@ public class AgentInventory implements IExplainableContext {
         return items;
     }
 
+    public Inventory getBukkitInventory() {
+        return inventory;
+    }
+
     /**
      *  Adds items to the inventory
      * @param items
