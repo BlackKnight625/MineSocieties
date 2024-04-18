@@ -145,11 +145,7 @@ public class MineSocieties extends JavaPlugin {
             @Override
             public void run() {
                 getThreadPool().execute(() -> {
-                    socialAgentManager.forEachAgent(agent -> {
-                        if (agent.getState().isDirty()) {
-                            agent.getState().saveAsync();
-                        }
-                    });
+                    saveDirtyAgentsAsync();
                 });
             }
         }.runTaskTimerAsynchronously(this, 20, 10 * 20);
@@ -177,9 +173,26 @@ public class MineSocieties extends JavaPlugin {
         packetManager = new PacketManager(this);
     }
 
+    public void saveDirtyAgentsAsync() {
+        socialAgentManager.forEachAgent(agent -> {
+            if (agent.getState().isDirty()) {
+                agent.getState().saveAsync();
+            }
+        });
+    }
+
+    public void saveDirtyAgentsSync() {
+        socialAgentManager.forEachAgent(agent -> {
+            if (agent.getState().isDirty()) {
+                agent.getState().saveSync();
+            }
+        });
+    }
+
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+        saveDirtyAgentsSync();
     }
 
     public ExampleReactiveAgentManager getReactiveAgentManager() {

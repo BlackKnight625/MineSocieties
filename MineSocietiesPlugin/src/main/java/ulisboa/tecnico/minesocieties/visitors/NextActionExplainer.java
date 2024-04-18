@@ -6,6 +6,7 @@ import ulisboa.tecnico.minesocieties.agents.actions.otherActions.Idle;
 import ulisboa.tecnico.minesocieties.agents.actions.otherActions.InformativeGoTo;
 import ulisboa.tecnico.minesocieties.agents.actions.otherActions.Thinking;
 import ulisboa.tecnico.minesocieties.agents.actions.otherActions.WaitFor;
+import ulisboa.tecnico.minesocieties.agents.actions.socialActions.GiveItemTo;
 import ulisboa.tecnico.minesocieties.agents.actions.socialActions.SendChatTo;
 
 /**
@@ -70,5 +71,10 @@ public class NextActionExplainer implements IActionVisitor {
     @Override
     public String visitGoFishing(InformativeGoFishing informativeGoFishing) {
         return "Go fishing";
+    }
+
+    @Override
+    public String visitGiveItemTo(GiveItemTo giveItemTo) {
+        return "Give an item from their inventory to someone";
     }
 }

@@ -2,6 +2,7 @@ package ulisboa.tecnico.minesocieties.visitors;
 
 import ulisboa.tecnico.minesocieties.agents.actions.jobActions.InformativeGoFishing;
 import ulisboa.tecnico.minesocieties.agents.actions.otherActions.*;
+import ulisboa.tecnico.minesocieties.agents.actions.socialActions.GiveItemTo;
 import ulisboa.tecnico.minesocieties.agents.actions.socialActions.SendChatTo;
 
 /**
@@ -45,5 +46,12 @@ public class PastActionExplainer implements IActionVisitor {
     @Override
     public String visitGoFishing(InformativeGoFishing informativeGoFishing) {
         return "went fishing";
+    }
+
+    @Override
+    public String visitGiveItemTo(GiveItemTo giveItemTo) {
+        return "gave " + giveItemTo.getItem().getAmount() + " " +
+                giveItemTo.getItem().getType().toString().replace('_', ' ').toLowerCase() + " to " +
+                giveItemTo.getReceiver().getName();
     }
 }

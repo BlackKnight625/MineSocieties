@@ -1,4 +1,3 @@
-- Add agent inventory and make agents aware of its contents
 - Add give item action
 - Add trade action
 
@@ -17,6 +16,9 @@
 --- Investigate how fine-tuning could improve agent choices for ChatGPT
 
 - Add compatibility with other models
+
+- Agents module should abstract the NPC logic from EntityUtils so that if necessary it's easier to switch to another NPC plugin
+--- MineSocieties should not ever depend on EntityUtils
 
 --- Bugs ---
 - Auto-complete for "/agent talk" doesn't work

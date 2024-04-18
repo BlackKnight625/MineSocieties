@@ -81,6 +81,22 @@ public class AgentInventory implements IExplainableContext {
         }
     }
 
+    public boolean hasItems() {
+        lock.readLock();
+
+        // Trying to find a non-null item
+        for (ItemStack item : inventory.getContents()) {
+            if (item != null) {
+                return true;
+            }
+        }
+
+        lock.readUnlock();
+
+        // Found only null items
+        return false;
+    }
+
     @Override
     public String accept(IContextVisitor visitor) {
         return visitor.explainInventory(this);

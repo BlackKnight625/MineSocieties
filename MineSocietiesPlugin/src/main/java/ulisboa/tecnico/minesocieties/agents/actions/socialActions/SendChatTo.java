@@ -19,7 +19,7 @@ import ulisboa.tecnico.minesocieties.visitors.IActionVisitor;
 
 import java.util.List;
 
-public class SendChatTo implements IActionWithArguments, ISocialAction {
+public class SendChatTo implements IActionWithArguments, ISocialAction, INearbyInteraction {
 
     // Private attributes
 
@@ -58,10 +58,6 @@ public class SendChatTo implements IActionWithArguments, ISocialAction {
     }
 
     // Other methods
-
-    public List<String> getNamesOfNearbyCharacters(SocialAgent agent) {
-        return LocationUtils.getNearbyCharacterNamesExcludingSelf(agent.getLocation(), agent.getUUID());
-    }
 
     @Override
     public void acceptArgumentsInterpreter(IActionArgumentsExplainerVisitor visitor, String arguments) throws MalformedActionArgumentsException {
