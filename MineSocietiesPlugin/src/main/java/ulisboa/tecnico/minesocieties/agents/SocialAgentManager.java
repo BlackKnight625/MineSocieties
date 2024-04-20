@@ -2,6 +2,7 @@ package ulisboa.tecnico.minesocieties.agents;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.entityutils.entity.npc.player.AnimatedPlayerNPC;
@@ -24,6 +25,10 @@ import java.nio.file.Path;
 
 public class SocialAgentManager extends AbstractAgentManager<SocialAgent, SocialPlayer, SocialCharacter> {
 
+    // Private attributes
+
+    private SocialEventListener eventListener;
+
     // Public attributes
 
     public static final Path STATES_PATH =  Path.of("plugins", "MineSocieties", "social_agents");
@@ -38,7 +43,9 @@ public class SocialAgentManager extends AbstractAgentManager<SocialAgent, Social
 
     @Override
     public void initialize() {
-        new SocialEventListener(this).register();
+        eventListener = new SocialEventListener(this);
+
+        eventListener.register();
     }
 
     @Override
@@ -125,5 +132,9 @@ public class SocialAgentManager extends AbstractAgentManager<SocialAgent, Social
 
     public void removePlayerAsViewer(Player player) {
         forEachValidAgent(a -> a.getAgent().setAlive2(player, false));
+    }
+
+    public void characterDroppedItem(Item item, SocialCharacter character) {
+        eventListener.characterDroppedItem(item, character);
     }
 }

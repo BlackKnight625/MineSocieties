@@ -1,9 +1,13 @@
 package ulisboa.tecnico.minesocieties.agents.actions.socialActions;
 
+import org.bukkit.Location;
+import org.bukkit.entity.Item;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.entityutils.entity.npc.EntityAnimation;
 import ulisboa.tecnico.agents.actions.ActionStatus;
 import ulisboa.tecnico.agents.actions.TemporalAction;
+import ulisboa.tecnico.minesocieties.MineSocieties;
 import ulisboa.tecnico.minesocieties.agents.actions.IActionWithArguments;
 import ulisboa.tecnico.minesocieties.agents.actions.ISocialAction;
 import ulisboa.tecnico.minesocieties.agents.actions.exceptions.MalformedActionArgumentsException;
@@ -50,7 +54,20 @@ public class GiveItemTo extends TemporalAction<SocialAgent> implements IActionWi
     public ActionStatus tick(SocialAgent actioner, int elapsedTicks) {
         // Giving the item after a bit
         if (elapsedTicks == 20) {
+            actioner.getAgent().animate(EntityAnimation.SWING_MAIN_ARM);
+            clear(actioner);
 
+            // Dropping the item in the direction of the receiver's feet
+            Location receiverFeet = receiver.getReferencedCharacter().getLocation();
+            Location actionerEyeLocation = actioner.getEyeLocation();
+            Item itemEntity = receiverFeet.getWorld().dropItem(actionerEyeLocation, item);
+            itemEntity.setVelocity(receiverFeet.toVector().subtract(actionerEyeLocation.toVector()).normalize().multiply(1.5));
+
+            actioner.removeItem(item);
+
+            MineSocieties.getPlugin().getSocialAgentManager().characterDroppedItem(itemEntity, actioner);
+
+            return ActionStatus.SUCCESS;
         }
 
         return ActionStatus.IN_PROGRESS;
@@ -77,8 +94,12 @@ public class GiveItemTo extends TemporalAction<SocialAgent> implements IActionWi
         return actioner.getState().getInventory().hasItems() && !getNamesOfNearbyCharacters(actioner).isEmpty();
     }
 
+    public void clear(SocialAgent actioner) {
+        actioner.getAgent().setItem(null, EquipmentSlot.HAND);
+    }
+
     @Override
     public void cancel(SocialAgent actioner) {
-        actioner.getAgent().setItem(null, EquipmentSlot.HAND);
+        clear(actioner);
     }
 }

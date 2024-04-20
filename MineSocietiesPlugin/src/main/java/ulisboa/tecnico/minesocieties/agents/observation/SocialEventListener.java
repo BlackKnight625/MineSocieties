@@ -1,6 +1,8 @@
 package ulisboa.tecnico.minesocieties.agents.observation;
 
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.event.EventHandler;
@@ -9,6 +11,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.world.EntitiesLoadEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
@@ -16,21 +19,31 @@ import org.bukkit.util.Vector;
 import ulisboa.tecnico.agents.observation.EventListener;
 import ulisboa.tecnico.minesocieties.MineSocieties;
 import ulisboa.tecnico.minesocieties.agents.SocialAgentManager;
+import ulisboa.tecnico.minesocieties.agents.SocialCharacter;
 import ulisboa.tecnico.minesocieties.agents.npc.MessageDisplay;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
+import ulisboa.tecnico.minesocieties.agents.npc.state.AgentInventory;
+import ulisboa.tecnico.minesocieties.agents.npc.state.AgentState;
 import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
 import ulisboa.tecnico.minesocieties.guis.GuiManager;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 public class SocialEventListener extends EventListener {
 
+    // Private attributes
+
+    private final NamespacedKey droppedByKey;
+
     // Constructors
 
     public SocialEventListener(SocialAgentManager manager) {
         super(manager);
+
+        droppedByKey = new NamespacedKey(manager.getPlugin(), "dropped_by");
     }
 
     // Getters and setters
@@ -149,6 +162,14 @@ public class SocialEventListener extends EventListener {
         MineSocieties.getPlugin().getGuiManager().playerInteracted(e);
     }
 
+    @EventHandler
+    public void itemDropped(PlayerDropItemEvent e) {
+        SocialPlayer player = toSocialPlayer(e.getPlayer());
+
+        // A player dropped an item. Associating it with them so that if an agent picks it up they know who it's from
+        characterDroppedItem(e.getItemDrop(), player);
+    }
+
     // Other methods
 
     private SocialAgentManager getSocialAgentManager() {
@@ -157,5 +178,76 @@ public class SocialEventListener extends EventListener {
 
     public SocialPlayer toSocialPlayer(Player player) {
         return getSocialAgentManager().getPlayerWrapper(player);
+    }
+
+    @Override
+    public void register() {
+        super.register();
+
+        // Creating some periodic tasks that may generate observations
+
+        // Checking if agents are near item entities to pick them up
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                MineSocieties.getPlugin().getSocialAgentManager().forEachValidAgent(agent -> {
+                    AgentState state = agent.getState();
+                    AgentInventory inventory = state.getInventory();
+
+                    for (Item item : agent.getLocation().getNearbyEntitiesByType(Item.class, 1)) {
+                        SocialCharacter owner = getOwnerOfDroppedItem(item);
+
+                        ItemStack pickedUpStack = null;
+
+                        // Trying to add this item to the agent's inventory
+                        var leftover = inventory.tryAddItems(item.getItemStack());
+
+                        if (leftover.isEmpty()) {
+                            item.remove();
+
+                            pickedUpStack = item.getItemStack();
+                        } else {
+                            ItemStack leftoverItemStack = leftover.values().iterator().next();
+                            ItemStack currentItemStack = item.getItemStack();
+
+                            if (!leftoverItemStack.equals(currentItemStack)) {
+                                // Only part of the item was picked up
+                                item.setItemStack(leftoverItemStack);
+
+                                pickedUpStack = currentItemStack.clone();
+                                pickedUpStack.setAmount(currentItemStack.getAmount() - leftoverItemStack.getAmount());
+                            }
+                        }
+
+                        if (pickedUpStack != null) {
+                            // The agent picked up at least something
+                            ItemPickupObservation observation = new ItemPickupObservation(pickedUpStack, item,
+                                    owner == null ? null : owner.toReference());
+
+                            observation.accept(agent);
+                        }
+                    }
+                });
+            }
+        }.runTaskTimer(MineSocieties.getPlugin(), 10, 10);
+    }
+
+    public void characterDroppedItem(Item item, SocialCharacter character) {
+        associateDroppedItemWithOwner(item, character);
+    }
+
+    public void associateDroppedItemWithOwner(Item item, SocialCharacter owner) {
+        // Associating the dropped item with the owner
+        item.getPersistentDataContainer().set(droppedByKey, PersistentDataType.STRING, owner.getUUID().toString());
+    }
+
+    public @Nullable SocialCharacter getOwnerOfDroppedItem(Item item) {
+        String ownerUuid = item.getPersistentDataContainer().get(droppedByKey, PersistentDataType.STRING);
+
+        if (ownerUuid == null) {
+            return null;
+        }
+
+        return getSocialAgentManager().getCharacter(UUID.fromString(ownerUuid));
     }
 }

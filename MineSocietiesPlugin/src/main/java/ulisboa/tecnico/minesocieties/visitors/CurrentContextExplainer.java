@@ -265,7 +265,7 @@ public class CurrentContextExplainer implements IContextVisitor {
             for (ItemStack item : contents) {
                 builder.append(item.getAmount());
                 builder.append(" ");
-                builder.append(item.getType().toString().replace('_', ' ').toLowerCase());
+                builder.append(StringUtils.itemToAmountAndName(item));
                 builder.append(", ");
             }
 

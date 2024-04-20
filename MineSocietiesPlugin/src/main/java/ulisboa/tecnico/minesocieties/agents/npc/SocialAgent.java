@@ -30,6 +30,7 @@ import ulisboa.tecnico.minesocieties.agents.location.SharedAccess;
 import ulisboa.tecnico.minesocieties.agents.location.SocialLocation;
 import ulisboa.tecnico.minesocieties.agents.npc.state.*;
 import ulisboa.tecnico.minesocieties.agents.observation.ISocialObserver;
+import ulisboa.tecnico.minesocieties.agents.observation.ItemPickupObservation;
 import ulisboa.tecnico.minesocieties.agents.observation.wrapped.SocialReceivedChatFromObservation;
 import ulisboa.tecnico.minesocieties.agents.observation.wrapped.SocialWeatherChangeObservation;
 import ulisboa.tecnico.minesocieties.visitors.*;
@@ -109,6 +110,16 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
         // Making the agent look at the speaker, in case the current action allows so
         if (currentAction.canDoMicroActions()) {
             npc.lookAt(observation.getObservation().getFrom().getLocation());
+        }
+    }
+
+    @Override
+    public void observeItemPickup(ItemPickupObservation observation) {
+        receivedAnyObservation(observation);
+
+        // Making the agent look at the item, in case the current action allows so
+        if (currentAction.canDoMicroActions()) {
+            npc.lookAt(observation.getItem().getLocation());
         }
     }
 
@@ -577,6 +588,11 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
         state.markDirty();
     }
 
+    public void removeItem(ItemStack item) {
+        state.getInventory().removeItem(item);
+        state.markDirty();
+    }
+
     public void deleteAgentsInvalidLocations() {
         AgentMemory memory = state.getMemory();
         SocialLocation home = memory.getHome().getLocation();
@@ -609,10 +625,6 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
                 state.markDirty();
             }
         }
-    }
-
-    public CharacterReference toReference() {
-        return new CharacterReference(this);
     }
 
     // Static methods

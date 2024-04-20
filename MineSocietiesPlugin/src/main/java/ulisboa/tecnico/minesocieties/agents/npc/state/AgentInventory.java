@@ -69,6 +69,14 @@ public class AgentInventory implements IExplainableContext {
         }
     }
 
+    public Map<Integer, ItemStack> tryAddItems(ItemStack... items) {
+        lock.writeLock();
+        Map<Integer, ItemStack> leftover = addItems(items);
+        lock.writeUnlock();
+
+        return leftover;
+    }
+
     public void removeItemAt(int slot) {
         if (!lock.tryWrite(() -> inventory.setItem(slot, null))) {
             // Couldn't remove the item, try again in the next tick
@@ -95,6 +103,18 @@ public class AgentInventory implements IExplainableContext {
 
         // Found only null items
         return false;
+    }
+
+    public void removeItem(ItemStack item) {
+        if (!lock.tryWrite(() -> inventory.removeItemAnySlot(item))) {
+            // Couldn't remove the item, try again in the next tick
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    removeItem(item);
+                }
+            }.runTask(MineSocieties.getPlugin());
+        }
     }
 
     @Override

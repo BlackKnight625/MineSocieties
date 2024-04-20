@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import ulisboa.tecnico.agents.player.IPlayerAgent;
 import ulisboa.tecnico.minesocieties.MineSocieties;
 import ulisboa.tecnico.minesocieties.agents.SocialCharacter;
+import ulisboa.tecnico.minesocieties.agents.observation.ItemPickupObservation;
 import ulisboa.tecnico.minesocieties.agents.observation.wrapped.SocialReceivedChatFromObservation;
 import ulisboa.tecnico.minesocieties.agents.observation.wrapped.SocialWeatherChangeObservation;
 import ulisboa.tecnico.minesocieties.guis.common.GUIMenu;
@@ -89,6 +90,11 @@ public class SocialPlayer extends SocialCharacter implements IPlayerAgent {
                     getName(),
                     observation.getObservation().getChat()));
         }
+    }
+
+    @Override
+    public void observeItemPickup(ItemPickupObservation observation) {
+        // Do nothing
     }
 
     // Other methods

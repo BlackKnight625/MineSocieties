@@ -21,4 +21,6 @@ public interface ISocialObserver extends IObserver {
     default void receivedChatFrom(ReceivedChatObservation observation) {
         receivedChatFrom(new SocialReceivedChatFromObservation(observation));
     }
+
+    void observeItemPickup(ItemPickupObservation observation);
 }

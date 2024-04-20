@@ -1,6 +1,7 @@
 package ulisboa.tecnico.minesocieties.utils;
 
 import org.bukkit.ChatColor;
+import org.bukkit.inventory.ItemStack;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -63,5 +64,9 @@ public class StringUtils {
         }
 
         return result;
+    }
+
+    public static String itemToAmountAndName(ItemStack item) {
+        return item.getAmount() + " " + item.getType().toString().replace('_', ' ').toLowerCase();
     }
 }

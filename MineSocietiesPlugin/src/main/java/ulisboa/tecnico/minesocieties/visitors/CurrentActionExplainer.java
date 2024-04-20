@@ -5,6 +5,7 @@ import ulisboa.tecnico.minesocieties.agents.actions.jobActions.InformativeGoFish
 import ulisboa.tecnico.minesocieties.agents.actions.otherActions.*;
 import ulisboa.tecnico.minesocieties.agents.actions.socialActions.GiveItemTo;
 import ulisboa.tecnico.minesocieties.agents.actions.socialActions.SendChatTo;
+import ulisboa.tecnico.minesocieties.utils.StringUtils;
 
 /**
  *  Visitor that turns actions into natural language explanations of what the action
@@ -52,7 +53,7 @@ public class CurrentActionExplainer implements IActionVisitor {
     @Override
     public String visitGiveItemTo(GiveItemTo giveItemTo) {
         return "giving " + giveItemTo.getItem().getAmount() + " " +
-                giveItemTo.getItem().getType().toString().replace('_', ' ').toLowerCase() + " to " +
+                StringUtils.itemToAmountAndName(giveItemTo.getItem()) + " to " +
                 giveItemTo.getReceiver().getName();
     }
 }

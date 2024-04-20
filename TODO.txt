@@ -1,5 +1,8 @@
 - Add give item action
 - Add trade action
+- Add throw away action
+- Add pick up item observation
+- Compact agent's inventory everytime a new item is inserted
 
 - Add farming action
 - Add wood chopping action
@@ -23,13 +26,15 @@
 --- Bugs ---
 - Auto-complete for "/agent talk" doesn't work
 - NPCs in unloaded chunks will keep making decisions
+- If 2 NPCs have the same name, things can get messy
 
 --- Ideas ---
 - To deal with 2 agents sending a chat to each other nearly at the same time and ending up speaking very quickly:
 --- Make SocialObservations have a method called reactionUrgency() that returns
 ----- URGENT if the agent should react immediately
 ----- CAN_WAIT if the agent should put the observation in a queue and react to it later
------ CAN_BE_IGNORED if the agent can ignore the observation if they're currently busy
+----- IGNORE_IF_DECIDING if the agent should ignore the observation if they're querying the LLM on what to do due to something else
+----- IGNORE_IF_BUSY if the agent can ignore the observation if they're currently doing an important action
 
 
 --- Future ---
