@@ -42,3 +42,6 @@ showThoughtsTicks: 300
 
 # The max distance (in blocks) that an agent can be from a Location in order to possibly execute actions bound to that Location
 locationBoundActionRange: 7.0
+
+# For development only
+debug: No

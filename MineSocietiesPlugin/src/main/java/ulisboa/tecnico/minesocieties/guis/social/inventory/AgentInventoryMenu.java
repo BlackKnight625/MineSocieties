@@ -45,7 +45,7 @@ public class AgentInventoryMenu extends GUIMenu {
             if (item == null) {
                 addClickable(i, new EmptySlot());
             } else {
-                addClickable(i, new GUIDecoration(this, item));
+                addClickable(i, new GUIDecoration(this, item.clone()));
             }
         }
 

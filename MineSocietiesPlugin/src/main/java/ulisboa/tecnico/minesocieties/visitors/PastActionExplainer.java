@@ -51,8 +51,7 @@ public class PastActionExplainer implements IActionVisitor {
 
     @Override
     public String visitGiveItemTo(GiveItemTo giveItemTo) {
-        return "gave " + giveItemTo.getItem().getAmount() + " " +
-                StringUtils.itemToAmountAndName(giveItemTo.getItem()) + " to " +
+        return "gave " + StringUtils.itemToAmountAndName(giveItemTo.getItem()) + " to " +
                 giveItemTo.getReceiver().getName();
     }
 }

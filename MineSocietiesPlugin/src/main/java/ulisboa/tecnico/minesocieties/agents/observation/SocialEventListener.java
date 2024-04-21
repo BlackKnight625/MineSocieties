@@ -1,6 +1,8 @@
 package ulisboa.tecnico.minesocieties.agents.observation;
 
+import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -162,14 +164,6 @@ public class SocialEventListener extends EventListener {
         MineSocieties.getPlugin().getGuiManager().playerInteracted(e);
     }
 
-    @EventHandler
-    public void itemDropped(PlayerDropItemEvent e) {
-        SocialPlayer player = toSocialPlayer(e.getPlayer());
-
-        // A player dropped an item. Associating it with them so that if an agent picks it up they know who it's from
-        characterDroppedItem(e.getItemDrop(), player);
-    }
-
     // Other methods
 
     private SocialAgentManager getSocialAgentManager() {
@@ -195,6 +189,11 @@ public class SocialEventListener extends EventListener {
                     AgentInventory inventory = state.getInventory();
 
                     for (Item item : agent.getLocation().getNearbyEntitiesByType(Item.class, 1)) {
+                        if (item.getPickupDelay() != 0) {
+                            // The item is not ready to be picked up
+                            continue;
+                        }
+
                         SocialCharacter owner = getOwnerOfDroppedItem(item);
 
                         ItemStack pickedUpStack = null;
@@ -203,9 +202,9 @@ public class SocialEventListener extends EventListener {
                         var leftover = inventory.tryAddItems(item.getItemStack());
 
                         if (leftover.isEmpty()) {
-                            item.remove();
-
                             pickedUpStack = item.getItemStack();
+
+                            item.remove();
                         } else {
                             ItemStack leftoverItemStack = leftover.values().iterator().next();
                             ItemStack currentItemStack = item.getItemStack();
@@ -221,6 +220,11 @@ public class SocialEventListener extends EventListener {
 
                         if (pickedUpStack != null) {
                             // The agent picked up at least something
+                            state.markDirty();
+
+                            // Playing a sound
+                            item.getWorld().playSound(item.getLocation(), Sound.ENTITY_ITEM_PICKUP, 1, 1);
+
                             ItemPickupObservation observation = new ItemPickupObservation(pickedUpStack, item,
                                     owner == null ? null : owner.toReference());
 
@@ -242,6 +246,12 @@ public class SocialEventListener extends EventListener {
     }
 
     public @Nullable SocialCharacter getOwnerOfDroppedItem(Item item) {
+        if (item.getThrower() != null && Bukkit.getEntity(item.getThrower()) instanceof Player) {
+            // The item was thrown by a player
+            return getSocialAgentManager().getCharacter(item.getThrower());
+        }
+
+        // Checking if the item was thrown by an agent
         String ownerUuid = item.getPersistentDataContainer().get(droppedByKey, PersistentDataType.STRING);
 
         if (ownerUuid == null) {

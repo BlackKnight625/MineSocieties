@@ -4,6 +4,8 @@ import org.bukkit.Location;
 import org.bukkit.entity.Item;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 import org.entityutils.entity.npc.EntityAnimation;
 import ulisboa.tecnico.agents.actions.ActionStatus;
 import ulisboa.tecnico.agents.actions.TemporalAction;
@@ -46,24 +48,48 @@ public class GiveItemTo extends TemporalAction<SocialAgent> implements IActionWi
 
     @Override
     public void start(SocialAgent actioner) {
-        actioner.getAgent().setItem(item, EquipmentSlot.HAND);
-        actioner.getAgent().lookAt(receiver.getReferencedCharacter().getEyeLocation());
+        int amountInInventory = actioner.getAmountOfItemInInventory(item);
+
+        if (amountInInventory != 0) {
+            actioner.getAgent().setItem(item, EquipmentSlot.HAND);
+            actioner.getAgent().lookAt(receiver.getReferencedCharacter().getEyeLocation());
+        }
     }
 
     @Override
     public ActionStatus tick(SocialAgent actioner, int elapsedTicks) {
         // Giving the item after a bit
         if (elapsedTicks == 20) {
+            int amountInInventory = actioner.getAmountOfItemInInventory(item);
+
+            if (amountInInventory == 0) {
+                // The Agent no longer has the item in their inventory. It's whatever, so SUCCESS is returned.
+                return ActionStatus.SUCCESS;
+            }
+
+            ItemStack itemToDrop = item.clone();
+            // If the agent has 6 items and 5 are to be dropped, 5 will be dropped.
+            // If the agent has 6 items and 7 are to be dropped, 6 will be dropped.
+            itemToDrop.setAmount(Math.min(amountInInventory, item.getAmount()));
+
             actioner.getAgent().animate(EntityAnimation.SWING_MAIN_ARM);
             clear(actioner);
 
             // Dropping the item in the direction of the receiver's feet
             Location receiverFeet = receiver.getReferencedCharacter().getLocation();
             Location actionerEyeLocation = actioner.getEyeLocation();
-            Item itemEntity = receiverFeet.getWorld().dropItem(actionerEyeLocation, item);
-            itemEntity.setVelocity(receiverFeet.toVector().subtract(actionerEyeLocation.toVector()).normalize().multiply(1.5));
+            Item itemEntity = receiverFeet.getWorld().dropItem(actionerEyeLocation, itemToDrop);
+            Vector velocity = receiverFeet.toVector().subtract(actionerEyeLocation.toVector()).normalize().multiply(0.5);
 
-            actioner.removeItem(item);
+            // Giving velocity after a tick
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    itemEntity.setVelocity(velocity);
+                }
+            }.runTask(MineSocieties.getPlugin());
+
+            actioner.removeItem(itemToDrop);
 
             MineSocieties.getPlugin().getSocialAgentManager().characterDroppedItem(itemEntity, actioner);
 

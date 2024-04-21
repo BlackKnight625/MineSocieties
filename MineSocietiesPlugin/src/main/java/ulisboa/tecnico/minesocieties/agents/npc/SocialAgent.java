@@ -24,6 +24,7 @@ import ulisboa.tecnico.minesocieties.agents.actions.otherActions.ContinueCurrent
 import ulisboa.tecnico.minesocieties.agents.actions.otherActions.Idle;
 import ulisboa.tecnico.minesocieties.agents.actions.otherActions.InformativeGoTo;
 import ulisboa.tecnico.minesocieties.agents.actions.otherActions.Thinking;
+import ulisboa.tecnico.minesocieties.agents.actions.socialActions.GiveItemTo;
 import ulisboa.tecnico.minesocieties.agents.actions.socialActions.SendChatTo;
 import ulisboa.tecnico.minesocieties.agents.location.LocationReference;
 import ulisboa.tecnico.minesocieties.agents.location.SharedAccess;
@@ -109,7 +110,7 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
 
         // Making the agent look at the speaker, in case the current action allows so
         if (currentAction.canDoMicroActions()) {
-            npc.lookAt(observation.getObservation().getFrom().getLocation());
+            npc.lookAt(observation.getObservation().getFrom().getEyeLocation());
         }
     }
 
@@ -541,6 +542,7 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
 
         // Adding all actions that this agent can take
         possibleActions.add(new SendChatTo());
+        possibleActions.add(new GiveItemTo());
         possibleActions.add(new Idle()); // Temporary. An agent that chooses to be idle won't do anything until they receive an observation
 
         // Adding locations that the agent can go to
@@ -591,6 +593,10 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
     public void removeItem(ItemStack item) {
         state.getInventory().removeItem(item);
         state.markDirty();
+    }
+
+    public int getAmountOfItemInInventory(ItemStack item) {
+        return state.getInventory().countAmountOfItem(item);
     }
 
     public void deleteAgentsInvalidLocations() {

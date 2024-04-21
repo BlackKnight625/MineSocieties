@@ -52,8 +52,7 @@ public class CurrentActionExplainer implements IActionVisitor {
 
     @Override
     public String visitGiveItemTo(GiveItemTo giveItemTo) {
-        return "giving " + giveItemTo.getItem().getAmount() + " " +
-                StringUtils.itemToAmountAndName(giveItemTo.getItem()) + " to " +
+        return "giving " + StringUtils.itemToAmountAndName(giveItemTo.getItem()) + " to " +
                 giveItemTo.getReceiver().getName();
     }
 }

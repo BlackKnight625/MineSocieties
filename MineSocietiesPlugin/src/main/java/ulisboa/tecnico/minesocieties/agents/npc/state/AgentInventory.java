@@ -95,6 +95,8 @@ public class AgentInventory implements IExplainableContext {
         // Trying to find a non-null item
         for (ItemStack item : inventory.getContents()) {
             if (item != null) {
+                lock.readUnlock();
+
                 return true;
             }
         }
@@ -106,6 +108,9 @@ public class AgentInventory implements IExplainableContext {
     }
 
     public void removeItem(ItemStack item) {
+        // TODO: If the item has different NBT tags, it will not be removed (ex: damaged Iron Helmet)
+        // Probably have to do my own remove method that only checks the type of the item
+
         if (!lock.tryWrite(() -> inventory.removeItemAnySlot(item))) {
             // Couldn't remove the item, try again in the next tick
             new BukkitRunnable() {
@@ -115,6 +120,19 @@ public class AgentInventory implements IExplainableContext {
                 }
             }.runTask(MineSocieties.getPlugin());
         }
+    }
+
+    public int countAmountOfItem(ItemStack item) {
+        lock.readLock();
+        int count = 0;
+        for (ItemStack inventoryItem : inventory.getContents()) {
+            if (inventoryItem != null && inventoryItem.isSimilar(item)) {
+                count += inventoryItem.getAmount();
+            }
+        }
+        lock.readUnlock();
+
+        return count;
     }
 
     @Override

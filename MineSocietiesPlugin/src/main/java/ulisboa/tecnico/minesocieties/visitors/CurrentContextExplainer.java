@@ -263,8 +263,6 @@ public class CurrentContextExplainer implements IContextVisitor {
             StringBuilder builder = new StringBuilder("They have ");
 
             for (ItemStack item : contents) {
-                builder.append(item.getAmount());
-                builder.append(" ");
                 builder.append(StringUtils.itemToAmountAndName(item));
                 builder.append(", ");
             }

@@ -87,7 +87,7 @@ public class SendChatTo implements IActionWithArguments, ISocialAction, INearbyI
         actioner.getState().getMemory().getConversations().addMemorySection(conversation);
 
         // Making the agent look at the receiver
-        actioner.getAgent().lookAt(characterReceiver.getLocation());
+        actioner.getAgent().lookAt(characterReceiver.getEyeLocation());
 
         int messageDurationTicks = Math.max(20, message.length() * 3); // More or less 0.5 seconds per word. At least 1 second total
 

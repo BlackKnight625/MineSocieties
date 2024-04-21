@@ -43,6 +43,7 @@ public class MineSocieties extends JavaPlugin {
     private int showThoughtsTicks;
     private double locationBoundActionRange;
     private double locationBoundActionRangeSquared;
+    private boolean debugMode;
 
     // Other methods
 
@@ -105,6 +106,7 @@ public class MineSocieties extends JavaPlugin {
         showThoughts = getConfig().getBoolean("showThoughts");
         showThoughtsTicks = getConfig().getInt("showThoughtsTicks");
         locationBoundActionRange = getConfig().getDouble("locationBoundActionRange");
+        debugMode = getConfig().getBoolean("debug");
 
         locationBoundActionRangeSquared = locationBoundActionRange * locationBoundActionRange;
 
@@ -278,6 +280,10 @@ public class MineSocieties extends JavaPlugin {
 
     public double getLocationBoundActionRangeSquared() {
         return locationBoundActionRangeSquared;
+    }
+
+    public boolean isDebugMode() {
+        return this.debugMode;
     }
 
     public static MineSocieties getPlugin() {

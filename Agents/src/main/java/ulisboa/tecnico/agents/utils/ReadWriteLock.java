@@ -89,4 +89,11 @@ public class ReadWriteLock {
 
         return false;
     }
+
+    @Override
+    public String toString() {
+        return "ReadWriteLock{" +
+                "lock=" + lock +
+                '}';
+    }
 }

@@ -1,11 +1,16 @@
 package ulisboa.tecnico.minesocieties.guis.social.actions;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+import ulisboa.tecnico.minesocieties.MineSocieties;
 import ulisboa.tecnico.minesocieties.agents.actions.jobActions.InformativeGoFishing;
 import ulisboa.tecnico.minesocieties.agents.actions.otherActions.Idle;
 import ulisboa.tecnico.minesocieties.agents.actions.otherActions.InformativeGoTo;
+import ulisboa.tecnico.minesocieties.agents.actions.socialActions.GiveItemTo;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
+import ulisboa.tecnico.minesocieties.agents.npc.state.CharacterReference;
 import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
 import ulisboa.tecnico.minesocieties.guis.common.GUIMenu;
 import ulisboa.tecnico.minesocieties.guis.common.GUIMenuOpener;
@@ -35,6 +40,16 @@ public class ActionMenu extends GUIMenu {
         addClickable(11, new KnowLocationsOpener());
         addClickable(13, new ActionExecutorItem(this, Material.FISHING_ROD, agent, new InformativeGoFishing(3, 40 * 20, 15 * 20)));
         addClickable(16, new ActionExecutorItem(this, Material.BARRIER, agent, new Idle()));
+
+        if (MineSocieties.getPlugin().isDebugMode()) {
+            // For debugging certain actions
+            GiveItemTo giveItemTo = new GiveItemTo();
+
+            giveItemTo.setItem(new ItemStack(Material.SALMON, 1));
+            giveItemTo.setReceiver(new CharacterReference(Bukkit.getPlayer("BlackKnight625").getUniqueId(), "BlackKnight625"));
+
+            addClickable(17, new ActionExecutorItem(this, Material.SALMON, agent, giveItemTo));
+        }
 
         addClickable(26, new GoBack(this));
 
