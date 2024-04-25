@@ -1,7 +1,5 @@
-- Add give item action
 - Add trade action
 - Add throw away action
-- Add pick up item observation
 - Compact agent's inventory everytime a new item is inserted
 
 - Add farming action

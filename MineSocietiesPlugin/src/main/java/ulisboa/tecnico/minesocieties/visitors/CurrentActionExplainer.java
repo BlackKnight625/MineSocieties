@@ -1,6 +1,5 @@
 package ulisboa.tecnico.minesocieties.visitors;
 
-import ulisboa.tecnico.agents.actions.otherActions.GoTo;
 import ulisboa.tecnico.minesocieties.agents.actions.jobActions.InformativeGoFishing;
 import ulisboa.tecnico.minesocieties.agents.actions.otherActions.*;
 import ulisboa.tecnico.minesocieties.agents.actions.socialActions.GiveItemTo;

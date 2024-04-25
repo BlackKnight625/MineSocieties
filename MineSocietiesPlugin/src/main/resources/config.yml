@@ -43,5 +43,11 @@ showThoughtsTicks: 300
 # The max distance (in blocks) that an agent can be from a Location in order to possibly execute actions bound to that Location
 locationBoundActionRange: 7.0
 
+# The max distance (in blocks) that an agent will search for accessible water blocks in order to fish
+maxFishingRadius: 5.0
+
+# The max distance (in blocks) that an agent will search for accessible farmland blocks in order to farm
+maxFarmingRadius: 9.0
+
 # For development only
 debug: No

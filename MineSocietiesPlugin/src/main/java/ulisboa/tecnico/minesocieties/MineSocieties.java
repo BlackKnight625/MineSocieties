@@ -43,6 +43,8 @@ public class MineSocieties extends JavaPlugin {
     private int showThoughtsTicks;
     private double locationBoundActionRange;
     private double locationBoundActionRangeSquared;
+    private double maxFishingRadius;
+    private double maxFarmingRadius;
     private boolean debugMode;
 
     // Other methods
@@ -106,6 +108,8 @@ public class MineSocieties extends JavaPlugin {
         showThoughts = getConfig().getBoolean("showThoughts");
         showThoughtsTicks = getConfig().getInt("showThoughtsTicks");
         locationBoundActionRange = getConfig().getDouble("locationBoundActionRange");
+        maxFishingRadius = getConfig().getDouble("maxFishingRadius");
+        maxFarmingRadius = getConfig().getDouble("maxFarmingRadius");
         debugMode = getConfig().getBoolean("debug");
 
         locationBoundActionRangeSquared = locationBoundActionRange * locationBoundActionRange;
@@ -280,6 +284,14 @@ public class MineSocieties extends JavaPlugin {
 
     public double getLocationBoundActionRangeSquared() {
         return locationBoundActionRangeSquared;
+    }
+
+    public double getMaxFishingRadius() {
+        return this.maxFishingRadius;
+    }
+
+    public double getMaxFarmingRadius() {
+        return this.maxFarmingRadius;
     }
 
     public boolean isDebugMode() {

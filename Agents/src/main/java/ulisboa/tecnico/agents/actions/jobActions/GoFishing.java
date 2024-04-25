@@ -28,18 +28,18 @@ public class GoFishing<T extends IAgent> extends TemporalAction<T> {
     private final int amountToFish;
     private final int maxFishingTicks;
     private final int maxTicksPerFish;
+    private final double maxFishingDistance;
     private final Logger logger;
     private Block waterBlock;
     private final Plugin plugin;
 
-    private static final int MAX_FISHING_DISTANCE = 5;
-
     // Constructors
 
-    public GoFishing(int amountToFish, int maxFishingTicks, int maxTicksPerFish, Logger logger, Plugin plugin) {
+    public GoFishing(int amountToFish, int maxFishingTicks, int maxTicksPerFish, double maxFishingDistance, Logger logger, Plugin plugin) {
         this.amountToFish = amountToFish;
         this.maxFishingTicks = maxFishingTicks;
         this.maxTicksPerFish = maxTicksPerFish;
+        this.maxFishingDistance = maxFishingDistance;
         this.logger = logger;
         this.plugin = plugin;
     }
@@ -53,7 +53,7 @@ public class GoFishing<T extends IAgent> extends TemporalAction<T> {
 
         if (accessibleWaterBlocks.isEmpty()) {
             logger.warning("Could not find any accessible water blocks near " + actioner.getName() + " so that it can fish. " +
-                    "Searched for water blocks within " + MAX_FISHING_DISTANCE + " blocks of the agent's location: " + actioner.getLocation());
+                    "Searched for water blocks within " + maxFishingDistance + " blocks of the agent's location: " + actioner.getLocation());
 
             return;
         }
@@ -122,7 +122,7 @@ public class GoFishing<T extends IAgent> extends TemporalAction<T> {
 
         if (waterBlock == null) {
             logger.warning("Could not find any accessible water blocks near " + actioner.getName() + " so that it can fish. " +
-                    "Searched for water blocks within " + MAX_FISHING_DISTANCE + " blocks of the agent's location: " + actioner.getLocation());
+                    "Searched for water blocks within " + maxFishingDistance + " blocks of the agent's location: " + actioner.getLocation());
 
             return;
         }
@@ -220,7 +220,7 @@ public class GoFishing<T extends IAgent> extends TemporalAction<T> {
     }
 
     public List<Block> getAccessibleWaterBlocks(Location location) {
-        List<Block> nearbyBlocks = BlockUtils.getNearbyBlocks(location, MAX_FISHING_DISTANCE);
+        List<Block> nearbyBlocks = BlockUtils.getNearbyBlocks(location, (int) Math.ceil(maxFishingDistance));
 
         // Filter the blocks to only keep the ones that are water
         nearbyBlocks.removeIf(block -> block.getType() != Material.WATER);
