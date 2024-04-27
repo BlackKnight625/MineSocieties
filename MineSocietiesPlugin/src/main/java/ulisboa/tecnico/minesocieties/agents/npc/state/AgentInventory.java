@@ -1,6 +1,7 @@
 package ulisboa.tecnico.minesocieties.agents.npc.state;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -107,6 +108,71 @@ public class AgentInventory implements IExplainableContext {
         return false;
     }
 
+    public boolean hasItem(Material material) {
+        lock.readLock();
+
+        // Trying to find an item with the given material
+        for (ItemStack item : inventory.getContents()) {
+            if (item != null && item.getType() == material) {
+                lock.readUnlock();
+
+                return true;
+            }
+        }
+
+        lock.readUnlock();
+
+        // Found no item with the given material
+        return false;
+    }
+
+    public boolean hasAndRemoveItem(Material item, int amount) {
+        if (countAmountOfItem(item) < amount) {
+            return false;
+        }
+
+        lock.writeLock();
+
+        if (countAmounfOfItemAux(item) < amount) {
+            // The amount was modified in the meantime
+            lock.writeUnlock();
+
+            return false;
+        }
+
+        for (int i = 0; i < inventory.getSize(); i++) {
+            ItemStack itemStack = inventory.getItem(i);
+
+            if (itemStack != null && itemStack.getType() == item) {
+                if (amount == 0) {
+                    // There's no more items to remove
+                    lock.writeUnlock();
+
+                    return true;
+                }
+
+                if (itemStack.getAmount() > amount) {
+                    // Found an item stack with more than enough
+                    itemStack.setAmount(itemStack.getAmount() - amount);
+
+                    lock.writeUnlock();
+
+                    return true;
+                } else {
+                    // Found a small item stack
+                    amount -= itemStack.getAmount();
+
+                    inventory.setItem(i, null);
+                }
+            }
+        }
+
+        // This point shouldn't be reached since the count assured there were enough items to be removed
+        lock.writeUnlock();
+
+        return true;
+    }
+
     public void removeItem(ItemStack item) {
         // TODO: If the item has different NBT tags, it will not be removed (ex: damaged Iron Helmet)
         // Probably have to do my own remove method that only checks the type of the item
@@ -122,14 +188,27 @@ public class AgentInventory implements IExplainableContext {
         }
     }
 
-    public int countAmountOfItem(ItemStack item) {
-        lock.readLock();
+    private int countAmounfOfItemAux(Material item) {
         int count = 0;
+
         for (ItemStack inventoryItem : inventory.getContents()) {
-            if (inventoryItem != null && inventoryItem.isSimilar(item)) {
+            if (inventoryItem != null && inventoryItem.getType() == item) {
                 count += inventoryItem.getAmount();
             }
         }
+
+        return count;
+    }
+
+    public int countAmountOfItem(ItemStack item) {
+        return countAmountOfItem(item.getType());
+    }
+
+    public int countAmountOfItem(Material item) {
+        lock.readLock();
+
+        int count = countAmounfOfItemAux(item);
+
         lock.readUnlock();
 
         return count;

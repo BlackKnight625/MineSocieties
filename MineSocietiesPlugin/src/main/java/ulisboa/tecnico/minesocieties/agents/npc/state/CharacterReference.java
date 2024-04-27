@@ -1,5 +1,6 @@
 package ulisboa.tecnico.minesocieties.agents.npc.state;
 
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 import ulisboa.tecnico.agents.ICharacter;
 import ulisboa.tecnico.minesocieties.MineSocieties;
@@ -24,6 +25,11 @@ public class CharacterReference {
     public CharacterReference(ICharacter agent) {
         this.uuid = agent.getUUID();
         this.name = agent.getName();
+    }
+
+    public CharacterReference(Player player) {
+        this.uuid = player.getUniqueId();
+        this.name = player.getName();
     }
 
     // Getters and setters

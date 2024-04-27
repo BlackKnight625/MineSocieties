@@ -1,5 +1,6 @@
 package ulisboa.tecnico.agents.npc;
 
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.entityutils.entity.npc.player.AnimatedPlayerNPC;
 import ulisboa.tecnico.agents.ICharacter;
@@ -64,5 +65,20 @@ public class ExampleReactiveAgent implements IAgent {
     @Override
     public void acquiredFishLoot(Collection<ItemStack> fishLoot) {
         // Do nothing
+    }
+
+    @Override
+    public void acquiredFarmingLoot(Collection<ItemStack> farmLoot) {
+        // Do nothing
+    }
+
+    @Override
+    public boolean hasItem(Material item) {
+        return false; // Agent does not have any items
+    }
+
+    @Override
+    public boolean hasAndRemoveItem(Material item, int amount) {
+        return false; // Agent does not have any items
     }
 }

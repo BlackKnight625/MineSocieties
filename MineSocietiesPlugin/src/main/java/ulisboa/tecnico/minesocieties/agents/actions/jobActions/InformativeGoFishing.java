@@ -17,6 +17,8 @@ public class InformativeGoFishing extends GoFishing<SocialAgent> implements ISoc
                 MineSocieties.getPlugin().getMaxFishingRadius(), MineSocieties.getPlugin().getLogger(), MineSocieties.getPlugin());
     }
 
+    // Other methods
+
     @Override
     public String accept(IActionVisitor visitor) {
         return visitor.visitGoFishing(this);

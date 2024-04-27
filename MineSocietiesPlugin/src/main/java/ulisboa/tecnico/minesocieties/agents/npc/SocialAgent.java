@@ -633,6 +633,21 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
         }
     }
 
+    @Override
+    public void acquiredFarmingLoot(Collection<ItemStack> farmLoot) {
+        addOrDropItems(farmLoot);
+    }
+
+    @Override
+    public boolean hasItem(Material item) {
+        return state.getInventory().hasItem(item);
+    }
+
+    @Override
+    public boolean hasAndRemoveItem(Material item, int amount) {
+        return state.getInventory().hasAndRemoveItem(item, amount);
+    }
+
     // Static methods
 
     private static NamespacedKey getNamespacedKey(String key) {

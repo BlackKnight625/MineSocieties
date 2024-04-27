@@ -1,6 +1,7 @@
 package ulisboa.tecnico.agents.npc;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.entityutils.entity.npc.player.AnimatedPlayerNPC;
 import org.entityutils.utils.data.PlayerNPCData;
@@ -64,4 +65,10 @@ public interface IAgent extends ICharacter {
     }
 
     void acquiredFishLoot(Collection<ItemStack> fishLoot);
+
+    void acquiredFarmingLoot(Collection<ItemStack> farmLoot);
+
+    boolean hasItem(Material item);
+
+    boolean hasAndRemoveItem(Material item, int amount);
 }

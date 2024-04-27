@@ -5,6 +5,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import ulisboa.tecnico.minesocieties.MineSocieties;
+import ulisboa.tecnico.minesocieties.agents.actions.jobActions.InformativeFarming;
 import ulisboa.tecnico.minesocieties.agents.actions.jobActions.InformativeGoFishing;
 import ulisboa.tecnico.minesocieties.agents.actions.otherActions.Idle;
 import ulisboa.tecnico.minesocieties.agents.actions.otherActions.InformativeGoTo;
@@ -39,6 +40,7 @@ public class ActionMenu extends GUIMenu {
         addClickable(10, new ActionExecutorItem(this, Material.RED_BED, agent, new InformativeGoTo(agent.getState().getMemory().getHome().getLocation())));
         addClickable(11, new KnowLocationsOpener());
         addClickable(13, new ActionExecutorItem(this, Material.FISHING_ROD, agent, new InformativeGoFishing(3, 40 * 20, 15 * 20)));
+        addClickable(14, new ActionExecutorItem(this, Material.IRON_HOE, agent, new InformativeFarming(60 * 20)));
         addClickable(16, new ActionExecutorItem(this, Material.BARRIER, agent, new Idle()));
 
         if (MineSocieties.getPlugin().isDebugMode()) {
@@ -46,7 +48,7 @@ public class ActionMenu extends GUIMenu {
             GiveItemTo giveItemTo = new GiveItemTo();
 
             giveItemTo.setItem(new ItemStack(Material.SALMON, 1));
-            giveItemTo.setReceiver(new CharacterReference(Bukkit.getPlayer("BlackKnight625").getUniqueId(), "BlackKnight625"));
+            giveItemTo.setReceiver(new CharacterReference(getPlayer()));
 
             addClickable(17, new ActionExecutorItem(this, Material.SALMON, agent, giveItemTo));
         }

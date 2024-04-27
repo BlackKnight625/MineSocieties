@@ -1,5 +1,6 @@
 package ulisboa.tecnico.minesocieties.visitors;
 
+import ulisboa.tecnico.minesocieties.agents.actions.jobActions.InformativeFarming;
 import ulisboa.tecnico.minesocieties.agents.actions.jobActions.InformativeGoFishing;
 import ulisboa.tecnico.minesocieties.agents.actions.otherActions.ContinueCurrentAction;
 import ulisboa.tecnico.minesocieties.agents.actions.otherActions.Idle;
@@ -76,5 +77,10 @@ public class NextActionExplainer implements IActionVisitor {
     @Override
     public String visitGiveItemTo(GiveItemTo giveItemTo) {
         return "Give an item from their inventory to someone";
+    }
+
+    @Override
+    public String visitFarming(InformativeFarming farming) {
+        return "Go farming";
     }
 }

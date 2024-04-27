@@ -1,5 +1,6 @@
 package ulisboa.tecnico.agents.utils;
 
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Display;
@@ -67,5 +68,18 @@ public class DisplayUtils {
         Boolean isTemporary = displayEntity.getPersistentDataContainer().get(TEMPORARY_DISPLAY_KEY, PersistentDataType.BOOLEAN);
 
         return isTemporary != null && isTemporary;
+    }
+
+    public static void createDefaultTemporaryItemDisplayForItems(Iterable<ItemStack> items, Location location, Plugin plugin) {
+        double offset = 0;
+
+        for (ItemStack item : items) {
+            ItemDisplay itemDisplay = DisplayUtils.createTemporaryItemDisplay(item, location.clone().add(0, offset, 0), 40, plugin, true);
+
+            itemDisplay.setGlowing(true);
+            itemDisplay.setGlowColorOverride(Color.WHITE);
+
+            offset += 0.5;
+        }
     }
 }

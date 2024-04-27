@@ -1,5 +1,6 @@
 package ulisboa.tecnico.minesocieties.visitors;
 
+import ulisboa.tecnico.minesocieties.agents.actions.jobActions.InformativeFarming;
 import ulisboa.tecnico.minesocieties.agents.actions.jobActions.InformativeGoFishing;
 import ulisboa.tecnico.minesocieties.agents.actions.otherActions.*;
 import ulisboa.tecnico.minesocieties.agents.actions.socialActions.GiveItemTo;
@@ -53,5 +54,10 @@ public class PastActionExplainer implements IActionVisitor {
     public String visitGiveItemTo(GiveItemTo giveItemTo) {
         return "gave " + StringUtils.itemToAmountAndName(giveItemTo.getItem()) + " to " +
                 giveItemTo.getReceiver().getName();
+    }
+
+    @Override
+    public String visitFarming(InformativeFarming farming) {
+        return "went farming";
     }
 }

@@ -103,17 +103,7 @@ public class Fish<T extends IAgent> extends TemporalAction<T> {
                 actioner.acquiredFishLoot(items);
 
                 // Showing the earned loot on an ItemDisplay
-                Location location = fishHook.getLocation();
-                double offset = 1;
-
-                for (ItemStack item : items) {
-                    ItemDisplay itemDisplay = DisplayUtils.createTemporaryItemDisplay(item, location.clone().add(0, offset, 0), 40, plugin, true);
-
-                    itemDisplay.setGlowing(true);
-                    itemDisplay.setGlowColorOverride(Color.WHITE);
-
-                    offset += 0.5;
-                }
+                DisplayUtils.createDefaultTemporaryItemDisplayForItems(items, fishHook.getLocation().add(0, 1, 0), plugin);
 
                 clear(actioner);
 

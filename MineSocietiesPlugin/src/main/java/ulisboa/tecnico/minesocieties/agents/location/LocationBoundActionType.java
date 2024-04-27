@@ -4,12 +4,14 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import ulisboa.tecnico.minesocieties.agents.actions.ISocialAction;
+import ulisboa.tecnico.minesocieties.agents.actions.jobActions.InformativeFarming;
 import ulisboa.tecnico.minesocieties.agents.actions.jobActions.InformativeGoFishing;
 
 import java.util.function.Supplier;
 
 public enum LocationBoundActionType {
     FISHING(() -> new InformativeGoFishing(5, 3 * 60 * 20, 60 * 20), "Fishing", Material.FISHING_ROD),
+    FARMING(() -> new InformativeFarming(3 * 60 * 20), "Farming", Material.IRON_HOE),
     ;
 
     // Private attributes
