@@ -71,4 +71,8 @@ public interface IAgent extends ICharacter {
     boolean hasItem(Material item);
 
     boolean hasAndRemoveItem(Material item, int amount);
+
+    default void lookForward() {
+        getAgent().setDirection(getAgent().getData().getYaw(), 0);
+    }
 }

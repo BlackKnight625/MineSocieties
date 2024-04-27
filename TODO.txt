@@ -1,5 +1,4 @@
 - Add trade action
-- Add put items away action (like in a storage room)
 - Compact agent's inventory everytime a new item is inserted
 
 - Add wood chopping action

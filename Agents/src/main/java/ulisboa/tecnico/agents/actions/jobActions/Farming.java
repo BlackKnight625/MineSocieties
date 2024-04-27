@@ -32,6 +32,7 @@ public class Farming<T extends IAgent> extends TemporalAction<T> {
     private List<Block> farmlandBlocks;
     private GoTo<T> goingToCrop;
     private ItemStack hoe;
+    private int lastActionTicks = Integer.MIN_VALUE;
 
     private static final Map<Material, Material> CROP_BLOCK_TO_ITEM = Map.of(
             Material.WHEAT, Material.WHEAT_SEEDS,
@@ -74,7 +75,9 @@ public class Farming<T extends IAgent> extends TemporalAction<T> {
         if (goingToCrop == null) {
             // The agent is not moving towards a crop
 
-            if (elapsedTicks % 20 == 0) {
+            int ticksSinceLastAction = elapsedTicks - lastActionTicks;
+
+            if (ticksSinceLastAction % 20 == 0) {
                 var availableSeeds = agentSeeds(actioner);
 
                 // Checking if there are nearby plants ready to be harvested or farmland ready to be planted
@@ -101,6 +104,8 @@ public class Farming<T extends IAgent> extends TemporalAction<T> {
                         return ActionStatus.IN_PROGRESS;
                     }
                 }
+            } else if (ticksSinceLastAction == 10) {
+                actioner.lookForward();
             }
         } else {
             // The agent is moving towards a crop
@@ -132,6 +137,8 @@ public class Farming<T extends IAgent> extends TemporalAction<T> {
 
                         actioner.acquiredFarmingLoot(drops);
 
+                        lastActionTicks = elapsedTicks;
+
                         // Playing a crop destroy sound
                         crop.getWorld().playSound(crop.getLocation().add(0.5, 0, 0.5), crop.getBlockSoundGroup().getBreakSound(), 1, 1);
 
@@ -156,6 +163,8 @@ public class Farming<T extends IAgent> extends TemporalAction<T> {
 
                             actioner.getAgent().lookAt(crop.getLocation().add(0.5, 0, 0.5));
                             actioner.getAgent().animate(EntityAnimation.SWING_MAIN_ARM);
+
+                            lastActionTicks = elapsedTicks;
 
                             // Playing a crop plant sound
                             crop.getWorld().playSound(crop.getLocation().add(0.5, 0, 0.5), crop.getBlockSoundGroup().getPlaceSound(), 1, 1);
