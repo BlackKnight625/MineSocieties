@@ -108,6 +108,18 @@ public class SendChatTo implements IActionWithArguments, ISocialAction, INearbyI
     }
 
     @Override
+    public List<String> getNamesOfNearbyCharacters(SocialAgent agent) {
+        var list = INearbyInteraction.super.getNamesOfNearbyCharacters(agent);
+
+        // Preventing the agent from speaking to the same people twice in a row
+        for (SendChatTo otherChats : agent.getLastActionsOfClass(SendChatTo.class)) {
+            list.remove(otherChats.getReceiver().getName());
+        }
+
+        return list;
+    }
+
+    @Override
     public String accept(IActionVisitor visitor) {
         return visitor.visitSendChatTo(this);
     }

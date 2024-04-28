@@ -235,6 +235,29 @@ public class AgentState implements IExplainableContext {
         return messageList;
     }
 
+    private List<LLMMessage> getPromptForShortLongTermMemoryOptimizationSync() {
+        String name = persona.getName();
+        List<LLMMessage> messageList = new ArrayList<>(4);
+
+        // Telling the model exactly what to do
+        messageList.add(new LLMMessage(LLMRole.SYSTEM,
+                "You are a human memory helper. You will receive a list of short-term memories and long-term memories " +
+                        "inside brackets '{}' and must optimize them by summarizing them or excluding non-important memories. " +
+                        getAdditionalStateFormat()
+                )
+        );
+
+        // Giving an example of input to the model
+        messageList.add(new LLMMessage(LLMRole.USER,
+                        "Rafael: {Rafael is a software engineer. He loves chocolate. He thinks Francisco is tall, and is weird for not " +
+                                "liking pineapple on pizza. Rafael is smart and knows funny dark humour jokes. He's happy with himself. " +
+                                "He's going to a party next week. He needs to cook dinner tonight.}"
+                )
+        );
+
+        return messageList;
+    }
+
     public String getNewStateFormat() {
         return "Write down the personality traits that best describe them as " + PERSONALITIES_FORMAT +
                 " (traits should be a single word or hyphenated words, and they must belong to them), " +

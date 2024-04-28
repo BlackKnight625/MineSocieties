@@ -45,7 +45,7 @@ public class NextActionExplainer implements IActionVisitor {
 
     @Override
     public String visitIdle(Idle idle) {
-        return "Go idle";
+        return "Do nothing";
     }
 
     @Override

@@ -1,5 +1,6 @@
 package ulisboa.tecnico.minesocieties.agents.npc;
 
+import com.google.common.collect.EvictingQueue;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
@@ -57,6 +58,7 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
     private ActionStatus currentActionStatus = ActionStatus.SUCCESS;
     private MessageDisplay messageDisplay = new MessageDisplay(this);
     private final Lock actionChoosingLock = new ReentrantLock();
+    private final EvictingQueue<ISocialAction> lastActions = EvictingQueue.create(3);
 
     // Constructors
 
@@ -406,6 +408,7 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
                 currentAction.cancel(this);
             }
 
+            lastActions.add(currentAction);
             currentAction = newAction;
             currentActionStatus = ActionStatus.IN_PROGRESS;
         } finally {
@@ -646,6 +649,14 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
     @Override
     public boolean hasAndRemoveItem(Material item, int amount) {
         return state.getInventory().hasAndRemoveItem(item, amount);
+    }
+
+    public Iterable<ISocialAction> getLastActions() {
+        return lastActions;
+    }
+
+    public <T> Iterable<T> getLastActionsOfClass(Class<T> clazz) {
+        return lastActions.stream().filter(clazz::isInstance).map(clazz::cast)::iterator;
     }
 
     // Static methods

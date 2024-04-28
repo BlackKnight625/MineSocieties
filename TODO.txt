@@ -1,14 +1,11 @@
 - Add trade action
 - Compact agent's inventory everytime a new item is inserted
+- Deal with growing short term and long term memories
 
 - Add wood chopping action
 
 - Add more observations
 --- Characters entering chatting range of agents
----
-
-- Make more things configurable
---- Fishing search radius
 ---
 
 - More prompt engineering
@@ -31,6 +28,9 @@
 ----- CAN_WAIT if the agent should put the observation in a queue and react to it later
 ----- IGNORE_IF_DECIDING if the agent should ignore the observation if they're querying the LLM on what to do due to something else
 ----- IGNORE_IF_BUSY if the agent can ignore the observation if they're currently doing an important action
+- Make it possible to chat with agents from normal chat when the message references the agent at the start.
+--- Ex: "Hey Steve, could you give me some salmon, please?"
+--- Could have a regex to detect common greetings and then check if the name is a valid nearby agent name
 
 
 --- Future ---
@@ -39,3 +39,6 @@
 ----- Must encapsulate every single access to its attributes
 --- Or make a custom TypeSerializer for AgentState
 ----- High coupling with AgentState since it must know how to serialize it
+- End all problems with race conditions by cloning AgentState and passing it to async threads instead of the original object
+--- Then, all locks from AgentState's attributes can be removed
+--- If changes need to be done to the original, then BukkitRunnables should be created
