@@ -2,6 +2,7 @@ package ulisboa.tecnico.minesocieties.visitors;
 
 import org.apache.commons.lang3.text.WordUtils;
 import org.bukkit.inventory.ItemStack;
+import ulisboa.tecnico.minesocieties.agents.location.LocationReference;
 import ulisboa.tecnico.minesocieties.agents.location.SocialLocation;
 import ulisboa.tecnico.minesocieties.agents.npc.state.*;
 import ulisboa.tecnico.minesocieties.utils.StringUtils;
@@ -25,6 +26,18 @@ public class CurrentContextExplainer implements IContextVisitor {
         builder.append(state.getInventory().accept(this));
         builder.append(' ');
         builder.append(state.getMemory().accept(this));
+
+        // Appending the last visited location, which should be where the agent is currently at
+        LocationReference lastVisitedLocationReference = state.getLastVisitedLocation();
+
+        if (lastVisitedLocationReference != null) {
+            SocialLocation location = lastVisitedLocationReference.getLocation();
+
+            if (location != null) {
+                builder.append(" They're currently at ");
+                builder.append(location.accept(this));
+            }
+        }
 
         return builder.toString();
     }

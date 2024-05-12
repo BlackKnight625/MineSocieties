@@ -161,6 +161,12 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
         currentActionStatus = currentAction.act(this);
 
         if (currentActionStatus.isFinished()) {
+            if (currentActionStatus.isSuccessful() && currentAction instanceof InformativeGoTo informativeGoTo) {
+                // The agent has reached a new location
+                state.setLastVisitedLocation(informativeGoTo.getSocialLocation().toReference());
+                state.markDirty();
+            }
+
             if (currentAction instanceof Thinking) {
                 // Choosing a new action
                 chooseNewAction(null);
@@ -552,11 +558,17 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
         for (LocationReference otherLocationReference : state.getAllLocations()) {
             SocialLocation otherLocation = otherLocationReference.getLocation();
 
-            if (otherLocation != null && !otherLocation.isDeleted()) {
+            if (otherLocation != null && !otherLocation.isDeleted() && otherLocation.hasAccess(this)) {
                 // The location might have been deleted during this iteration process, hence the check
-                possibleActions.add(new InformativeGoTo(otherLocation));
 
-                if (otherLocation.hasPossibleActions() && otherLocation.hasAccess(this) && otherLocation.isClose(currentLocation)) {
+                boolean isClose = otherLocation.isClose(currentLocation);
+
+                if (!isClose) {
+                    // Agents can only go to locations they're not close to
+                    possibleActions.add(new InformativeGoTo(otherLocation));
+                }
+
+                if (isClose && otherLocation.hasPossibleActions()) {
                     // This location is accessible, close to the NPC, and there are actions that can be executed there
                     possibleActions.addAll(otherLocation.getPossibleActions());
                 }

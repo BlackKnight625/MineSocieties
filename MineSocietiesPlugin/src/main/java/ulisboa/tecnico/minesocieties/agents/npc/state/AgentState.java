@@ -48,6 +48,7 @@ public class AgentState implements IExplainableContext {
     private UUID uuid;
     private AgentLocation currentLocation;
     private AgentInventory inventory = new AgentInventory();
+    private LocationReference lastVisitedLocation = null;
     private transient boolean dirty = false;
     private final transient Lock stateLock = new ReentrantLock();
     private final transient Lock saveInProgress = new ReentrantLock();
@@ -96,6 +97,14 @@ public class AgentState implements IExplainableContext {
 
     public AgentInventory getInventory() {
         return inventory;
+    }
+
+    public LocationReference getLastVisitedLocation() {
+        return this.lastVisitedLocation;
+    }
+
+    public void setLastVisitedLocation(LocationReference lastVisitedLocation) {
+        this.lastVisitedLocation = lastVisitedLocation;
     }
 
     // Other methods

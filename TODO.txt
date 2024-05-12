@@ -1,44 +1,52 @@
-- Add trade action
-- Compact agent's inventory everytime a new item is inserted
-- Deal with growing short term and long term memories
+Priorities:
+- Low) This could wait for MineSocieties 2.0
+- Medium) This would improve the quality of my thesis delivery
+- High) This is necessary for the thesis to be delivered
 
-- Add wood chopping action
+TODO:
+
+- Medium) Add trade action
+- Low) Compact agent's inventory everytime a new item is inserted
+- Meidum) Deal with growing short term and long term memories
+- High) Make sure short and long term memories do not memorize timestamps
+
+- Meidum) Add wood chopping action
 
 - Add more observations
---- Characters entering chatting range of agents
+--- High) Characters entering chatting range of agents
 ---
 
 - More prompt engineering
---- Investigate how fine-tuning could improve agent choices for ChatGPT
+--- Low) Investigate how fine-tuning could improve agent choices for ChatGPT
 
-- Add compatibility with other models
+- Medium) Add compatibility with other models
+--- Llama 3.0
 
-- Agents module should abstract the NPC logic from EntityUtils so that if necessary it's easier to switch to another NPC plugin
+- Medium) Agents module should abstract the NPC logic from EntityUtils so that if necessary it's easier to switch to another NPC plugin
 --- MineSocieties should not ever depend on EntityUtils
 
 --- Bugs ---
-- Auto-complete for "/agent talk" doesn't work
-- NPCs in unloaded chunks will keep making decisions
-- If 2 NPCs have the same name, things can get messy
+- High) Auto-complete for "/agent talk" doesn't work
+- Medium) NPCs in unloaded chunks will keep making decisions
+- High) If 2 NPCs have the same name, things can get messy
 
 --- Ideas ---
-- To deal with 2 agents sending a chat to each other nearly at the same time and ending up speaking very quickly:
---- Make SocialObservations have a method called reactionUrgency() that returns
------ URGENT if the agent should react immediately
------ CAN_WAIT if the agent should put the observation in a queue and react to it later
------ IGNORE_IF_DECIDING if the agent should ignore the observation if they're querying the LLM on what to do due to something else
------ IGNORE_IF_BUSY if the agent can ignore the observation if they're currently doing an important action
-- Make it possible to chat with agents from normal chat when the message references the agent at the start.
+- Low) Make SocialObservations have a method called reactionUrgency() that returns
+--- URGENT if the agent should react immediately
+--- CAN_WAIT if the agent should put the observation in a queue and react to it later
+--- IGNORE_IF_DECIDING if the agent should ignore the observation if they're querying the LLM on what to do due to something else
+--- IGNORE_IF_BUSY if the agent can ignore the observation if they're currently doing an important action
+- Low) Make it possible to chat with agents from normal chat when the message references the agent at the start.
 --- Ex: "Hey Steve, could you give me some salmon, please?"
 --- Could have a regex to detect common greetings and then check if the name is a valid nearby agent name
 
 
 --- Future ---
-- Possible race conditions when GSON is serializing the AgentState while the main thread modifies it
+- Low) Possible race conditions when GSON is serializing the AgentState while the main thread modifies it
 --- Either have a lock on the AgentState
 ----- Must encapsulate every single access to its attributes
 --- Or make a custom TypeSerializer for AgentState
 ----- High coupling with AgentState since it must know how to serialize it
-- End all problems with race conditions by cloning AgentState and passing it to async threads instead of the original object
+- Low) End all problems with race conditions by cloning AgentState and passing it to async threads instead of the original object
 --- Then, all locks from AgentState's attributes can be removed
 --- If changes need to be done to the original, then BukkitRunnables should be created

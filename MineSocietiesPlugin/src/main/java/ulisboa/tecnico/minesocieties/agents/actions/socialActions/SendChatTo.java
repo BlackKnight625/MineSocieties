@@ -113,7 +113,10 @@ public class SendChatTo implements IActionWithArguments, ISocialAction, INearbyI
 
         // Preventing the agent from speaking to the same people twice in a row
         for (SendChatTo otherChats : agent.getLastActionsOfClass(SendChatTo.class)) {
-            list.remove(otherChats.getReceiver().getName());
+            if (!otherChats.getWaitForReply()) {
+                // The LLM thought it wasn't necessary to continue the previous conversation
+                list.remove(otherChats.getReceiver().getName());
+            }
         }
 
         return list;

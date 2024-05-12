@@ -29,6 +29,10 @@ public class InformativeGoTo extends GoTo<SocialAgent> implements ISocialAction 
         return socialLocation.getExplanation();
     }
 
+    public SocialLocation getSocialLocation() {
+        return this.socialLocation;
+    }
+
     // Other methods
 
 
