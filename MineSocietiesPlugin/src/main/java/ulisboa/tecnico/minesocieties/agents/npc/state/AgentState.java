@@ -49,7 +49,7 @@ public class AgentState implements IExplainableContext {
     private AgentLocation currentLocation;
     private AgentInventory inventory = new AgentInventory();
     private LocationReference lastVisitedLocation = null;
-    private transient boolean dirty = false;
+    private transient boolean dirty = true;
     private final transient Lock stateLock = new ReentrantLock();
     private final transient Lock saveInProgress = new ReentrantLock();
 
@@ -393,38 +393,55 @@ public class AgentState implements IExplainableContext {
     }
 
     public Path getStatePath() {
-        return getStatePath(uuid, persona.getName());
+        return getStatePath(SocialAgentManager.STATES_PATH);
+    }
+
+    public Path getStatePath(Path path) {
+        return getStatePath(path, uuid, persona.getName());
     }
 
     public Path getStatePath(UUID uuid, String name) {
-        return Path.of(SocialAgentManager.STATES_PATH.toString(), name + "_" + uuid + ".json");
+        return getStatePath(SocialAgentManager.STATES_PATH, uuid, name);
+    }
+
+    public Path getStatePath(Path path, UUID uuid, String name) {
+        return path.resolve(name + "_" + uuid + ".json");
+    }
+
+    public void saveSync() throws IOException {
+        saveSync(SocialAgentManager.STATES_PATH);
     }
 
     /**
      *  Saves this current state in its corresponding file
      */
-    public void saveSync() {
+    public void saveSync(Path path) throws IOException {
         try {
             saveInProgress.lock();
 
-            File file = getStatePath().toFile();
+            File file = getStatePath(path).toFile();
 
             file.getParentFile().mkdirs();
             file.createNewFile();
 
-            Files.write(getStatePath(), GSON.toJson(this).getBytes());
+            Files.write(getStatePath(path), GSON.toJson(this).getBytes());
 
             dirty = false;
         } catch (IOException e) {
-            MineSocieties.getPlugin().getLogger().log(Level.WARNING,
-                    "Unable to save the state of " + persona.getName() + " into a file.", e);
+            throw new IOException("Unable to save the state of " + persona.getName() + " into a file.", e);
         } finally {
             saveInProgress.unlock();
         }
     }
 
     public void saveAsync() {
-        MineSocieties.getPlugin().getThreadPool().execute(this::saveSync);
+        MineSocieties.getPlugin().getThreadPool().execute(() -> {
+            try {
+                saveSync();
+            } catch (IOException e) {
+                MineSocieties.getPlugin().getLogger().log(Level.SEVERE, "Unable to asynchronously save the state of " + persona.getName() + " into a file.", e);
+            }
+        });
     }
 
     @Override

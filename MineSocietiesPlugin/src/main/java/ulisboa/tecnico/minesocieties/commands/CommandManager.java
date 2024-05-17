@@ -65,6 +65,8 @@ public class CommandManager {
             }
         });
 
+        autoCompleter.registerSuggestion("backups", (args, sender, command) -> MineSocieties.getPlugin().listBackups());
+
         autoCompleter.registerParameterSuggestions(SocialAgent.class, (args, sender, command) -> {
             List<String> names = new LinkedList<>();
 

@@ -165,9 +165,7 @@ public class ChatGPTManager extends LLMManager {
             try {
                 responseReceiver.accept(promptSync(messageList));
             } catch (Exception e) {
-                logger.severe("Error occurred while asynchronously prompting OpenAI's ChatGPT: " + e.getMessage());
-
-                e.printStackTrace();
+                logger.log(Level.SEVERE, "Error occurred while asynchronously prompting OpenAI's ChatGPT: " + e.getMessage(), e);
             }
         });
     }
@@ -223,9 +221,7 @@ public class ChatGPTManager extends LLMManager {
             try {
                 responseReceiver.accept(promptSync(messageSuplier.get()));
             } catch (Exception e) {
-                logger.severe("Error occurred while asynchronously prompting OpenAI's ChatGPT: " + e.getMessage());
-
-                e.printStackTrace();
+                logger.log(Level.SEVERE, "Error occurred while asynchronously prompting OpenAI's ChatGPT: " + e.getMessage(), e);
 
                 if (onError != null) {
                     onError.accept(e);

@@ -588,7 +588,8 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
 
     @Override
     public void deleted() {
-
+        // Must delete the agent's home
+        MineSocieties.getPlugin().getLocationsManager().deleteAsync(state.getMemory().getHome().getLocation());
     }
 
     public void addUuidToContainer(PersistentDataContainer container) {

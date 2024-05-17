@@ -45,8 +45,8 @@ public class SharedAccess extends LocationAccess {
     }
 
     @Override
-    public void fixInconsistencies() {
-        agentsWithAccess.removeIf(characterReference -> characterReference.getReferencedCharacter() == null);
+    public boolean fixInconsistencies() {
+        return agentsWithAccess.removeIf(characterReference -> characterReference.getReferencedCharacter() == null);
     }
 
     public void addAgent(CharacterReference reference) {

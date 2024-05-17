@@ -2,8 +2,10 @@ package ulisboa.tecnico.minesocieties.commands;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import revxrsal.commands.annotation.*;
+import revxrsal.commands.bukkit.BukkitCommandActor;
 import revxrsal.commands.bukkit.annotation.CommandPermission;
 import revxrsal.commands.exception.CommandErrorException;
 import ulisboa.tecnico.minesocieties.MineSocieties;
@@ -11,6 +13,8 @@ import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.agents.player.SocialPlayer;
 import ulisboa.tecnico.minesocieties.guis.social.locations.AllLocationsMenu;
 import ulisboa.tecnico.minesocieties.utils.ComponentUtils;
+
+import java.util.logging.Level;
 
 @Command("agent")
 public class SocialAgentCommand {
@@ -69,6 +73,31 @@ public class SocialAgentCommand {
     public void openLocationsMenu(Player player) {
         new AllLocationsMenu(getSocialPlayer(player)).open();
     }
+
+    @Subcommand("backup save")
+    @CommandPermission("minesocieties.admin")
+    @AutoComplete("@backups")
+    public void backupSave(CommandSender sender, String backupFolderName) {
+        MineSocieties.getPlugin().backupEverything(backupFolderName);
+
+        sender.sendMessage(ComponentUtils.withPrefix(Component.text("Backup saved successfully!").color(TextColor.color(53, 229, 54))));
+    }
+
+    @Subcommand("backup load")
+    @CommandPermission("minesocieties.admin")
+    @AutoComplete("@backups")
+    public void backupLoad(CommandSender sender, String backupFolderName) {
+        MineSocieties.getPlugin().loadEverythingFromBackup(backupFolderName);
+
+        sender.sendMessage(ComponentUtils.withPrefix(Component.text("Backup loaded successfully!").color(TextColor.color(53, 229, 54))));
+    }
+
+    @Subcommand("backup list")
+    @CommandPermission("minesocieties.admin")
+    public void backupList(CommandSender sender) {
+        sender.sendMessage("Backups: " + MineSocieties.getPlugin().listBackups());
+    }
+
 
     private SocialPlayer getSocialPlayer(Player player) {
         return MineSocieties.getPlugin().getSocialAgentManager().getPlayerWrapper(player);

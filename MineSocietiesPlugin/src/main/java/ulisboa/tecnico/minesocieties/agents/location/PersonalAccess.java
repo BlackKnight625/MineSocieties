@@ -56,8 +56,9 @@ public class PersonalAccess extends LocationAccess {
     }
 
     @Override
-    public void fixInconsistencies() {
+    public boolean fixInconsistencies() {
         // Nothing to do. If the sole agent referenced here becomes invalid, the access becomes invalid.
+        return false;
     }
 
     @Override

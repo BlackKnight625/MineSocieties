@@ -5,6 +5,7 @@ import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.entityutils.entity.event.EventManager;
+import revxrsal.commands.exception.CommandErrorException;
 import ulisboa.tecnico.agents.ExampleReactiveAgentManager;
 import ulisboa.tecnico.llms.ChatGPTManager;
 import ulisboa.tecnico.llms.LLMManager;
@@ -18,8 +19,13 @@ import ulisboa.tecnico.minesocieties.packets.PacketManager;
 import ulisboa.tecnico.minesocieties.visitors.CurrentActionExplainer;
 import ulisboa.tecnico.minesocieties.visitors.IActionVisitor;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
+import java.util.logging.Level;
 
 public class MineSocieties extends JavaPlugin {
 
@@ -46,6 +52,7 @@ public class MineSocieties extends JavaPlugin {
     private double maxFishingRadius;
     private double maxFarmingRadius;
     private boolean debugMode;
+    private final Path backupPathPrefix =  Path.of("plugins", "MineSocieties", "backup");
 
     // Other methods
 
@@ -119,21 +126,7 @@ public class MineSocieties extends JavaPlugin {
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    try {
-                        socialAgentManager.loadSavedAgents();
-                        locationsManager.loadSync();
-                    } catch (IOException e) {
-                        //  Something critical happened while loading the agents. The server should be stopped
-                        // since a missing agent or location could cause side effects on other agent's memories
-                        getLogger().severe("Error loading saved agents and/or agent locations. Stopping the server.");
-                        e.printStackTrace();
-
-                        getServer().shutdown();
-                    }
-
-                    // Some locations might have been deleted or some agents may no longer exist. Removing invalid instances
-                    locationsManager.checkAndDeleteInvalidLocationsSync();
-                    socialAgentManager.deleteAgentsInvalidLocations();
+                    loadEverything();
                 }
             }.runTask(this);
         }
@@ -190,7 +183,11 @@ public class MineSocieties extends JavaPlugin {
     public void saveDirtyAgentsSync() {
         socialAgentManager.forEachAgent(agent -> {
             if (agent.getState().isDirty()) {
-                agent.getState().saveSync();
+                try {
+                    agent.getState().saveSync();
+                } catch (IOException e) {
+                    getLogger().log(Level.SEVERE, "Error saving agent " + agent.getName(), e);
+                }
             }
         });
     }
@@ -304,5 +301,78 @@ public class MineSocieties extends JavaPlugin {
 
     public static void setPlugin(MineSocieties PLUGIN) {
         MineSocieties.PLUGIN = PLUGIN;
+    }
+
+
+    public void loadEverythingFromBackup(String backupName) throws CommandErrorException {
+        try {
+            socialAgentManager.deleteAllAgents();
+            locationsManager.deleteAllLocations();
+
+            socialAgentManager.loadSavedAgentsFromBackup(backupName);
+            locationsManager.loadBackupSync(backupName);
+
+            // Some locations might have been deleted or some agents may no longer exist. Removing invalid instances
+            locationsManager.checkAndDeleteInvalidLocationsSync();
+            socialAgentManager.deleteAgentsInvalidLocations();
+
+            // Creating files on main agents and locations directory
+            saveDirtyAgentsSync(); // All agents start out as dirty
+            locationsManager.saveSync();
+        } catch (IOException e) {
+            //  Something critical happened while loading the agents. The server should be stopped
+            // since a missing agent or location could cause side effects on other agent's memories
+            getLogger().log(Level.SEVERE, "Error loading saved agents and/or agent locations. Stopping the server to " +
+                    "prevent inconsistencies inside agent's memories.", e);
+
+            getServer().shutdown();
+        }
+    }
+
+    public void loadEverything() {
+        try {
+            socialAgentManager.loadSavedAgents();
+            locationsManager.loadSync();
+
+            // Some locations might have been deleted or some agents may no longer exist. Removing invalid instances
+            locationsManager.checkAndDeleteInvalidLocationsSync();
+            socialAgentManager.deleteAgentsInvalidLocations();
+        } catch (IOException e) {
+            //  Something critical happened while loading the agents. The server should be stopped
+            // since a missing agent or location could cause side effects on other agent's memories
+            getLogger().log(Level.SEVERE, "Error loading saved agents and/or agent locations. Stopping the server to " +
+                    "prevent inconsistencies inside agent's memories.", e);
+
+            getServer().shutdown();
+        }
+    }
+
+    public void backupEverything(String backupName) {
+        try {
+            socialAgentManager.backupAgents(backupName);
+            locationsManager.saveBackupSync(backupName);
+        } catch (IOException e) {
+            getLogger().log(Level.SEVERE, "Error backing up agents and/or agent locations.", e);
+
+            throw new CommandErrorException("Error backing up agents and/or agent locations.");
+        }
+    }
+
+    public List<String> listBackups() {
+        List<String> backups = new ArrayList<>();
+
+        File backupFolder = backupPathPrefix.toFile();
+
+        if (backupFolder.exists()) {
+            for (File file : backupFolder.listFiles()) {
+                backups.add(file.getName());
+            }
+        }
+
+        return backups;
+    }
+
+    public Path getBackupsPathPrefix() {
+        return backupPathPrefix;
     }
 }

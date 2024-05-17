@@ -51,6 +51,22 @@ public abstract class AbstractAgentManager<A extends IAgent, P extends IPlayerAg
         return plugin;
     }
 
+    protected ReadWriteLock getCharacterByNameMapLock() {
+        return this.characterByNameMapLock;
+    }
+
+    protected ReadWriteLock getCharacterMapLock() {
+        return this.characterMapLock;
+    }
+
+    protected Map<UUID, ICharacter> getCharacterMap() {
+        return this.characterMap;
+    }
+
+    protected Map<String, ICharacter> getCharacterByNameMap() {
+        return this.characterByNameMap;
+    }
+
     // Other methods
 
     public void initialize() {
@@ -102,6 +118,18 @@ public abstract class AbstractAgentManager<A extends IAgent, P extends IPlayerAg
     }
 
     public void deleteAgent(UUID uuid) {
+        characterMapLock.writeLock();
+        characterByNameMapLock.writeLock();
+
+        try {
+            deleteAgentNoLock(uuid);
+        } finally {
+            characterMapLock.writeUnlock();
+            characterByNameMapLock.writeUnlock();
+        }
+    }
+
+    protected void deleteAgentNoLock(UUID uuid) {
         if (characterMap.containsKey(uuid)) {
             ICharacter character = characterMap.get(uuid);
 
@@ -109,8 +137,8 @@ public abstract class AbstractAgentManager<A extends IAgent, P extends IPlayerAg
                 agent.deleted();
                 agent.getAgent().setAlive(false);
 
-                characterMapLock.write(() -> characterMap.remove(uuid));
-                characterByNameMapLock.write(() -> characterByNameMap.remove(character.getName()));
+                characterMap.remove(uuid);
+                characterByNameMap.remove(character.getName());
             } else {
                 throw new RuntimeException("Provided UUID (" + uuid + ") does not correspond to an Agent. It " +
                         "corresponds to a Player named " + character.getName());
@@ -145,11 +173,27 @@ public abstract class AbstractAgentManager<A extends IAgent, P extends IPlayerAg
         } else {
             characterMapLock.readUnlock();
 
-            // Player wrapper does not exist yet
+            //  Player wrapper does not exist yet. No need to re-lock the map since this only happens when a player joined
+            // for the first time since the last restart.
             ICharacter playerWrapper = getNewPlayerWrapper(player);
 
             characterMapLock.write(() -> characterMap.put(uuid, playerWrapper));
             characterByNameMapLock.write(() -> characterByNameMap.put(player.getName(), playerWrapper));
+        }
+    }
+
+    public void registerPlayerAgain(P player) {
+        UUID uuid = player.getUUID();
+
+        characterMapLock.readLock();
+
+        if (!characterMap.containsKey(uuid)) {
+            characterMapLock.readUnlock();
+
+            characterMapLock.write(() -> characterMap.put(uuid, player));
+            characterByNameMapLock.write(() -> characterByNameMap.put(player.getName(), player));
+        } else {
+            characterMapLock.readUnlock();
         }
     }
 
@@ -268,6 +312,18 @@ public abstract class AbstractAgentManager<A extends IAgent, P extends IPlayerAg
 
         for (ICharacter character : characters) {
             if (character instanceof IPlayerAgent && character.isValid()) {
+                apply.accept((P) character);
+            }
+        }
+    }
+
+    public void forEachPlayer(Consumer<P> apply) {
+        characterMapLock.readLock();
+        var characters = new ArrayList<>(characterMap.values());
+        characterMapLock.readUnlock();
+
+        for (ICharacter character : characters) {
+            if (character instanceof IPlayerAgent) {
                 apply.accept((P) character);
             }
         }

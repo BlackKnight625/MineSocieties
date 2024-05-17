@@ -2,9 +2,11 @@ package ulisboa.tecnico.minesocieties.agents.location;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import revxrsal.commands.exception.CommandErrorException;
 import ulisboa.tecnico.agents.utils.ReadWriteLock;
 import ulisboa.tecnico.minesocieties.MineSocieties;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
+import ulisboa.tecnico.minesocieties.agents.npc.state.AgentLocation;
 import ulisboa.tecnico.minesocieties.agents.npc.state.AgentMemory;
 import ulisboa.tecnico.minesocieties.agents.npc.state.CharacterReference;
 
@@ -14,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.logging.Level;
 
 /**
  *  Manages the SocialLocation instances. SocialLocations are added and deleted very rarely, so it's fine
@@ -30,6 +33,7 @@ public class LocationsManager {
     // Public attributes
 
     public static final Path LOCATIONS_PATH =  Path.of("plugins", "MineSocieties", "locations");
+    public static final Path LOCATIONS_BACKUP_PATH_SUFFIX =  Path.of("locations");
 
     // Constructors
 
@@ -61,51 +65,107 @@ public class LocationsManager {
     }
 
     public void saveAsync() {
-        MineSocieties.getPlugin().getThreadPool().execute(this::saveSync);
+        saveAsync(LOCATIONS_PATH);
+    }
+
+    public void saveAsync(Path path) {
+        MineSocieties.getPlugin().getThreadPool().execute(() -> {
+            try {
+                saveSync(path);
+            } catch (IOException e) {
+                MineSocieties.getPlugin().getLogger().log(Level.SEVERE, "Unable to save locations at " + path, e);
+            }
+        });
     }
 
     public void saveAsync(SocialLocation location) {
-        MineSocieties.getPlugin().getThreadPool().execute(() -> saveSync(location));
+        saveAsync(location, LOCATIONS_PATH);
     }
 
-    public void saveSync() {
+    public void saveAsync(SocialLocation location, Path path) {
+        MineSocieties.getPlugin().getThreadPool().execute(() -> {
+            try {
+                saveSync(location, path);
+            } catch (IOException e) {
+                MineSocieties.getPlugin().getLogger().log(Level.SEVERE, "Unable to save location \"" +
+                        location.getName() + "\" at " + path, e);
+            }
+        });
+    }
+
+    public void saveSync() throws IOException {
+        saveSync(LOCATIONS_PATH);
+    }
+
+    public void saveSync(Path path) throws IOException {
         locationsLock.readLock();
         var locationsCopy = new ArrayList<>(locations.values());
         locationsLock.readUnlock();
 
         // Writing the locations one by one
         for (SocialLocation location : locationsCopy) {
-            saveSync(location);
+            saveSync(location, path);
         }
     }
 
-    public void saveSync(LocationReference reference) {
+    public void saveSync(LocationReference reference, Path path) throws IOException {
         SocialLocation location = reference.getLocation();
 
         if (location != null) {
-            saveSync(location);
+            saveSync(location, path);
         }
     }
 
-    public void saveSync(SocialLocation location) {
+    public void saveSync(SocialLocation location) throws IOException {
+        saveSync(location, LOCATIONS_PATH);
+    }
+
+    public void saveSync(SocialLocation location, Path path) throws IOException {
         if (!location.isDeleted()) {
             try {
-                Files.writeString(LOCATIONS_PATH.resolve(toFileName(location)), gson.toJson(location));
+                Files.writeString(path.resolve(toFileName(location)), gson.toJson(location));
             } catch (IOException e) {
-                MineSocieties.getPlugin().getLogger().severe("Unable to save location '" + location.getName() + "' to a file.");
-                e.printStackTrace();
+                throw new IOException("Unable to save location '" + location.getName() + "' to a file.", e);
             }
         }
+
+        // Else: Location was deleted. It should not be saved.
+    }
+
+    public Path backupsPath(String backupFolderName) {
+        return MineSocieties.getPlugin().getBackupsPathPrefix().resolve(backupFolderName).resolve(LOCATIONS_BACKUP_PATH_SUFFIX);
+    }
+
+    public void saveBackupSync(String backupFolderName) throws IOException {
+        locationsLock.readLock();
+
+        File backupFolder = backupsPath(backupFolderName).toFile();
+
+        // Creating the backup folder if it doesn't exist
+        if (!backupFolder.exists()) {
+            backupFolder.mkdirs();
+        }
+
+        // Saving all locations to the backup folder
+        for (SocialLocation location : locations.values()) {
+            saveSync(location, backupFolder.toPath());
+        }
+
+        locationsLock.readUnlock();
     }
 
     public void loadSync() throws IOException {
-        File locationsDirecotry = LOCATIONS_PATH.toFile();
+        loadSync(LOCATIONS_PATH);
+    }
 
-        if (!locationsDirecotry.exists()) {
-            locationsDirecotry.mkdirs();
+    public void loadSync(Path path) throws IOException {
+        File locationsDirectory = path.toFile();
+
+        if (!locationsDirectory.exists()) {
+            locationsDirectory.mkdirs();
         }
 
-        for (File file : locationsDirecotry.listFiles()) {
+        for (File file : locationsDirectory.listFiles()) {
             if (file.isFile()) {
                 SocialLocation location = gson.fromJson(Files.readString(file.toPath()), SocialLocation.class);
 
@@ -120,6 +180,23 @@ public class LocationsManager {
         }
     }
 
+    /**
+     *  Called when this manager is empty, to fill it up with locations coming from a backup folder
+     * @param backupFolderName
+     *  The name of the folder where the locations are stored
+     * @throws IOException
+     *  If there is an error reading the locations from the backup folder
+     */
+    public void loadBackupSync(String backupFolderName) throws IOException {
+        File backupFolder = backupsPath(backupFolderName).toFile();
+
+        if (!backupFolder.exists()) {
+            throw new CommandErrorException("Backup folder does not exist: " + backupFolder.getAbsolutePath());
+        }
+
+        loadSync(backupFolder.toPath());
+    }
+
     public void checkAndDeleteInvalidLocationsSync() {
         locationsLock.write(() -> {
             Iterator<SocialLocation> iterator = locations.values().iterator();
@@ -127,23 +204,31 @@ public class LocationsManager {
             while (iterator.hasNext()) {
                 SocialLocation location = iterator.next();
 
-                location.fixInconsistencies();
+                boolean fixedInconsistencies = location.fixInconsistencies();
+                boolean validAccess = location.isAccessValid();
 
-                if (!location.isAccessValid()) {
+                if (validAccess && fixedInconsistencies) {
+                    // Saving this location since it was fixed
+                    try {
+                        saveSync();
+                    } catch (IOException e) {
+                        MineSocieties.getPlugin().getLogger().log(Level.SEVERE, "Unable to save location \"" +
+                                location.getName() + "\"", e);
+                    }
+                }
+
+                if (!validAccess) {
                     iterator.remove();
 
                     try {
                         Files.delete(LOCATIONS_PATH.resolve(toFileName(location)));
                     } catch (IOException e) {
-                        MineSocieties.getPlugin().getLogger().severe("Unable to delete invalid location \"" +
-                                location.getName() + "\"'s file");
-                        e.printStackTrace();
+                        MineSocieties.getPlugin().getLogger().log(Level.SEVERE, "Unable to delete invalid location \"" +
+                                location.getName() + "\"'s file", e);
                     }
                 }
             }
         });
-
-        saveSync();
     }
 
     public void deleteAsync(LocationReference reference) {
@@ -172,8 +257,7 @@ public class LocationsManager {
             } catch (NoSuchFileException e) {
                 // File doesn't exist. Nothing to worry about
             } catch (IOException e) {
-                MineSocieties.getPlugin().getLogger().severe("Unable to delete location \"" + location.getName() + "\"'s file");
-                e.printStackTrace();
+                MineSocieties.getPlugin().getLogger().log(Level.SEVERE, "Unable to delete location \"" + location.getName() + "\"'s file", e);
             }
 
             if (deleted) {
@@ -194,6 +278,20 @@ public class LocationsManager {
                     }
                 }
             }
+        });
+    }
+
+    /**
+     *  Called when this manager is about to no longer be used to clean up the files associated with its locations.
+     */
+    public void deleteAllLocations() {
+        locationsLock.write(() -> {
+            for (SocialLocation location : locations.values()) {
+                LOCATIONS_PATH.resolve(toFileName(location)).toFile().delete();
+                location.deleted();
+            }
+
+            locations.clear();
         });
     }
 

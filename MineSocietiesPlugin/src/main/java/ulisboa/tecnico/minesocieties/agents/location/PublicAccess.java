@@ -41,8 +41,9 @@ public class PublicAccess extends LocationAccess {
     }
 
     @Override
-    public void fixInconsistencies() {
+    public boolean fixInconsistencies() {
         // Nothing to do. This access means everyone knows about this location
+        return false;
     }
 
     @Override

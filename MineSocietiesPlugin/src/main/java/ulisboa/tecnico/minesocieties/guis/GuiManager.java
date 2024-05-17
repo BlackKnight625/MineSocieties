@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.logging.Level;
 
 import static org.bukkit.event.inventory.ClickType.NUMBER_KEY;
 
@@ -283,7 +284,7 @@ public class GuiManager {
                             Component.text("An error occurred while saving the book. Please check the console for more details. " + e.getMessage())
                                     .color(TextColor.color(255, 0, 0)));
 
-                    e.printStackTrace();
+                    MineSocieties.getPlugin().getLogger().log(Level.SEVERE, "An error occurred while saving a custom GUI book.", e);
                 }
                 customBookActions.remove(customBookId);
             } else {

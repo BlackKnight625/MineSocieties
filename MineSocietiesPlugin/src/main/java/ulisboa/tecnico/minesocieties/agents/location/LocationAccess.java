@@ -65,8 +65,10 @@ public abstract class LocationAccess {
     /**
      *  Fixes any inconsistencies in the location access. For example, if a SharedAccess references an Agent that
      * was deleted, it must remove it from its access.
+     * @return
+     *  True if any inconsistencies were fixed.
      */
-    public abstract void fixInconsistencies();
+    public abstract boolean fixInconsistencies();
 
     public Material getGuiMaterial() {
         return type.getGuiMaterial();

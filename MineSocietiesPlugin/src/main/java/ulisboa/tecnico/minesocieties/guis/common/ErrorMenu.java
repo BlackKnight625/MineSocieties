@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
 
 public class ErrorMenu extends GUIMenu {
 
@@ -106,7 +107,8 @@ public class ErrorMenu extends GUIMenu {
 
             new ErrorMenu(player, error, goBackTo).open();
 
-            e.printStackTrace();
+            MineSocieties.getPlugin().getLogger().log(Level.SEVERE, "An error occurred while " + player.getName() +
+                    " was interacting with a Gui Menu.", e);
         }
     }
 

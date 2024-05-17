@@ -7,14 +7,17 @@ TODO:
 
 - Medium) Add trade action
 - Low) Compact agent's inventory everytime a new item is inserted
-- Meidum) Deal with growing short term and long term memories
+- Medium) Deal with growing short term and long term memories
 - High) Make sure short and long term memories do not memorize timestamps
 
-- Meidum) Add wood chopping action
+- Medium) Add wood chopping action
 
 - Add more observations
 --- High) Characters entering chatting range of agents
 ---
+
+- High) '/agent save_all <folder>' command to save a snapshot of all agents' states
+- High) '/agent load_all <folder>' command to load a snapshot of all agents' states
 
 - More prompt engineering
 --- Low) Investigate how fine-tuning could improve agent choices for ChatGPT
@@ -43,10 +46,7 @@ TODO:
 
 --- Future ---
 - Low) Possible race conditions when GSON is serializing the AgentState while the main thread modifies it
---- Either have a lock on the AgentState
------ Must encapsulate every single access to its attributes
---- Or make a custom TypeSerializer for AgentState
------ High coupling with AgentState since it must know how to serialize it
-- Low) End all problems with race conditions by cloning AgentState and passing it to async threads instead of the original object
---- Then, all locks from AgentState's attributes can be removed
---- If changes need to be done to the original, then BukkitRunnables should be created
+- Low) Replace asynchronous behaviour (when LLM replies arrive, querying the LLM, etc) with synchronous behaviour
+--- When querying the LLM, all information should be provided to the async task so that it doesn't need to read any shared data
+--- When the LLM replies, the async task should create a BukkitRunnable to deal with it after some optional processing
+--- Afterwards, all locks on AgentState may be removed

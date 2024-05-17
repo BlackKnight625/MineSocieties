@@ -168,8 +168,8 @@ public class SocialLocation implements IExplainableContext, ISimpleExplanation {
         return access.isAccessValid();
     }
 
-    public void fixInconsistencies() {
-        access.fixInconsistencies();
+    public boolean fixInconsistencies() {
+        return access.fixInconsistencies();
     }
 
     public LocationReference toReference() {
