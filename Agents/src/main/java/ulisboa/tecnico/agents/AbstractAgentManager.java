@@ -285,6 +285,22 @@ public abstract class AbstractAgentManager<A extends IAgent, P extends IPlayerAg
         }
     }
 
+    public List<A> getValidAgents() {
+        characterMapLock.readLock();
+        var characters = new ArrayList<>(characterMap.values());
+        characterMapLock.readUnlock();
+
+        List<A> result = new ArrayList<>();
+
+        for (ICharacter character : characters) {
+            if (character instanceof IAgent && character.isValid()) {
+                result.add((A) character);
+            }
+        }
+
+        return result;
+    }
+
     /**
      *  Applies the predicate to every valid agent. If the predicate returns true, the next agent gets affected.
      *  If the predicate returns false, no more agents will be affected by the predicate

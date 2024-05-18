@@ -2,12 +2,15 @@ package ulisboa.tecnico.minesocieties.agents.actions.otherActions;
 
 import org.bukkit.Location;
 import ulisboa.tecnico.agents.actions.otherActions.GoTo;
+import ulisboa.tecnico.minesocieties.MineSocieties;
 import ulisboa.tecnico.minesocieties.agents.actions.ISocialAction;
 import ulisboa.tecnico.minesocieties.agents.location.SocialLocation;
 import ulisboa.tecnico.minesocieties.agents.npc.SocialAgent;
 import ulisboa.tecnico.minesocieties.visitors.IActionVisitor;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class InformativeGoTo extends GoTo<SocialAgent> implements ISocialAction {
 
@@ -15,10 +18,12 @@ public class InformativeGoTo extends GoTo<SocialAgent> implements ISocialAction 
 
     private final SocialLocation socialLocation;
 
+    private static final Random RANDOM = new Random();
+
     // Constructors
 
-    public InformativeGoTo(SocialLocation socialLocation) {
-        super(socialLocation.toBukkitLocation());
+    public InformativeGoTo(SocialLocation socialLocation, boolean goToExactLocation) {
+        super(goToExactLocation ? socialLocation.toBukkitLocation() : getRandomCloseValidLocation(socialLocation));
 
         this.socialLocation = socialLocation;
     }
@@ -34,6 +39,37 @@ public class InformativeGoTo extends GoTo<SocialAgent> implements ISocialAction 
     }
 
     // Other methods
+
+    private static Location getRandomCloseValidLocation(SocialLocation socialLocation) {
+        List<Location> candidates = new ArrayList<>();
+        List<SocialAgent> validAgents = MineSocieties.getPlugin().getSocialAgentManager().getValidAgents();
+        Location bukkitSocialLocation = socialLocation.toBukkitLocation();
+
+        for (int x = -2; x <= 2; x++) {
+            for (int y = -1; y <= 1; y++) {
+                coordinateLoop: for (int z = -2; z <= 2; z++) {
+                    Location candidate = bukkitSocialLocation.clone().add(x, y, z);
+
+                    if (candidate.getBlock().isEmpty() &&
+                            candidate.getBlock().getRelative(0, -1, 0).getType().isSolid() &&
+                            candidate.getBlock().getRelative(0, 1, 0).isEmpty()) {
+                        // Found a valid location. Will also check if there isn't an agent standing on it already
+
+                        for (SocialAgent agent : validAgents) {
+                            if (agent.getLocation().distanceSquared(candidate) <= 1) {
+                                // Agent is standing on the candidate location
+                                continue coordinateLoop;
+                            }
+                        }
+
+                        candidates.add(candidate);
+                    }
+                }
+            }
+        }
+
+        return candidates.isEmpty() ? socialLocation.toBukkitLocation() : candidates.get(RANDOM.nextInt(candidates.size()));
+    }
 
 
     @Override

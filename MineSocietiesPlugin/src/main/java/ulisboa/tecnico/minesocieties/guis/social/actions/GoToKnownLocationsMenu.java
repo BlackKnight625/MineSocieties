@@ -31,7 +31,7 @@ public class GoToKnownLocationsMenu extends PageableMenu {
     public void refreshItemsInPage() {
         // Adding an item to make agents go to every location they know
         fillPageFromList(ITEMS_PER_PAGE, knownLocations.getMemorySections().stream().toList(),
-                loc -> new ActionExecutorItem(this, loc.getLocation().getGuiMaterial(), agent, new InformativeGoTo(loc.getLocation())));
+                loc -> new ActionExecutorItem(this, loc.getLocation().getGuiMaterial(), agent, new InformativeGoTo(loc.getLocation(), false)));
 
         addClickable(35, new GoBack(this));
 

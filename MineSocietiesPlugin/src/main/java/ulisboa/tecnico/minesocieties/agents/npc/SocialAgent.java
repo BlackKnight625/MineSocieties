@@ -565,7 +565,7 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
 
                 if (!isClose) {
                     // Agents can only go to locations they're not close to
-                    possibleActions.add(new InformativeGoTo(otherLocation));
+                    possibleActions.add(new InformativeGoTo(otherLocation, false));
                 }
 
                 if (isClose && otherLocation.hasPossibleActions()) {
@@ -590,6 +590,12 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
     public void deleted() {
         // Must delete the agent's home
         MineSocieties.getPlugin().getLocationsManager().deleteAsync(state.getMemory().getHome().getLocation());
+
+        // Cancelling the current action
+        currentAction.cancel(this);
+
+        // Deleting the message display
+        messageDisplay.getTextDisplay().remove();
     }
 
     public void addUuidToContainer(PersistentDataContainer container) {

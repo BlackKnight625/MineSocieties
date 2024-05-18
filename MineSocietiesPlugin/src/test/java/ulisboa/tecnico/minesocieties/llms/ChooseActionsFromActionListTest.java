@@ -123,7 +123,7 @@ public class ChooseActionsFromActionListTest extends BaseLLMTest {
 
         possibleActions.add(sendChatTo);
         possibleActions.add(new WaitFor("rain to stop falling"));
-        possibleActions.add(new InformativeGoTo(new SocialLocation(new Location(null, 0, 0, 0), "home", new PublicAccess())));
+        possibleActions.add(new InformativeGoTo(new SocialLocation(new Location(null, 0, 0, 0), "home", new PublicAccess()), true));
         possibleActions.add(new Idle());
 
         var messages = agent.getPromptForNewAction(possibleActions, new SocialWeatherChangeObservation(new WeatherChangeObservation(WeatherType.DOWNFALL)));
