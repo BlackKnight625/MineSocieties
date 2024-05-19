@@ -1,8 +1,11 @@
-package ulisboa.tecnico.llms;
+package ulisboa.tecnico.llms.chatgpt;
 
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import ulisboa.tecnico.llms.LLMManager;
+import ulisboa.tecnico.llms.LLMMessage;
+import ulisboa.tecnico.llms.LLMRole;
 
 import java.io.BufferedReader;
 import java.io.IOException;

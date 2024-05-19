@@ -7,7 +7,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.entityutils.entity.event.EventManager;
 import revxrsal.commands.exception.CommandErrorException;
 import ulisboa.tecnico.agents.ExampleReactiveAgentManager;
-import ulisboa.tecnico.llms.ChatGPTManager;
+import ulisboa.tecnico.llms.chatgpt.ChatGPTManager;
 import ulisboa.tecnico.llms.LLMManager;
 import ulisboa.tecnico.minesocieties.agents.SocialAgentManager;
 import ulisboa.tecnico.minesocieties.agents.location.LocationsManager;

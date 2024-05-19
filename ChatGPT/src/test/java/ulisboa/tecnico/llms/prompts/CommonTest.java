@@ -2,7 +2,7 @@ package ulisboa.tecnico.llms.prompts;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import ulisboa.tecnico.llms.ChatGPTManager;
+import ulisboa.tecnico.llms.chatgpt.ChatGPTManager;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
