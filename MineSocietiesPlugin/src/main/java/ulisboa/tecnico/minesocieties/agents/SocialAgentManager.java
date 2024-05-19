@@ -75,6 +75,10 @@ public class SocialAgentManager extends AbstractAgentManager<SocialAgent, Social
     }
 
     public void talkWith(SocialPlayer player, SocialAgent agent, String message) throws CommandErrorException {
+        if (agent == null) {
+            throw new CommandErrorException("There's not an NPC with the specified name.");
+        }
+
         SocialReceivedChatFromObservation observation = new SocialReceivedChatFromObservation(
                 new ReceivedChatObservation(player, message)
         );

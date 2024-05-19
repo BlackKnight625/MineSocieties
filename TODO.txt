@@ -16,9 +16,6 @@ TODO:
 --- High) Characters entering chatting range of agents
 ---
 
-- High) '/agent save_all <folder>' command to save a snapshot of all agents' states
-- High) '/agent load_all <folder>' command to load a snapshot of all agents' states
-
 - More prompt engineering
 --- Low) Investigate how fine-tuning could improve agent choices for ChatGPT
 
@@ -27,6 +24,9 @@ TODO:
 
 - Medium) Agents module should abstract the NPC logic from EntityUtils so that if necessary it's easier to switch to another NPC plugin
 --- MineSocieties should not ever depend on EntityUtils
+
+- Low) Add description to commands
+- Low) Allow users to select the skins of NPCs
 
 --- Bugs ---
 - High) Auto-complete for "/agent talk" doesn't work
@@ -50,3 +50,5 @@ TODO:
 --- When querying the LLM, all information should be provided to the async task so that it doesn't need to read any shared data
 --- When the LLM replies, the async task should create a BukkitRunnable to deal with it after some optional processing
 --- Afterwards, all locks on AgentState may be removed
+
+- Low) Make location bound actions more configurable. Ex: Farming could allow the specification of the max farming range

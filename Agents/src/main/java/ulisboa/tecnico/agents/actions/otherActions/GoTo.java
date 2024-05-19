@@ -32,7 +32,7 @@ public class GoTo<T extends IAgent> extends TemporalAction<T> {
     public void start(T actioner) {
         actioner.lookForward();
 
-        actioner.getAgent().goTo(destination, 100, s -> status = s);
+        actioner.getAgent().goTo(destination, 8, s -> status = s);
     }
 
     @Override
