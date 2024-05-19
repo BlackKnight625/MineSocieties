@@ -42,14 +42,6 @@ public class SocialAgentCommand {
         MineSocieties.getPlugin().getSocialAgentManager().talkWith(getSocialPlayer(player), who, message);
     }
 
-    @Subcommand("debug")
-    @CommandPermission("minesocieties.debug")
-    public void debug1(Player player) {
-        MineSocieties.getPlugin().getSocialAgentManager().forEachValidAgent(a -> {
-            System.out.println("Name: " + a.getName() + ", UUID: " + a.getUUID());
-        });
-    }
-
     @Subcommand("edit_stick")
     @CommandPermission("minesocieties.edit")
     public void editStick(Player player) {

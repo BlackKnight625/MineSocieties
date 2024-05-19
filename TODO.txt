@@ -9,6 +9,8 @@ TODO:
 - Low) Compact agent's inventory everytime a new item is inserted
 - Medium) Deal with growing short term and long term memories
 - High) Make sure short and long term memories do not memorize timestamps
+- High) "/agent talk <name>" should lock the player's chat to the agent
+- Medium) Deletable agents
 
 - Medium) Add wood chopping action
 
@@ -29,7 +31,6 @@ TODO:
 - Low) Allow users to select the skins of NPCs
 
 --- Bugs ---
-- High) Auto-complete for "/agent talk" doesn't work
 - Medium) NPCs in unloaded chunks will keep making decisions
 - High) If 2 NPCs have the same name, things can get messy
 
