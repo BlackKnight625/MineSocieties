@@ -139,7 +139,9 @@ public class Fish<T extends IAgent> extends TemporalAction<T> {
     }
 
     public void clear(T actioner) {
-        fishHook.remove();
+        if (fishHook != null) {
+            fishHook.remove();
+        }
 
         actioner.getAgent().setItem(null, EquipmentSlot.HAND);
 

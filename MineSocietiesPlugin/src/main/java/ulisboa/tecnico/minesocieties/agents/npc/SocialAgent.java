@@ -252,8 +252,6 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
     public List<LLMMessage> getPromptForNewAction(List<ISocialAction> possibleActions, @Nullable IObservation<ISocialObserver> newlyObtainedObservation) {
         List<LLMMessage> messageList = new ArrayList<>(4);
 
-        boolean showThoughts = MineSocieties.getPlugin().showThoughts();
-
         // Telling the model exactly what to do
         messageList.add(new LLMMessage(LLMRole.SYSTEM,
                 "You are a decision making AI. " +
@@ -261,7 +259,7 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
                         "You must choose the action that is the most appropriate for them " +
                         "given the situation they find themselves in. Write down your choice as " +
                         "Action{<number of action>}{<optional arguments, if none leave empty}{<the reasoning for your choice>}" +
-                        (showThoughts ? "{<the NPC's thought process, short, 1st person>}" : "")
+                        "{<the NPC's thought process, short, 1st person>}"
                 )
         );
 
@@ -284,8 +282,8 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
                         "so it's logical that Rafael would reply to Rui Prada, addressing Rui Prada's offer for help. There's no indication that " +
                         "Rafael is struggling or needs help, as such, Rafael politely refuses Rui Prada's help. Since Rafael is replying to Rui Prada's question, " +
                         "it makes sense for Rafael to wait for a reply as Rui Prada may want to say goodbye.}" +
-                        (showThoughts ? "{I'm going to reply to Rui Prada thanking him for the offer and denying his help since I'm currently not " +
-                                "struggling. I should wait for a reply in case Rui Prada wants to say goodbye.}" : "")
+                        "{I'm going to reply to Rui Prada thanking him for the offer and denying his help since I'm currently not " +
+                        "struggling. I should wait for a reply in case Rui Prada wants to say goodbye.}"
                 )
         );
 
@@ -320,17 +318,12 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
             throw new MalformedActionChoiceException(actionReply, "Action choice is malformed: There's no curly brackets '{'.");
         }
 
-        if (replySections.length < 4 /*It's 4 due to the 1st useless section behind the '{'*/) {
-            throw new MalformedActionChoiceException(actionReply, "Action choice does not contain 3 sections of curly brackets. " +
+        if (replySections.length < 5 /*It's 5 due to the 1st useless section behind the '{'*/) {
+            throw new MalformedActionChoiceException(actionReply, "Action choice does not contain 4 sections of curly brackets. " +
                     "It only contains " + replySections.length + ".");
         }
 
-        if (showThoughts && replySections.length < 5) {
-            MineSocieties.getPlugin().getLogger().warning("The LLM's reply to an Action Choice request does not contain the NPC's thought process. " +
-                    "The reply was: " + actionReply);
-        } else {
-            thoughtProcess = replySections[4].substring(0, replySections[4].length() - 1); // Removing the last '}'
-        }
+        thoughtProcess = replySections[4].substring(0, replySections[4].length() - 1); // Removing the last '}'
 
         // Extracting the action number
         int actionNumberEndIndex = replySections[1].indexOf('}');

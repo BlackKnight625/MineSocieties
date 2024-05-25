@@ -33,6 +33,7 @@ TODO:
 --- Bugs ---
 - Medium) NPCs in unloaded chunks will keep making decisions
 - High) If 2 NPCs have the same name, things can get messy
+- High) "/agent backup save <name>" if the directory 'name' exists, it doesn't delete the pre-existing files
 
 --- Ideas ---
 - Low) Make SocialObservations have a method called reactionUrgency() that returns
