@@ -39,7 +39,9 @@ public interface IAgent extends ICharacter {
          return getNPCData().getUUID();
     }
 
-    void deploy();
+    default void deploy() {
+        getAgent().setAlive(true);
+    }
 
     void deleted();
 

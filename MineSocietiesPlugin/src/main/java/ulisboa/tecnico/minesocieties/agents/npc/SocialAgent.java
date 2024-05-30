@@ -197,7 +197,7 @@ public class SocialAgent extends SocialCharacter implements IAgent, ISocialObser
 
     @Override
     public void deploy() {
-        npc.setAlive(true);
+        IAgent.super.deploy();
 
         if (state == null) {
             // It's the 1st time ever that this agent is being deployed. Giving it an initial state

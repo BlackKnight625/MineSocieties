@@ -32,12 +32,6 @@ public class ExampleReactiveAgent implements IAgent {
 
     // Other methods
 
-
-    @Override
-    public void deploy() {
-        this.npc.setAlive(true);
-    }
-
     @Override
     public void receivedChatFrom(ReceivedChatObservation observation) {
 
