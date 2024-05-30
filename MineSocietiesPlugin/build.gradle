@@ -37,8 +37,8 @@ dependencies {
 
     extraLibs project(':Agents')
     implementation project(':Agents')
-    extraLibs project(':ChatGPT')
-    implementation project(':ChatGPT')
+    extraLibs project(':LargeLanguageModels')
+    implementation project(':LargeLanguageModels')
     implementation project(path: ':EntityUtils', configuration: 'reobf')
     implementation 'com.google.code.gson:gson:2.10.1'
 

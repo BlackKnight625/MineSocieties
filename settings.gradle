@@ -10,7 +10,7 @@ pluginManagement {
 rootProject.name = 'MineSocieties'
 include 'Agents'
 include 'MineSocietiesPlugin'
-include 'ChatGPT'
+include 'LargeLanguageModels'
 include ':EntityUtils'
 project(':EntityUtils').projectDir = new File('../EntityUtils')
 
