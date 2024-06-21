@@ -8,6 +8,8 @@ Usually, social NPCs in games such as The Legend of Zelda are very limited. Thei
  
 You may read many more details regarding my goals by looking at my Thesis Proposal inside of the "Thesis" folder.
 
+You may see the NPCs in action in this video: https://www.youtube.com/watch?v=3SSp0QyYRa8
+
 # Installation
 WIP
 
