@@ -1,16 +1,16 @@
 # Introduction
 
-This project is being done for my Master's thesis, titled "Minecraft Social Agents".
+This project is being done for my Master's thesis, "Minecraft Social Agents".
 
-The goal is to create socially intelligent and player-looking NPCs. An NPC is socially intelligent if it can have social interactions with players and with other NPCs.
+The goal is to create socially intelligent and player-looking NPCs. An NPC is socially intelligent if it can interact socially with players and other NPCs.
 
-Usually, social NPCs in games such as The Legend of Zelda are very limited. Their dialog is hard-coded and they always say the same things. I intend to create NPCs that choose actions based on the context that they find themselves in: their current state of mind, personality, past actions, their memory, recent events, etc. This way, NPCs could refuse talking to a player if said player was rude or punched them.
+Usually, social NPCs in games such as The Legend of Zelda are very limited. Their dialog is hard-coded and they always say the same things. I intend to create NPCs that choose actions based on the context that they find themselves in: their current state of mind, personality, past actions, memory, recent events, etc. This way, NPCs could refuse to talk to a player if said player was rude or punched them.
  
 You may read many more details regarding my goals by looking at my Thesis Proposal inside of the "Thesis" folder.
 
 You may see the NPCs in action in this video: https://www.youtube.com/watch?v=3SSp0QyYRa8
 
-And the presentation for my thesis defence: https://www.youtube.com/watch?v=nz4fZ0TzY4Y
+And the presentation for my thesis defense: https://www.youtube.com/watch?v=nz4fZ0TzY4Y
 
 # Installation
 WIP
@@ -23,7 +23,7 @@ WIP
 Example:
 ```/agent deploy "Steve Smith" Steve is a software engineer. He loves chocolate.```
 
-Note: Do not forget the quotes around the name, as it allows the plugin to distinguish between the NPC's name and its description.
+Note: Do not forget the quotes around the name, as they allow the plugin to distinguish between the NPC's name and its description.
 
 ## Allowing NPCs to choose actions
 Since most Large Language Models have a pay-per-use model, the plugin does not allow NPCs to choose actions by default. You must enable this feature by setting the option 'agentsCanStartChoosingActionsByDefault' in the config.yml file to true, or by typing the following command:
@@ -53,7 +53,7 @@ The NPC will talk back to you or choose a different action if allow_action_choic
 
 ## Editing NPCs
 
-Editing NPCs is done through an in-game GUI. To open it, you must go near an NPC and click on them while holding the NPC Edit Stick, obtained with:
+Editing NPCs is done through an in-game GUI. To open it, you must go near an NPC and click on it while holding the NPC Edit Stick, obtained with:
 
 ```/agent edit_stick```
 
