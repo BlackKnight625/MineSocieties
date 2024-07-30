@@ -10,6 +10,8 @@ You may read many more details regarding my goals by looking at my Thesis Propos
 
 You may see the NPCs in action in this video: https://www.youtube.com/watch?v=3SSp0QyYRa8
 
+And the presentation for my thesis defence: https://www.youtube.com/watch?v=nz4fZ0TzY4Y
+
 # Installation
 WIP
 
